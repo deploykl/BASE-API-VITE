@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import defaultAvatar from "@/assets/img/header/default-avatar.png";
 import { api } from "@/components/services/Axios";
-import { toast } from 'vue-sonner';
+import { toast } from "vue-sonner";
 
 export const useUserStore = defineStore("user", () => {
   const userData = ref({
@@ -21,27 +21,34 @@ export const useUserStore = defineStore("user", () => {
   const effectiveUserImage = computed(() => {
     if (imageError.value || !userData.value.image) return defaultAvatar;
     if (userData.value.image.startsWith("data:")) return userData.value.image;
-    
+
     const cacheBuster = `?t=${Date.now()}`;
-    
+
     if (userData.value.image.startsWith("http")) {
       return `${userData.value.image}${cacheBuster}`;
     }
-    
+
     if (!userData.value.image.startsWith("/media/")) {
-      return `${process.env.VUE_APP_IMG_SERVER}media/${userData.value.image}${cacheBuster}`;
+      return `${import.meta.env.VITE_IMG_SERVER}media/${
+        userData.value.image
+      }${cacheBuster}`;
     }
-    
-    return `${process.env.VUE_APP_IMG_SERVER}${userData.value.image.replace(/^\/+/, "")}${cacheBuster}`;
+
+    return `${import.meta.env.VITE_IMG_SERVER}${userData.value.image.replace(
+      /^\/+/,
+      ""
+    )}${cacheBuster}`;
   });
-  
-  const fullName = computed(() => `${userData.value.first_name} ${userData.value.last_name}`.trim());
+
+  const fullName = computed(() =>
+    `${userData.value.first_name} ${userData.value.last_name}`.trim()
+  );
 
   // Función logout dentro del store
   function logout() {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refreshToken');
-    window.location.href = '/login';
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
   }
 
   async function fetchUserProfile() {
@@ -54,7 +61,7 @@ export const useUserStore = defineStore("user", () => {
     } catch (error) {
       if (error.response?.status === 401) {
         // El interceptor ya maneja el 401, solo necesitamos limpiar si falla el refresh
-        if (error.config.url.includes('token/refresh')) {
+        if (error.config.url.includes("token/refresh")) {
           logout(); // Ahora está definida
         }
       }
@@ -70,11 +77,11 @@ export const useUserStore = defineStore("user", () => {
     userData.value = {
       ...userData.value,
       ...newData,
-      image: newData.image 
-        ? newData.image.startsWith("data:") 
-          ? newData.image 
+      image: newData.image
+        ? newData.image.startsWith("data:")
+          ? newData.image
           : `${newData.image}?${Date.now()}`
-        : ""
+        : "",
     };
   }
 
@@ -87,79 +94,83 @@ export const useUserStore = defineStore("user", () => {
 
     try {
       const formData = new FormData();
-      formData.append('username', userData.value.username);
-      formData.append('email', userData.value.email);
-      formData.append('first_name', userData.value.first_name);
-      formData.append('last_name', userData.value.last_name);
-      formData.append('dni', userData.value.dni);
-      formData.append('celular', userData.value.celular);
+      formData.append("username", userData.value.username);
+      formData.append("email", userData.value.email);
+      formData.append("first_name", userData.value.first_name);
+      formData.append("last_name", userData.value.last_name);
+      formData.append("dni", userData.value.dni);
+      formData.append("celular", userData.value.celular);
 
       if (selectedImage) {
-        formData.append('image', selectedImage);
+        formData.append("image", selectedImage);
       }
 
       const response = await toast.promise(
-        api.put('user/profile/', formData, {
+        api.put("user/profile/", formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }),
         {
-          loading: 'Actualizando perfil...',
+          loading: "Actualizando perfil...",
           success: (data) => {
             updateUserData({
               ...data.data,
-              image: data.data.image ? `${data.data.image}?t=${Date.now()}` : ''
+              image: data.data.image
+                ? `${data.data.image}?t=${Date.now()}`
+                : "",
             });
-            return 'Perfil actualizado correctamente';
+            return "Perfil actualizado correctamente";
           },
           error: (error) => {
             const errorData = error.response?.data || {};
-            let errorMessage = 'Error al actualizar el perfil';
-            
-            if (typeof errorData === 'string') {
+            let errorMessage = "Error al actualizar el perfil";
+
+            if (typeof errorData === "string") {
               errorMessage = errorData;
             } else if (Array.isArray(errorData)) {
-              errorMessage = errorData.join(' ');
-            } else if (typeof errorData === 'object') {
+              errorMessage = errorData.join(" ");
+            } else if (typeof errorData === "object") {
               if (errorData.dni && errorData.dni.length > 0) {
-                errorMessage = typeof errorData.dni === 'string' 
-                  ? errorData.dni 
-                  : errorData.dni.join(' ');
+                errorMessage =
+                  typeof errorData.dni === "string"
+                    ? errorData.dni
+                    : errorData.dni.join(" ");
               } else if (errorData.celular && errorData.celular.length > 0) {
-                errorMessage = typeof errorData.celular === 'string' 
-                  ? errorData.celular 
-                  : errorData.celular.join(' ');
+                errorMessage =
+                  typeof errorData.celular === "string"
+                    ? errorData.celular
+                    : errorData.celular.join(" ");
               } else if (errorData.username) {
-                errorMessage = Array.isArray(errorData.username) 
-                  ? errorData.username.join(' ') 
+                errorMessage = Array.isArray(errorData.username)
+                  ? errorData.username.join(" ")
                   : errorData.username;
               } else if (errorData.email) {
-                errorMessage = Array.isArray(errorData.email) 
-                  ? errorData.email.join(' ') 
+                errorMessage = Array.isArray(errorData.email)
+                  ? errorData.email.join(" ")
                   : errorData.email;
               } else if (errorData.detail) {
                 errorMessage = errorData.detail;
               } else if (errorData.non_field_errors) {
-                errorMessage = Array.isArray(errorData.non_field_errors) 
-                  ? errorData.non_field_errors.join(' ') 
+                errorMessage = Array.isArray(errorData.non_field_errors)
+                  ? errorData.non_field_errors.join(" ")
                   : errorData.non_field_errors;
               } else {
                 const firstErrorKey = Object.keys(errorData)[0];
                 const firstErrorValue = errorData[firstErrorKey];
-                errorMessage = Array.isArray(firstErrorValue) 
-                  ? firstErrorValue.join(' ') 
+                errorMessage = Array.isArray(firstErrorValue)
+                  ? firstErrorValue.join(" ")
                   : firstErrorValue;
               }
             }
-            return errorMessage || 'Error desconocido al actualizar el perfil';
-          }
+            return errorMessage || "Error desconocido al actualizar el perfil";
+          },
         }
       );
 
       return true;
     } catch (error) {
-      console.error('Error en updateProfile:', error);
+      console.error("Error en updateProfile:", error);
       return false;
     } finally {
       loading.value = false;
@@ -176,6 +187,6 @@ export const useUserStore = defineStore("user", () => {
     updateUserData,
     setImageError,
     updateUserProfile,
-    logout // Exporta la función si necesitas usarla desde otros componentes
+    logout, // Exporta la función si necesitas usarla desde otros componentes
   };
 });

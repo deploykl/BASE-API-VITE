@@ -65,11 +65,11 @@ const connectWebSocket = () => {
         return;
     }
 
-    const isSecure = window.location.protocol === 'https:';
-    const wsProtocol = isSecure ? 'wss://' : 'ws://';
+    // Use the Vite environment variable directly
+    const wsUrl = import.meta.env.VITE_API_URL_WS_URL || 
+                 `${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}/ws/online-status/`;
 
-    const wsUrl = import.meta.env.VITE_API_URL_WS_URL || `${wsProtocol}${window.location.host}/ws/online-status/`;
-
+    socket = new WebSocket(wsUrl);
 
     socket = new WebSocket(wsUrl);
 
