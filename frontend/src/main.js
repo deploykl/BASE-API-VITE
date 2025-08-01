@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import './style.css'
 import App from './App.vue'
 import router from './router'          // Importa el router
 import { createPinia } from 'pinia'    // Importa Pinia
@@ -16,6 +15,8 @@ import OverlayBadge from 'primevue/overlaybadge';
 import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Aura from '@primeuix/themes/aura';
+import Toast from 'primevue/toast';
+import ToastService from 'primevue/toastservice' // Añade esta importación
 
 // LIBRERÍAS
 import 'bootstrap'
@@ -56,6 +57,7 @@ app.use(PrimeVue, {
 // Use other plugins
 app.use(router)
 app.use(pinia)
+app.use(ToastService)
 
 // Registra componentes globales
 app.component('ErrorMessage', ErrorMessage)
@@ -69,6 +71,7 @@ app.component('Badge', Badge);
 app.component('OverlayBadge', OverlayBadge);
 app.component('Message', Message);
 app.component('ProgressSpinner', ProgressSpinner);
+app.component('Toast', Toast);
 
 // Monta la aplicación
 app.mount('#app')

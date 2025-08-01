@@ -103,10 +103,10 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
-import { useUserStore } from '@/store/user';
-import ConnectionManager from '@/components/connection/ConnectionManager';
-import NetworkStatusIndicator from '@/components/connection/NetworkStatusIndicator';
-import ApiStatusIndicator from '@/components/connection/ApiStatusIndicator';
+import { useUserStore } from '@/stores/user';
+import ConnectionManager from '@/components/connection/ConnectionManager.vue';
+import NetworkStatusIndicator from '@/components/connection/NetworkStatusIndicator.vue';
+import ApiStatusIndicator from '@/components/connection/ApiStatusIndicator.vue';
 
 // Props
 const props = defineProps({

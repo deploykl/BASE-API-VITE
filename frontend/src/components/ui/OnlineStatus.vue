@@ -67,9 +67,9 @@ const connectWebSocket = () => {
 
     const isSecure = window.location.protocol === 'https:';
     const wsProtocol = isSecure ? 'wss://' : 'ws://';
-    const host = process.env.VUE_APP_WS_HOST || window.location.hostname;
-    const port = process.env.VUE_APP_WS_PORT || (isSecure ? 443 : 8000);
-    const wsUrl = `${wsProtocol}${host}:${port}/ws/online-status/`;
+
+    const wsUrl = import.meta.env.VITE_API_URL_WS_URL || `${wsProtocol}${window.location.host}/ws/online-status/`;
+
 
     socket = new WebSocket(wsUrl);
 

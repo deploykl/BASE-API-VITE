@@ -8,5 +8,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')
     }
+  },
+  server: {
+    port: 8080, // Cambia este número al puerto que prefieras
+    host: true  // Permite acceso desde la red local
   }
 })

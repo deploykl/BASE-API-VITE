@@ -1,6 +1,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { api } from "@/components/services/Axios";
-import { useToast } from "vue-toastification";
+import { useToast } from 'primevue/usetoast' // Asegúrate de tener esta importación
+
 
 // Constantes para mejor mantenibilidad
 const NETWORK_TEST_ENDPOINTS = [
@@ -39,12 +40,12 @@ export function useConnection() {
   };
 
   // Mostrar notificación (memoizada)
-  const showNotification = (message, type = "info") => {
-    toast[type](message, {
-      timeout: 3000,
-      closeOnClick: true,
-      pauseOnFocusLoss: true,
-      pauseOnHover: true,
+ const showNotification = (message, type = 'info') => {
+    toast.add({
+      severity: type, // 'success', 'info', 'warn', 'error'
+      summary: type === 'error' ? 'Error' : 'Información',
+      detail: message,
+      life: 3000
     });
   };
 

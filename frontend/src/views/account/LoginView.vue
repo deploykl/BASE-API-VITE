@@ -122,6 +122,8 @@ const handleSubmit = async () => {
       errorStore.showMessage(error.response.data.detail) // Usa el store
     } else {
       errorStore.showMessage('Error al conectar con el servidor. Por favor intente nuevamente.') // Usa el store
+      console.log('Base URL:', import.meta.env.VITE_API_URL); // Añade esto
+
     }
   } finally {
     isLoading.value = false;
