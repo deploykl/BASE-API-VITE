@@ -1,0 +1,29 @@
+PARA NPM
+
+/npm install bootstrap bootstrap-icons sweetalert2
+/ejecutar uvicorn config.asgi:application --reload --interface asgi3
+
+
+solucion migracion
+
+python manage.py migrate --fake token_blacklist 0008
+
+
+//DOCKER CREAR REDIS 
+docker run --name mi-redis -d -p 6379:6379 redis
+
+//DOCKER STOP Y START
+- docker stop mi-redis
+- docker start mi-redis
+
+//NOTA MÓDULOS
+MÓDULOS	ROLES	REUTILIZA	DETALLE
+			
+PATRIMONIO	SUPERUSER	IS_SUPERUSER	VE TODOS LOS MÓDULOS Y ADMIN DJANGO
+POI	ADMIN		VERA SOLO TODOS LOS MÓDULOS
+GASTO	Gestor POI		
+PERSONAL	Gestor Gasto		
+	Gestor Personal		
+	Gestor Patrimonio		
+
+https://vue-sonner.vercel.app/
