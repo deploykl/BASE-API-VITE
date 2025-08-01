@@ -1,15 +1,14 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createStore } from 'vuex'
 
-// Importa tus componentes (ajusta las rutas según tus necesidades)
-const Home = { template: '<div>Home</div>' }
-const About = { template: '<div>About</div>' }
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: '/', component: Home },
-    { path: '/about', component: About },
-  ]
+export default createStore({
+  state: {
+  },
+  getters: {
+  },
+  mutations: {
+  },
+  actions: {
+  },
+  modules: {
+  }
 })
-
-export default router
