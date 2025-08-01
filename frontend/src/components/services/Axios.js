@@ -2,7 +2,7 @@ import axios from 'axios';
 import router from '@/router';
 
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 let refreshPromise = null;
@@ -20,13 +20,11 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(response => response, async error => {
   const originalRequest = error.config;
   
-  // Si es error 401 y no es una solicitud de refresh
   if (error.response?.status === 401 && !originalRequest._isRetry && 
       !originalRequest.url.includes('token/refresh')) {
     
     originalRequest._isRetry = true;
     
-    // Si no hay un refresh en curso
     if (!refreshPromise) {
       const refreshToken = localStorage.getItem('refreshToken');
       if (!refreshToken) {

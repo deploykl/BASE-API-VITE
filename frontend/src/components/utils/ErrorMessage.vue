@@ -11,7 +11,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useErrorStore } from '@/store/errorStore'
+import { useErrorStore } from '@/stores/errorStore'
 
 const errorStore = useErrorStore()
 

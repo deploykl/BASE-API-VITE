@@ -72,7 +72,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/components/services/Axios';
-import { useErrorStore } from '@/store/errorStore' // Importa el store
+import { useErrorStore } from '@/stores/errorStore' // Importa el store
 
 const username = ref('')
 const password = ref('')

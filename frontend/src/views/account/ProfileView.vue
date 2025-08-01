@@ -126,7 +126,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useUserStore } from '@/store/user'
+import { useUserStore } from '@/stores/user'
 import { toast } from 'vue-sonner'
 import FloatInput from '@/components/widgets/FloatInput.vue';
 

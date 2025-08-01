@@ -171,7 +171,7 @@ import { ref, onMounted } from 'vue';
 import { toast } from 'vue-sonner';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
 import Button from 'primevue/button';
-import { useUserStore } from '@/store/user/userStore';
+import { useUserStore } from '@/stores/user/userStore';
 import ToggleSwitch from 'primevue/toggleswitch';
 import ModalBase from '@/components/ui/ModalBase.vue';
 import FloatInput from '@/components/widgets/FloatInput.vue';
