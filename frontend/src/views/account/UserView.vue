@@ -194,6 +194,9 @@ const FORM_STATE = {
   is_staff: false,
   is_superuser: false
 };
+// Usamos la estructura para el formulario reactivo
+const form = ref({ ...FORM_STATE });
+
 
 const showUserModal = ref(false);
 const showDeleteModal = ref(false);
@@ -204,8 +207,7 @@ const userToDelete = ref(null);
 const userToEdit = ref(null);
 const isDeleting = ref(false);
 
-// Usamos la estructura para el formulario reactivo
-const form = ref({ ...FORM_STATE });
+
 
 // Configuración de columnas para la tabla
 const columns = ref([

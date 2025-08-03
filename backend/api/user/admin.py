@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Modulo
+from .models import User, Modulo, HistoricalUser
 from django.utils.translation import gettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
 # Admin para el modelo Modulo
 @admin.register(Modulo)
@@ -37,7 +38,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('is_online',),
         }),
         (_('Audit'), {
-            'fields': ('created_by', 'updated_by', 'deleted_by', 'deleted_at'),
+            'fields': ('created_by', 'updated_by'),
         }),
     )
     
@@ -62,7 +63,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('username', 'first_name', 'last_name', 'email', 'dni', 'celular')
     ordering = ('-date_joined',)
     filter_horizontal = ('groups', 'user_permissions', 'modulos')
-    readonly_fields = ('created_by', 'updated_by', 'deleted_by', 'deleted_at', 'last_login', 'date_joined')
+    readonly_fields = ('created_by', 'updated_by', 'last_login', 'date_joined')
     
     def modulos_list(self, obj):
         return ", ".join([m.codename for m in obj.modulos.all()])
@@ -82,7 +83,5 @@ class UserAdmin(BaseUserAdmin):
             obj.updated_by = request.user
         super().save_model(request, obj, form, change)
     
-    def delete_model(self, request, obj):
-        obj.deleted_by = request.user
-        obj.is_active = False
-        obj.save()
+        
+admin.site.register(HistoricalUser, SimpleHistoryAdmin)  # Registro del historial de cambios

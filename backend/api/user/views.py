@@ -154,6 +154,12 @@ class UserViewSet(viewsets.ModelViewSet):
         user.updated_by = self.request.user  # Asigna quien actualizó
         user.save()  # Guarda el usuario
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Usar el método delete del modelo que registra el historial
+        instance.delete(deleted_by=request.user)
+    
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):
         user = self.get_object()

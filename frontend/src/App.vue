@@ -18,10 +18,16 @@
       <router-view />
     </template>
   </div>
-  <SonnerNotifications />
       <!-- Componente de usuarios en línea -->
- <Toast />
-</template>
+<Toast 
+    position="top-right" 
+    :closeButton="false"
+    infoIcon="pi pi-info-circle"
+    warnIcon="pi pi-exclamation-triangle"
+    errorIcon="pi pi-times-circle"
+    successIcon="pi pi-check-circle"
+  />
+  </template>
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -29,7 +35,6 @@ import { useRoute } from 'vue-router'
 import AppHeader from './components/layout/AppHeader.vue'
 import AppFooter from './components/layout/AppFooter.vue'
 import AppSidebar from './components/layout/AppSidebar.vue'
-import SonnerNotifications from '@/components/utils/SonnerNotifications.vue'
 import OnlineStatus from '@/components/ui/OnlineStatus.vue'
 
 const route = useRoute()
