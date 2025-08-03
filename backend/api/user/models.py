@@ -8,9 +8,9 @@ import os
 from django.utils.text import slugify
 from api.validators import validate_dni, validate_celular
 from django.utils.translation import gettext_lazy as _
-from simple_history.models import HistoricalRecords
 
 from api.gore.models import *
+from simple_history.models import HistoricalRecords
 
 
 def user_image_path(instance, filename):
@@ -70,10 +70,10 @@ class User(AbstractUser):
     departamento = models.CharField(
         max_length=20, null=True, blank=True, verbose_name="Departamento"
     )
-    # Campo para el historial
     history = HistoricalRecords(
-        excluded_fields=['password', 'last_login', 'date_joined'],  # Campos a ignorar
-        history_change_reason_field=models.TextField(null=True)
+        table_name="user_historicaluser",
+        inherit=False,
+        excluded_fields=["password", "last_login", "is_online"],
     )
     # Campos del establecimiento laboral
     # codigo = models.CharField(max_length=8, null=True, blank=True, verbose_name="Código de establecimiento")
@@ -93,6 +93,9 @@ class User(AbstractUser):
     # direccion = models.CharField(max_length=250, null=True, blank=True, verbose_name="Dirección del establecimiento")
     # norte = models.CharField(max_length=100, null=True, blank=True, verbose_name="Dirección del establecimiento")
     # este = models.CharField(max_length=100, null=True, blank=True, verbose_name="Dirección del establecimiento")
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Fecha de creación"
+    )
     created_by = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -100,6 +103,9 @@ class User(AbstractUser):
         blank=True,
         related_name="created_users",
         verbose_name=_("Creado por"),
+    )
+    updated_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Fecha de actualización"
     )
     updated_by = models.ForeignKey(
         "self",
@@ -109,12 +115,38 @@ class User(AbstractUser):
         related_name="updated_users",
         verbose_name=_("Actualizado por"),
     )
+    deactivated_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Fecha de desactivación"
+    )
+    deactivated_by = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deactivated_users",
+        verbose_name=_("Desactivado por"),
+    )
+    activated_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Fecha de activación"
+    )
+    activated_by = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="activated_users",
+        verbose_name=_("Activado por"),
+    )
 
     class Meta:
         verbose_name = _("Usuario")
         verbose_name_plural = _("Usuarios")
         ordering = ["-date_joined"]
 
+    class Meta:
+        verbose_name = _("Usuario")
+        verbose_name_plural = _("Usuarios")
+        ordering = ["-date_joined"]
 
     def save(self, *args, **kwargs):
         """Maneja la imagen por defecto para nuevos usuarios"""
@@ -132,14 +164,23 @@ class User(AbstractUser):
             self.image = "img/empty.png"
 
     def delete(self, *args, **kwargs):
-        """Elimina la imagen del almacenamiento si no es por defecto"""
+        """Elimina la imagen del almacenamiento si no es por defecto y registra quién eliminó"""
+        request = kwargs.pop("request", None)
+
+        if request and request.user.is_authenticated:
+            self.deleted_by = request.user
+        self.deleted_at = timezone.now()
+        self.is_active = False  # En lugar de borrar, desactivamos
+        self.save()
+
+        # Opcional: eliminar la imagen si no es la por defecto
         try:
-            if self.image and not self.image.name.startswith("img/empty"):
+            if self.image and not self.image.name.startswith(
+                ("img/empty", "img/mujer", "img/hombre")
+            ):
                 default_storage.delete(self.image.path)
-            super().delete(*args, **kwargs)
-        except IntegrityError as e:
-            print(f"Error al eliminar usuario: {e}")
-            raise
+        except Exception as e:
+            print(f"Error al eliminar imagen: {e}")
 
     # ======================================================= GOBIERNO REGIONAL TEST =======================================
     departamento = models.ForeignKey(

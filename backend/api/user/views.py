@@ -153,26 +153,25 @@ class UserViewSet(viewsets.ModelViewSet):
         user = serializer.save()
         user.updated_by = self.request.user  # Asigna quien actualizó
         user.save()  # Guarda el usuario
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        
-        # Usar el método delete del modelo que registra el historial
-        instance.delete(deleted_by=request.user)
-    
+         
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):
         user = self.get_object()
         user.is_active = True
+        user.activated_at = timezone.now()
+        user.activated_by = request.user
         user.save()
         return Response({'status': 'user activated'})
-
+    
     @action(detail=True, methods=['post'])
     def deactivate(self, request, pk=None):
         user = self.get_object()
         user.is_active = False
+        user.deactivated_at = timezone.now()
+        user.deactivated_by = request.user
         user.save()
         return Response({'status': 'user deactivated'})
+    
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
