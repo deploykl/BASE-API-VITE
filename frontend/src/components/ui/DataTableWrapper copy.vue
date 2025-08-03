@@ -20,11 +20,11 @@
     </div>
 
     <DataTable :value="filteredData" :paginator="true" size="small" :rows="rows" :loading="loading"
-      :totalRecords="totalRecords" :sortField="sortField" :sortOrder="sortOrder"
+      :totalRecords="totalRecords" :sortField="sortField" :sortOrder="sortOrder" removableSort
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       :rowsPerPageOptions="[5, 10, 25, 50, 100]"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" responsiveLayout="scroll"
-      :sortable="sortable" class="elegant-table" @page="onPageChange" @sort="onSortChange">
+      :sortable="sortable" class="elegant-table">
       <!-- Slot para header personalizado -->
       <template #header>
         <slot name="header"></slot>
@@ -39,7 +39,7 @@
 
       <!-- Columnas dinámicas -->
       <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" :sortable="col.sortable"
-        :style="col.style" headerClass="header-cell" bodyClass="body-cell" :showFilterMenu="col.filter ? false : undefined">
+        :style="col.style" headerClass="header-cell" bodyClass="body-cell">
         <template #body="slotProps">
           <slot v-if="col.bodyTemplate" :name="`body-${col.field}`" :data="slotProps.data"></slot>
           <template v-else>
@@ -91,7 +91,7 @@ const props = defineProps({
   showCreateButton: { type: Boolean, default: false },
   createButtonLabel: { type: String, default: 'Nuevo' },
   showIndex: { type: Boolean, default: true },
-  createButtonIcon: {type: String,default: 'pi pi-plus'},
+  createButtonIcon: { type: String, default: 'pi pi-plus' },
   sortField: { type: String, default: '' },
   sortOrder: { type: Number, default: 1 } // 1=ascendente, -1=descendente
 });
@@ -109,13 +109,6 @@ const filteredData = computed(() => {
   );
 });
 
-const onPageChange = (event) => {
-  emit('page-change', event);
-};
-
-const onSortChange = (event) => {
-  emit('sort-change', event);
-};
 
 const onSearch = () => {
   emit('search', searchTerm.value);
@@ -245,5 +238,4 @@ const onSearch = () => {
     width: 100%;
   }
 }
-
 </style>

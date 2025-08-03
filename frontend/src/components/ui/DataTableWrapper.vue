@@ -20,7 +20,7 @@
     </div>
 
     <DataTable :value="filteredData" :paginator="true" size="small" :rows="rows" :loading="loading"
-      :totalRecords="totalRecords" :sortField="sortField" :sortOrder="sortOrder"
+      :totalRecords="totalRecords" :sortField="sortField" :sortOrder="sortOrder" removableSort
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       :rowsPerPageOptions="[5, 10, 25, 50, 100]"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" responsiveLayout="scroll"

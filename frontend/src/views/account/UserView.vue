@@ -1,5 +1,6 @@
 <template>
-  <div class="container-fluid mt-4">
+  <div class="container-fluid mt-2">
+    
     <!-- Modal para crear/editar usuario -->
     <ModalBase :visible="showUserModal" :mode="editing ? 'edit' : 'create'" entityName="usuario"
       :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeUserModal"
@@ -105,19 +106,9 @@
     </ModalBase>
 
     <!-- Listado de usuarios -->
-    <DataTableWrapper 
-  :data="userStore.users" 
-  :columns="columns"
-  :loading="userStore.loading"
-  :actions="true"
-  :showCreateButton="true"
-  title="GESTIÓN DE USUARIOS"
-  createButtonLabel="Nuevo Usuario"
-  createButtonIcon="pi pi-user-plus"
-  @create="openCreateModal"
-  sortField="is_active"  
-  :sortOrder="-1"
->
+    <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"
+      :showCreateButton="true" title="GESTIÓN DE USUARIOS" createButtonLabel="Nuevo Usuario"
+      createButtonIcon="pi pi-user-plus" @create="openCreateModal" sortField="is_active" :sortOrder="-1" >
 
       <!-- Template para full_name -->
       <template #body-full_name="{ data }">
@@ -168,7 +159,15 @@
       <template #body-created_by="{ data }">
         {{ data.created_by ? data.created_by.username : 'Sistema' }}
       </template>
-
+<!-- Agrega este template para el filtro de created_by -->
+  <template #filter-created_by="{ filterModel, filterCallback }">
+    <InputText 
+      v-model="filterModel.value" 
+      type="text" 
+      @input="filterCallback()" 
+      placeholder="Buscar por creador" 
+      class="p-inputtext-sm" />
+  </template>
       <!-- Template para acciones -->
       <template #actions="{ data }">
         <div class="d-flex gap-1">
@@ -352,6 +351,10 @@ onMounted(async () => {
     userStore.loading = false;
   }
 });
+
+
+
+
 </script>
 
 <style scoped></style>
