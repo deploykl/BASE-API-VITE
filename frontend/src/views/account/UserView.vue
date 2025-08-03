@@ -105,18 +105,26 @@
     </ModalBase>
 
     <!-- Listado de usuarios -->
-    <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true">
-      <template #header>
-        <div class="flex justify-content-between align-items-center">
-          <h2 class="m-0">Gestión de Usuarios</h2>
-          <Button icon="pi pi-plus" label="Nuevo Usuario" @click="openCreateModal" class="p-button-sm" />
-        </div>
-      </template>
+    <DataTableWrapper 
+  :data="userStore.users" 
+  :columns="columns"
+  :loading="userStore.loading"
+  :actions="true"
+  :showCreateButton="true"
+  title="GESTIÓN DE USUARIOS"
+  createButtonLabel="Nuevo Usuario"
+  createButtonIcon="pi pi-user-plus"
+  @create="openCreateModal"
+  sortField="is_active"  
+  :sortOrder="-1"
+>
 
-      <template #body-full_name="{ data }"> <!-- Cambiado de body-fullName -->
+      <!-- Template para full_name -->
+      <template #body-full_name="{ data }">
         {{ data.full_name || '-' }}
       </template>
 
+      <!-- Template para is_active -->
       <template #body-is_active="{ data }">
         <div class="d-flex flex-column align-items-center">
           <ToggleSwitch v-model="data.is_active" @change="userStore.toggleUserStatus(data.id, data.is_active)"
@@ -127,6 +135,7 @@
         </div>
       </template>
 
+      <!-- Template para is_staff -->
       <template #body-is_staff="{ data }">
         <div class="d-flex flex-column align-items-center">
           <ToggleSwitch v-model="data.is_staff" @change="userStore.toggleStaffStatus(data.id, data.is_staff)"
@@ -137,6 +146,7 @@
         </div>
       </template>
 
+      <!-- Template para roles -->
       <template #body-roles="{ data }">
         <div class="d-flex gap-2">
           <span v-if="data.is_superuser" class="badge bg-danger" v-tooltip.top="'Usuario con todos los permisos'">
@@ -154,13 +164,21 @@
         </div>
       </template>
 
+      <!-- Template para created_by -->
       <template #body-created_by="{ data }">
         {{ data.created_by ? data.created_by.username : 'Sistema' }}
       </template>
 
+      <!-- Template para acciones -->
       <template #actions="{ data }">
-        <Button icon="pi pi-pencil" class="p-button-warning p-button-sm mr-2" @click="openEditModal(data)" />
-        <Button icon="pi pi-trash" class="p-button-danger p-button-sm" @click="confirmDelete(data)" />
+        <div class="d-flex gap-1">
+          <!-- Botón Editar -->
+          <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
+            v-tooltip.top="'Editar'" @click="openEditModal(data)" />
+
+          <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
+            v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
+        </div>
       </template>
     </DataTableWrapper>
   </div>

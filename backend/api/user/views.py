@@ -152,6 +152,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         user = serializer.save()
         user.updated_by = self.request.user  # Asigna quien actualizó
+        user.updated_at=timezone.now()      # Fecha de actualización actual
         user.save()  # Guarda el usuario
          
     @action(detail=True, methods=['post'])
@@ -162,7 +163,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user.activated_by = request.user
         user.save()
         return Response({'status': 'user activated'})
-    
+
     @action(detail=True, methods=['post'])
     def deactivate(self, request, pk=None):
         user = self.get_object()
@@ -171,7 +172,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user.deactivated_by = request.user
         user.save()
         return Response({'status': 'user deactivated'})
-    
+
     
     def get_serializer_context(self):
         context = super().get_serializer_context()

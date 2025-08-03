@@ -16,6 +16,8 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Aura from '@primeuix/themes/aura';
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice' // Añade esta importación
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 // LIBRERÍAS
 import 'bootstrap'
@@ -70,6 +72,8 @@ app.component('OverlayBadge', OverlayBadge);
 app.component('Message', Message);
 app.component('ProgressSpinner', ProgressSpinner);
 app.component('Toast', Toast);
+app.component('DataTable', DataTable);
+app.component('Column', Column);
 
 // Monta la aplicación
 app.mount('#app')
