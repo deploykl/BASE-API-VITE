@@ -18,7 +18,7 @@ import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice' // Añade esta importación
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-
+import Dropdown from 'primevue/dropdown';
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -74,6 +74,7 @@ app.component('ProgressSpinner', ProgressSpinner);
 app.component('Toast', Toast);
 app.component('DataTable', DataTable);
 app.component('Column', Column);
+app.component('Dropdown', Dropdown);
 
 // Monta la aplicación
 app.mount('#app')

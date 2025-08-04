@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid mt-2">
-    
+
     <!-- Modal para crear/editar usuario -->
     <ModalBase :visible="showUserModal" :mode="editing ? 'edit' : 'create'" entityName="usuario"
       :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeUserModal"
@@ -108,7 +108,10 @@
     <!-- Listado de usuarios -->
     <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"
       :showCreateButton="true" title="GESTIÓN DE USUARIOS" createButtonLabel="Nuevo Usuario"
-      createButtonIcon="pi pi-user-plus" @create="openCreateModal" sortField="is_active" :sortOrder="-1" >
+      createButtonIcon="pi pi-user-plus" @create="openCreateModal" sortField="is_active" :sortOrder="-1"
+      
+      >
+
 
       <!-- Template para full_name -->
       <template #body-full_name="{ data }">
@@ -159,16 +162,8 @@
       <template #body-created_by="{ data }">
         {{ data.created_by ? data.created_by.username : 'Sistema' }}
       </template>
-<!-- Agrega este template para el filtro de created_by -->
-  <template #filter-created_by="{ filterModel, filterCallback }">
-    <InputText 
-      v-model="filterModel.value" 
-      type="text" 
-      @input="filterCallback()" 
-      placeholder="Buscar por creador" 
-      class="p-inputtext-sm" />
-  </template>
-      <!-- Template para acciones -->
+
+
       <template #actions="{ data }">
         <div class="d-flex gap-1">
           <!-- Botón Editar -->
@@ -184,7 +179,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { toast } from 'vue-sonner';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
 import Button from 'primevue/button';
@@ -225,16 +220,39 @@ const userToEdit = ref(null);
 const isDeleting = ref(false);
 
 
-
 // Configuración de columnas para la tabla
 const columns = ref([
-  { field: 'username', header: 'Usuario', sortable: true },
-  { field: 'full_name', header: 'Nombre', sortable: true, bodyTemplate: true },
-  { field: 'email', header: 'Email', sortable: true },
-  { field: 'is_active', header: 'Estado', sortable: true, bodyTemplate: true },
-  { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true },
-  { field: 'roles', header: 'Roles', bodyTemplate: true },
-  { field: 'created_by', header: 'Creado por', bodyTemplate: true }
+  {
+    field: 'username',
+    header: 'Usuario',
+    sortable: true,
+    filter: true,
+    filterOptions: computed(() =>
+      userStore.users.map(u => u.username).filter((v, i, a) => a.indexOf(v) === i)
+    ),
+  }, 
+  { field: 'full_name', header: 'Nombre', sortable: true, bodyTemplate: true, filter: false },
+  { field: 'email', header: 'Email', sortable: true, filter: false },
+{
+  field: 'is_active', 
+  header: 'Estado', 
+  sortable: true, 
+  bodyTemplate: true, 
+  filter: true, 
+  dataType: 'boolean',
+  filterOptions: [
+    { label: 'Activo', value: true },
+    { label: 'Inactivo', value: false }
+  ],
+  filterMatchMode: 'equals' 
+}, 
+  { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true, filter: true },
+  { field: 'roles', header: 'Roles', bodyTemplate: true, filter: true },
+  { field: 'created_by', header: 'Creado por', bodyTemplate: true, filter: true, filterType: 'select',
+    filterOptions: computed(() =>
+      userStore.users.map(u => u.created_by).filter((v, i, a) => a.indexOf(v) === i)
+    ),
+  }
 ]);
 
 // Métodos
