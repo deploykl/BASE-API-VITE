@@ -1,5 +1,5 @@
 from django.utils import timezone
-from django.db import models, IntegrityError
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.files.storage import default_storage
 from api.Choises import GENDER_CHOICES
@@ -21,10 +21,8 @@ def user_image_path(instance, filename):
 
 
 class Modulo(models.Model):
-    codename = models.CharField(
-        max_length=50, unique=True
-    )  # Ej: 'admin', 'almacen', 'informatica'
-    description = models.TextField(blank=True)
+    codename = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
@@ -181,12 +179,3 @@ class User(AbstractUser):
                 default_storage.delete(self.image.path)
         except Exception as e:
             print(f"Error al eliminar imagen: {e}")
-
-    # ======================================================= GOBIERNO REGIONAL TEST =======================================
-    departamento = models.ForeignKey(
-        Departamento, on_delete=models.SET_NULL, null=True, blank=True
-    )
-    red = models.ForeignKey(Red, on_delete=models.SET_NULL, null=True, blank=True)
-    hospital = models.ForeignKey(
-        Hospital, on_delete=models.SET_NULL, null=True, blank=True
-    )
