@@ -19,6 +19,9 @@ import ToastService from 'primevue/toastservice' // Añade esta importación
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dropdown from 'primevue/dropdown';
+import Tag from 'primevue/Tag';
+import ToggleSwitch from 'primevue/toggleswitch';
+import ProgressBar from 'primevue/ProgressBar';
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -71,10 +74,13 @@ app.component('Badge', Badge);
 app.component('OverlayBadge', OverlayBadge);
 app.component('Message', Message);
 app.component('ProgressSpinner', ProgressSpinner);
+app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
 app.component('DataTable', DataTable);
 app.component('Column', Column);
 app.component('Dropdown', Dropdown);
+app.component('Tag', Tag);
+app.component('ToggleSwitch', ToggleSwitch);
 
 // Monta la aplicación
 app.mount('#app')

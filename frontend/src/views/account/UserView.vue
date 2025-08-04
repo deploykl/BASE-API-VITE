@@ -11,18 +11,18 @@
             <div class="col-md-6">
               <!-- Username -->
               <FloatInput id="username" label="Nombre de usuario" v-model="form.username" icon="pi pi-user-edit"
-                :errors="errors" :invalid="!!errors.username" />
+                :errors="errors" :invalid="!!errors.username" size="small" />
 
               <!-- Email -->
               <FloatInput id="email" label="Email" v-model="form.email" type="email" icon="pi pi-envelope"
-                :invalid="!!errors.email" :errors="errors" />
+                :invalid="!!errors.email" :errors="errors" size="small" />
 
               <!-- Contraseña (solo creación) -->
               <template v-if="!editing">
                 <FloatInput id="password" label="Contraseña" v-model="form.password" type="password" icon="pi pi-lock"
-                  :invalid="!!errors.password" :errors="errors" />
+                  :invalid="!!errors.password" :errors="errors" size="small" />
                 <FloatInput id="password2" label="Confirmar Contraseña" v-model="form.password2" type="password"
-                  icon="pi pi-lock-open" :invalid="!!errors.password2" :errors="errors" />
+                  icon="pi pi-lock-open" :invalid="!!errors.password2" :errors="errors" size="small" />
               </template>
 
               <!-- Reset password (edición) -->
@@ -43,9 +43,9 @@
 
                 <div v-if="resetPassword" class="mt-3">
                   <FloatInput id="new_password" label="Nueva Contraseña" v-model="form.password" type="password"
-                    icon="pi pi-key" :invalid="!!errors.password" :errors="errors" />
+                    icon="pi pi-key" :invalid="!!errors.password" :errors="errors" size="small" />
                   <FloatInput id="confirm_new_password" label="Confirmar Nueva Contraseña" v-model="form.password2"
-                    type="password" icon="pi pi-key" :invalid="!!errors.password2" :errors="errors" />
+                    type="password" icon="pi pi-key" :invalid="!!errors.password2" :errors="errors" size="small" />
                 </div>
               </div>
             </div>
@@ -53,19 +53,19 @@
             <div class="col-md-6">
               <!-- Nombres -->
               <FloatInput id="first_name" label="Nombres" v-model="form.first_name" icon="pi pi-user"
-                :invalid="!!errors.first_name" :errors="errors" />
+                :invalid="!!errors.first_name" :errors="errors" size="small" />
 
               <!-- Apellidos -->
               <FloatInput id="last_name" label="Apellidos" v-model="form.last_name" icon="pi pi-users"
-                :invalid="!!errors.last_name" :errors="errors" />
+                :invalid="!!errors.last_name" :errors="errors" size="small" />
 
               <!-- DNI -->
               <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" maxlength="8"
-                :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
+                :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" size="small" />
 
               <!-- Celular -->
               <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" maxlength="9"
-                :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
+                :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" size="small" />
             </div>
           </div>
 
@@ -108,10 +108,8 @@
     <!-- Listado de usuarios -->
     <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"
       :showCreateButton="true" title="GESTIÓN DE USUARIOS" createButtonLabel="Nuevo Usuario"
-      createButtonIcon="pi pi-user-plus" @create="openCreateModal" sortField="is_active" :sortOrder="-1"
-      
-      >
-
+      createButtonIcon="pi pi-user-plus" @create="openCreateModal">
+      <!-- sortField="is_active" :sortOrder="-1" para poner estado activo -->
 
       <!-- Template para full_name -->
       <template #body-full_name="{ data }">
@@ -174,6 +172,36 @@
             v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
         </div>
       </template>
+
+
+      <!-- Template de expansión personalizado -->
+      <template #expansion="{ data }">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Nombre completo:</strong> {{ data.full_name || '-' }}</p>
+            <p><strong>Email:</strong> {{ data.email }}</p>
+            <p><strong>DNI:</strong> {{ data.dni || '-' }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Celular:</strong> {{ data.celular || '-' }}</p>
+            <p><strong>Creado por:</strong> {{ data.created_by?.username || 'Sistema' }}</p>
+            <p><strong>Estado:</strong>
+              <Tag :value="data.is_active ? 'Activo' : 'Inactivo'" :severity="data.is_active ? 'success' : 'danger'" />
+            </p>
+            <p><strong>is_superuser:</strong> {{ data.is_superuser || '-' }}</p>
+
+          </div>
+        </div>
+
+        <div class="mt-3" v-if="data.groups?.length">
+          <h6>Grupos asignados:</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <Tag v-for="group in data.groups" :key="group.id" :value="group.name" severity="info" />
+          </div>
+        </div>
+      </template>
+
+
     </DataTableWrapper>
   </div>
 </template>
@@ -182,9 +210,9 @@
 import { ref, onMounted, computed } from 'vue';
 import { toast } from 'vue-sonner';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
-import Button from 'primevue/button';
+
 import { useUserStore } from '@/stores/user/userStore';
-import ToggleSwitch from 'primevue/toggleswitch';
+
 import ModalBase from '@/components/ui/ModalBase.vue';
 import FloatInput from '@/components/widgets/FloatInput.vue';
 
@@ -222,6 +250,7 @@ const isDeleting = ref(false);
 
 // Configuración de columnas para la tabla
 const columns = ref([
+
   {
     field: 'username',
     header: 'Usuario',
@@ -230,25 +259,26 @@ const columns = ref([
     filterOptions: computed(() =>
       userStore.users.map(u => u.username).filter((v, i, a) => a.indexOf(v) === i)
     ),
-  }, 
+  },
   { field: 'full_name', header: 'Nombre', sortable: true, bodyTemplate: true, filter: false },
   { field: 'email', header: 'Email', sortable: true, filter: false },
-{
-  field: 'is_active', 
-  header: 'Estado', 
-  sortable: true, 
-  bodyTemplate: true, 
-  filter: true, 
-  dataType: 'boolean',
-  filterOptions: [
-    { label: 'Activo', value: true },
-    { label: 'Inactivo', value: false }
-  ],
-  filterMatchMode: 'equals' 
-}, 
+  {
+    field: 'is_active',
+    header: 'Estado',
+    sortable: true,
+    bodyTemplate: true,
+    filter: true,
+    dataType: 'boolean',
+    filterOptions: [
+      { label: 'Activo', value: true },
+      { label: 'Inactivo', value: false }
+    ],
+    filterMatchMode: 'equals'
+  },
   { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true, filter: true },
   { field: 'roles', header: 'Roles', bodyTemplate: true, filter: true },
-  { field: 'created_by', header: 'Creado por', bodyTemplate: true, filter: true, filterType: 'select',
+  {
+    field: 'created_by', header: 'Creado por', bodyTemplate: true, filter: true, filterType: 'select',
     filterOptions: computed(() =>
       userStore.users.map(u => u.created_by).filter((v, i, a) => a.indexOf(v) === i)
     ),

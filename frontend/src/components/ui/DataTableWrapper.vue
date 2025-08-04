@@ -4,26 +4,17 @@
       <h2 v-if="title" class="table-title">{{ title }}</h2>
 
       <div class="header-actions-container">
-        <Button v-if="showCreateButton" 
-                :icon="createButtonIcon" 
-                :label="createButtonLabel" 
-                @click="$emit('create')"
-                class="p-button-sm create-button" />
-        
+        <Button v-if="showCreateButton" :icon="createButtonIcon" :label="createButtonLabel" @click="$emit('create')"
+          class="p-button-sm create-button" />
+
         <div class="right-actions-container">
-          <Button type="button" 
-                  icon="pi pi-filter-slash" 
-                  label="Clear" 
-                  class="p-button-sm clear-button"
-                  @click="clearFilter()" />
-          
+          <Button type="button" icon="pi pi-filter-slash" label="Clear" class="p-button-sm clear-button"
+            @click="clearFilter()" text />
+
           <div class="header-search-container">
             <span class="p-input-icon-left">
               <i class="pi pi-search" />
-              <InputText v-model="searchTerm" 
-                        placeholder="Buscar..." 
-                        class="p-inputtext-sm" 
-                        @input="onSearch" />
+              <InputText v-model="searchTerm" placeholder="Buscar..." class="p-inputtext-sm" @input="onSearch" />
             </span>
           </div>
         </div>
@@ -35,10 +26,31 @@
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       :rowsPerPageOptions="[5, 10, 25, 50, 100]"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" responsiveLayout="scroll"
-      :sortable="sortable" class="elegant-table" filterDisplay="menu" :globalFilterFields="globalFilterFields">
-      
+      :sortable="sortable" class="elegant-table" filterDisplay="menu" :globalFilterFields="globalFilterFields"
+      :expandedRows="expandedRows" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" ref="dt">
+
       <template #header>
         <slot name="header"></slot>
+        <div class="flex flex-wrap justify-end gap-2">
+          <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
+          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm" />
+          <!-- Botón de Exportación CSV -->
+          <Button icon="pi pi-file-excel" label="Export CSV" @click="exportCSV" class="p-button-sm"
+            severity="success" :loading="exportingCSV" />
+        </div>
+      </template>
+
+      <!-- Columna expander -->
+      <Column expander style="width: 2rem" headerClass="header-cell">
+        <template #header>
+          +/-
+        </template>
+      </Column>
+      <!-- Slot para contenido expandido -->
+      <template #expansion="slotProps">
+        <div class="p-3 expansion-content">
+          <slot name="expansion" :data="slotProps.data"></slot>
+        </div>
       </template>
 
       <Column v-if="showIndex" header="N°" headerClass="header-cell" bodyClass="body-cell" :style="{ width: '5%' }">
@@ -95,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 
 const FilterMatchMode = {
   CONTAINS: 'contains',
@@ -132,7 +144,9 @@ const props = defineProps({
   sortField: { type: String, default: '' },
   sortOrder: { type: Number, default: 1 },
   filterOptions: { type: Array, default: () => [] },
-  globalFilterFields: { type: Array, default: () => [] }
+  globalFilterFields: { type: Array, default: () => [] },
+  dataKey: { type: String, default: 'id' }  // Asegúrate de tener esto
+
 });
 
 const emit = defineEmits([
@@ -141,7 +155,9 @@ const emit = defineEmits([
   'search',
   'create',
   'filter-change',
-  'column-filter'
+  'column-filter',
+  'row-expand',
+  'row-collapse'
 ]);
 
 const STORAGE_KEY = 'tableFilters';
@@ -159,13 +175,40 @@ const filters = ref({
     return acc;
   }, {})
 });
-
+// Agrega estas nuevas propiedades
+const expandedRows = ref([]);
 const searchTerm = ref('');
+
+// Agrega esta línea al inicio de las refs
+const dt = ref();
+
+// Estado para controlar la carga
+const exportingCSV = ref(false);
+
+const exportCSV = () => {
+  exportingCSV.value = true; // Activar spinner
+  
+  // Pequeño delay para que se vea el spinner
+  setTimeout(() => {
+    dt.value.exportCSV(); // Llamar a la exportación real
+    
+    // Desactivar spinner después de un breve momento
+    setTimeout(() => {
+      exportingCSV.value = false;
+    }, 3000);
+  }, 300);
+};
 const booleanOptions = ref([
   { label: 'Activo', value: true },
   { label: 'Inactivo', value: false }
 ]);
+const onRowExpand = (event) => {
+  emit('row-expand', event.data);
+};
 
+const onRowCollapse = (event) => {
+  emit('row-collapse', event.data);
+};
 // Guardar filtros en localStorage
 const saveFiltersToStorage = () => {
   try {
@@ -185,7 +228,7 @@ const loadFiltersFromStorage = () => {
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
       const { searchTerm: savedSearchTerm, filters: savedFilters } = JSON.parse(savedData);
-      
+
       // Validar que los filtros cargados coincidan con las columnas actuales
       const validFilters = { ...filters.value };
       Object.keys(savedFilters).forEach(key => {
@@ -193,7 +236,7 @@ const loadFiltersFromStorage = () => {
           validFilters[key] = savedFilters[key];
         }
       });
-      
+
       searchTerm.value = savedSearchTerm || '';
       filters.value = validFilters;
     }
@@ -290,7 +333,21 @@ const clearFilter = () => {
   emit('search', '');
   emit('filter-change', { cleared: true });
 };
+const expandAll = () => {
+  if (!props.data || props.data.length === 0) return;
 
+  // Usa el mismo formato que en el ejemplo de PrimeVue
+  expandedRows.value = props.data.reduce((acc, item) => {
+    acc[item[props.dataKey]] = true;
+    return acc;
+  }, {});
+};
+
+
+const collapseAll = () => {
+  expandedRows.value = []; // Contrae todas las filas
+  emit('row-collapse');
+};
 // Cargar filtros al montar el componente
 onMounted(() => {
   loadFiltersFromStorage();
@@ -299,7 +356,7 @@ onMounted(() => {
 // Observar cambios en los filtros para guardarlos y emitir eventos
 watch([searchTerm, filters], () => {
   saveFiltersToStorage();
-  
+
   // Emitir eventos
   if (filters.value.global?.value !== null) {
     emit('search', filters.value.global.value);
@@ -426,14 +483,31 @@ watch([searchTerm, filters], () => {
     align-items: stretch;
     gap: 0.5rem;
   }
-  
+
   .right-actions-container {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .header-search-container {
     width: 100%;
   }
+}
+
+/* expansion  */
+.expansion-content {
+  background: #f8f9fa;
+  border-left: 4px solid var(--primary-color);
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+}
+
+:deep(.p-datatable .p-row-toggler) {
+  color: var(--primary-color);
+}
+
+:deep(.p-datatable .p-row-expanded) {
+  background-color: #f8f9fa;
 }
 </style>
