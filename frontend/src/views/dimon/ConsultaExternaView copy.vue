@@ -40,32 +40,30 @@
                     </transition>
                 </div>
 
-                <!-- Formulario de importación -->
-               <template v-if="!esStaff">
-  
-                <div class="mb-3">
-                    <label for="excelFile" class="form-label">Seleccionar archivo Excel</label>
-                    <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls"
-                        @change="handleFileChange" :disabled="loading">
-                    <div class="form-text">Formatos soportados: .xlsx, .xls (Máx. 10MB)</div>
-                </div>
+                <!-- Formulario de importación SUPERUSER NO VE -->
+                    <div class="mb-3">
+                        <label for="excelFile" class="form-label">Seleccionar archivo Excel</label>
+                        <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls"
+                            @change="handleFileChange" :disabled="loading">
+                        <div class="form-text">Formatos soportados: .xlsx, .xls (Máx. 10MB)</div>
+                    </div>
 
-                <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
-                    <!-- Botón Importar Datos -->
-                    <button class="btn btn-primary d-flex align-items-center" :disabled="!file || loading"
-                        @click="uploadFile">
-                        <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
-                        <i v-else class="bi bi-upload me-2"></i>
-                        {{ loading ? 'Importando...' : 'Importar Datos' }}
-                    </button>
+                    <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+                        <!-- Botón Importar Datos -->
+                        <button class="btn btn-primary d-flex align-items-center" :disabled="!file || loading"
+                            @click="uploadFile">
+                            <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <i v-else class="bi bi-upload me-2"></i>
+                            {{ loading ? 'Importando...' : 'Importar Datos' }}
+                        </button>
 
-                    <!-- Botón Limpiar -->
-                    <button class="btn btn-outline-secondary d-flex align-items-center" @click="resetForm"
-                        :disabled="loading">
-                        <i class="bi bi-trash me-2"></i>
-                        Limpiar
-                    </button>
-
+                        <!-- Botón Limpiar -->
+                        <button class="btn btn-outline-secondary d-flex align-items-center" @click="resetForm"
+                            :disabled="loading">
+                            <i class="bi bi-trash me-2"></i>
+                            Limpiar
+                        </button>
+                    </div>
                     <!-- Botón Exportar Excel -->
                     <button class="btn btn-success d-flex align-items-center" @click="exportToExcel"
                         :disabled="registros.length === 0 || loading">
@@ -89,7 +87,6 @@
                                     {{ user.username }}
                                 </option>
                             </select>
-                        </div>
 
                         <div class="input-group" style="width: 200px;">
                             <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
@@ -122,7 +119,6 @@
                         </button>
                     </div>
                 </div>
-</template>
 
                 <!-- Resultados de importación -->
                 <div v-if="importResult" class="mt-3 alert"
