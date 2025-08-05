@@ -54,25 +54,25 @@ class LoginView(APIView):
         #        {'detail': 'Acceso restringido a administradores'},
         #        status=status.HTTP_403_FORBIDDEN
         #    )
-        # Obtener los códigos de los módulos
+        # Obtener los módulos correctamente
         if user.is_superuser:
-            # Si es superusuario, obtener todos los módulos activos
             modulos = Modulo.objects.filter(is_active=True).values_list('codename', flat=True)
         else:
-            # Si no, obtener solo los módulos asignados al usuario
             modulos = user.modulos.filter(is_active=True).values_list('codename', flat=True)
-            modulos = [m.lower() for m in modulos]  # Convertir a minúsculas
+        
+        # Convertir a lista para la respuesta
+        modulos_list = list(modulos)
 
         # Generar tokens JWT
         refresh = RefreshToken.for_user(user)
         # Obtener los códigos de los módulos asignados al usuario
-        modulos = user.modulos.values_list('codename', flat=True)
+        # Convertir a lista para la respuesta
         user_data = {
             'access': str(refresh.access_token),
             'refresh': str(refresh),
             'is_superuser': user.is_superuser,
             'is_staff': user.is_staff,
-            'modulos': list(modulos),  # Lista de códigos de módulos
+            'modulos': modulos_list,  # Usar la lista directamente
 
         }
 
