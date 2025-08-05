@@ -255,7 +255,7 @@ watch(() => props.isCollapsed, (newVal) => {
   position: fixed;
   left: 0;
   top: 0;
-  background: #364257;
+background: linear-gradient(135deg, #364257 0%, #2a3548 100%);
   color: white;
   transition: all 0.3s ease;
   z-index: 1001;
