@@ -37,12 +37,14 @@ THIRD_APPS = [
     "django_filters",
     "channels",
     "django_redis",
+    "simple_history",
 ]
 
 OWN_APPS = [
     "api",
     "api.user",
     "api.gore",
+    "api.dimon",
 ]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
@@ -52,12 +54,15 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.locale.LocaleMiddleware",  # Añade esto después de SessionMiddleware
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "config.middleware.SessionTimeoutMiddleware",  # Primero el de sesión
+    #'config.middleware.CustomAuditMiddleware',    # Finalmente nuestro custom
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 # agregando q dominios locales para consumir la API
@@ -104,7 +109,6 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,  # Añadir tokens de refresco a la lista negra después de rotación
     "UPDATE_LAST_LOGIN": True,  # Actualizar la última fecha de inicio de sesión del usuario
     "AUTH_HEADER_TYPES": ("Bearer",),
-
 }
 
 # Configuración de DRF Spectacular
@@ -272,5 +276,9 @@ CACHES = {
     }
 }
 
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/api/schema/swagger/'
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/api/schema/swagger/"
+
+# Opcional: Configuración adicional
+SIMPLE_HISTORY_HISTORY_CHANGE_REASON_USE_TEXT_FIELD = True
+SIMPLE_HISTORY_REVERT_DISABLED = False  # Permite revertir cambios

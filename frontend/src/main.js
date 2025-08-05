@@ -3,7 +3,6 @@ import App from './App.vue'
 import router from './router'          // Importa el router
 import { createPinia } from 'pinia'    // Importa Pinia
 import ErrorMessage from '@/components/utils/ErrorMessage.vue'
-import SonnerNotifications from '@/components/utils/SonnerNotifications.vue'
 import PrimeVue from 'primevue/config'
 import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
@@ -17,7 +16,12 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Aura from '@primeuix/themes/aura';
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice' // Añade esta importación
-
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Dropdown from 'primevue/dropdown';
+import Tag from 'primevue/Tag';
+import ToggleSwitch from 'primevue/toggleswitch';
+import ProgressBar from 'primevue/ProgressBar';
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -61,7 +65,6 @@ app.use(ToastService)
 
 // Registra componentes globales
 app.component('ErrorMessage', ErrorMessage)
-app.component('SonnerNotifications', SonnerNotifications)
 app.component('FloatLabel', FloatLabel)
 app.component('InputText', InputText)
 app.directive('tooltip', Tooltip);
@@ -71,7 +74,13 @@ app.component('Badge', Badge);
 app.component('OverlayBadge', OverlayBadge);
 app.component('Message', Message);
 app.component('ProgressSpinner', ProgressSpinner);
+app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
+app.component('DataTable', DataTable);
+app.component('Column', Column);
+app.component('Dropdown', Dropdown);
+app.component('Tag', Tag);
+app.component('ToggleSwitch', ToggleSwitch);
 
 // Monta la aplicación
 app.mount('#app')

@@ -127,7 +127,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { toast } from 'vue-sonner'
+import { useCustomToast } from '@/components/utils/toast'
 import FloatInput from '@/components/widgets/FloatInput.vue';
 
 
@@ -137,6 +137,7 @@ const selectedImage = ref(null)
 const imagePreview = ref(null)
 const showImageModal = ref(false)
 const modalImageSrc = ref('')
+const { showError, showSuccess } = useCustomToast()
 
 // Obtener datos del perfil al cargar el componente
 onMounted(async () => {
@@ -164,7 +165,7 @@ const handleImageChange = async (event) => {
 
   // Verificar tipo y tamaño
   if (!file.type.match('image.*')) {
-    toast.error('Por favor selecciona un archivo de imagen válido');
+    showError.error('Por favor selecciona un archivo de imagen válido');
     return;
   }
 
@@ -187,7 +188,7 @@ const handleImageChange = async (event) => {
 
     } catch (error) {
       console.error('Error al comprimir:', error);
-      toast.error('Error al procesar la imagen');
+      showError.error('Error al procesar la imagen');
     }
   } else {
     // Usar imagen original si es pequeña

@@ -7,3 +7,4 @@ class UserConfig(AppConfig):
     def ready(self):
         # Importa las señales cuando la app está lista
         import api.user.signals  # noqa
+        

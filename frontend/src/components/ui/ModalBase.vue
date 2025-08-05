@@ -69,12 +69,13 @@ const internalVisible = ref(props.visible);
 
 const dynamicTitle = computed(() => {
   const titles = {
-    create: `Crear ${props.entityName}`,
-    edit: `Editar ${props.entityName}`,
-    delete: `Eliminar ${props.entityName}`,
-    view: `Detalles de ${props.entityName}`
+    create: `CREAR ${props.entityName?.toUpperCase() || ''}`,
+    edit: `EDITAR ${props.entityName?.toUpperCase() || ''}`,
+    delete: `ELIMINAR ${props.entityName?.toUpperCase() || ''}`,
+    view: `DETALLES DE ${props.entityName?.toUpperCase() || ''}`
   };
-  return props.title || titles[props.mode] || props.entityName;
+  
+  return props.title?.toUpperCase() || titles[props.mode] || props.entityName?.toUpperCase() || '';
 });
 
 watch(() => props.visible, (newVal) => {

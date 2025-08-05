@@ -1,5 +1,6 @@
 <template>
-  <div class="container-fluid mt-4">
+  <div class="container-fluid mt-2">
+
     <!-- Modal para crear/editar usuario -->
     <ModalBase :visible="showUserModal" :mode="editing ? 'edit' : 'create'" entityName="usuario"
       :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeUserModal"
@@ -9,19 +10,19 @@
           <div class="row">
             <div class="col-md-6">
               <!-- Username -->
-              <!-- Ejemplo para username -->
               <FloatInput id="username" label="Nombre de usuario" v-model="form.username" icon="pi pi-user-edit"
                 :errors="errors" :invalid="!!errors.username" />
+
               <!-- Email -->
               <FloatInput id="email" label="Email" v-model="form.email" type="email" icon="pi pi-envelope"
-                :invalid="!!errors.email" />
+                :invalid="!!errors.email" :errors="errors" />
 
               <!-- Contraseña (solo creación) -->
               <template v-if="!editing">
                 <FloatInput id="password" label="Contraseña" v-model="form.password" type="password" icon="pi pi-lock"
-                  validationType="password" :invalid="!!errors.password" />
+                  :invalid="!!errors.password" :errors="errors" />
                 <FloatInput id="password2" label="Confirmar Contraseña" v-model="form.password2" type="password"
-                  icon="pi pi-lock-open" validationType="password" :invalid="!!errors.password2" />
+                  icon="pi pi-lock-open" :invalid="!!errors.password2" :errors="errors" />
               </template>
 
               <!-- Reset password (edición) -->
@@ -42,9 +43,9 @@
 
                 <div v-if="resetPassword" class="mt-3">
                   <FloatInput id="new_password" label="Nueva Contraseña" v-model="form.password" type="password"
-                    icon="pi pi-key" :required="true" validationType="password" />
+                    icon="pi pi-key" :invalid="!!errors.password" :errors="errors" />
                   <FloatInput id="confirm_new_password" label="Confirmar Nueva Contraseña" v-model="form.password2"
-                    type="password" icon="pi pi-key" :required="true" validationType="password" />
+                    type="password" icon="pi pi-key" :invalid="!!errors.password2" :errors="errors" />
                 </div>
               </div>
             </div>
@@ -52,21 +53,22 @@
             <div class="col-md-6">
               <!-- Nombres -->
               <FloatInput id="first_name" label="Nombres" v-model="form.first_name" icon="pi pi-user"
-                :invalid="!!errors.first_name" />
+                :invalid="!!errors.first_name" :errors="errors" />
 
               <!-- Apellidos -->
               <FloatInput id="last_name" label="Apellidos" v-model="form.last_name" icon="pi pi-users"
-                :invalid="!!errors.last_name" />
+                :invalid="!!errors.last_name" :errors="errors" />
 
               <!-- DNI -->
-              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" validationType="dni"
-                maxlength="8" :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
+              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" maxlength="8"
+                :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
 
               <!-- Celular -->
-              <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" validationType="phone"
-                maxlength="9" :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
+              <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" maxlength="9"
+                :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
             </div>
           </div>
+
           <div class="row">
             <div class="col-md-4">
               <div class="form-check form-switch mb-3">
@@ -104,18 +106,16 @@
     </ModalBase>
 
     <!-- Listado de usuarios -->
-    <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"> <template
-        #header>
-        <div class="flex justify-content-between align-items-center">
-          <h2 class="m-0">Gestión de Usuarios</h2>
-          <Button icon="pi pi-plus" label="Nuevo Usuario" @click="openCreateModal" class="p-button-sm" />
-        </div>
+    <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"
+      :showCreateButton="true" title="GESTIÓN DE USUARIOS" createButtonLabel="Nuevo Usuario"
+      createButtonIcon="pi pi-user-plus" @create="openCreateModal" sortField="is_active" :sortOrder="-1">
+
+      <!-- Template para full_name -->
+      <template #body-full_name="{ data }">
+        {{ data.full_name || '-' }}
       </template>
 
-      <template #body-fullName="{ data }">
-        {{ data.fullName || '-' }}
-      </template>
-
+      <!-- Template para is_active -->
       <template #body-is_active="{ data }">
         <div class="d-flex flex-column align-items-center">
           <ToggleSwitch v-model="data.is_active" @change="userStore.toggleUserStatus(data.id, data.is_active)"
@@ -126,6 +126,7 @@
         </div>
       </template>
 
+      <!-- Template para is_staff -->
       <template #body-is_staff="{ data }">
         <div class="d-flex flex-column align-items-center">
           <ToggleSwitch v-model="data.is_staff" @change="userStore.toggleStaffStatus(data.id, data.is_staff)"
@@ -136,6 +137,7 @@
         </div>
       </template>
 
+      <!-- Template para roles -->
       <template #body-roles="{ data }">
         <div class="d-flex gap-2">
           <span v-if="data.is_superuser" class="badge bg-danger" v-tooltip.top="'Usuario con todos los permisos'">
@@ -153,13 +155,21 @@
         </div>
       </template>
 
+      <!-- Template para created_by -->
       <template #body-created_by="{ data }">
         {{ data.created_by ? data.created_by.username : 'Sistema' }}
       </template>
 
+      
       <template #actions="{ data }">
-        <Button icon="pi pi-pencil" class="p-button-warning p-button-sm mr-2" @click="openEditModal(data)" />
-        <Button icon="pi pi-trash" class="p-button-danger p-button-sm" @click="confirmDelete(data)" />
+        <div class="d-flex gap-1">
+          <!-- Botón Editar -->
+          <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
+            v-tooltip.top="'Editar'" @click="openEditModal(data)" />
+
+          <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
+            v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
+        </div>
       </template>
     </DataTableWrapper>
   </div>
@@ -170,7 +180,7 @@ import { ref, onMounted } from 'vue';
 import { toast } from 'vue-sonner';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
 import Button from 'primevue/button';
-import { useUserStore } from '@/store/user/userStore';
+import { useUserStore } from '@/stores/user/userStore';
 import ToggleSwitch from 'primevue/toggleswitch';
 import ModalBase from '@/components/ui/ModalBase.vue';
 import FloatInput from '@/components/widgets/FloatInput.vue';
@@ -186,14 +196,17 @@ const FORM_STATE = {
   password2: '',
   first_name: '',
   last_name: '',
+  full_name: '',
   dni: '',
   celular: '',
   is_active: true,
   is_staff: false,
   is_superuser: false
 };
+// Usamos la estructura para el formulario reactivo
+const form = ref({ ...FORM_STATE });
 
-// Estado reactivo
+
 const showUserModal = ref(false);
 const showDeleteModal = ref(false);
 const editing = ref(false);
@@ -203,18 +216,17 @@ const userToDelete = ref(null);
 const userToEdit = ref(null);
 const isDeleting = ref(false);
 
-// Usamos la estructura para el formulario reactivo
-const form = ref({ ...FORM_STATE });
+
 
 // Configuración de columnas para la tabla
 const columns = ref([
-  { field: 'username', header: 'Usuario', sortable: true },
-  { field: 'fullName', header: 'Nombre', sortable: true, bodyTemplate: true },
-  { field: 'email', header: 'Email', sortable: true },
-  { field: 'is_active', header: 'Estado', sortable: true, bodyTemplate: true },
-  { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true },
-  { field: 'roles', header: 'Roles', bodyTemplate: true },
-  { field: 'created_by', header: 'Creado por', bodyTemplate: true }
+  { field: 'username', header: 'Usuario', sortable: true, filter: true,filterMatchMode: 'startsWith' },
+  { field: 'full_name', header: 'Nombre', sortable: true, bodyTemplate: true,filter: false  },
+  { field: 'email', header: 'Email', sortable: true, filter: false  },
+  { field: 'is_active', header: 'Estado', sortable: true, bodyTemplate: true, filter: true, dataType: 'boolean',filterMatchMode: 'equals' },
+  { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true, filter: true },
+  { field: 'roles', header: 'Roles', bodyTemplate: true, filter: true },
+  { field: 'created_by', header: 'Creado por', bodyTemplate: true, filter: true }
 ]);
 
 // Métodos
@@ -243,10 +255,12 @@ const openEditModal = (user) => {
 const resetForm = () => {
   form.value = { ...FORM_STATE };
   resetPassword.value = false;
+  errors.value = {};
 };
 
 const closeUserModal = () => {
   showUserModal.value = false;
+  resetForm();
 };
 
 const confirmDelete = (user) => {
@@ -255,7 +269,15 @@ const confirmDelete = (user) => {
 };
 
 const closeDeleteModal = () => {
-  showDeleteModal.value = false;
+  try {
+    showDeleteModal.value = false;
+    // Pequeño delay para la animación antes de resetear
+    setTimeout(() => {
+      userToDelete.value = null;
+    }, 300);
+  } catch (error) {
+    console.error("Error al cerrar modal:", error);
+  }
 };
 
 const proceedDelete = async () => {
@@ -265,6 +287,7 @@ const proceedDelete = async () => {
     if (success) {
       closeDeleteModal();
     }
+  } catch (error) {
   } finally {
     isDeleting.value = false;
   }
@@ -292,6 +315,7 @@ const handleSubmit = async () => {
       await userStore.createUser(userData);
     }
 
+    closeUserModal();
   } catch (error) {
     if (error.response?.data) {
       // Asignar errores al objeto errors para mostrarlos en los campos
@@ -308,23 +332,21 @@ const handleSubmit = async () => {
     isSubmitting.value = false;
   }
 };
+
 // Inicialización
 onMounted(async () => {
   try {
     userStore.loading = true;
     await userStore.listUsers();
   } catch (error) {
-    toast.error('Error al cargar usuarios');
   } finally {
     userStore.loading = false;
   }
 });
+
+
+
+
 </script>
 
-<style scoped>
-.custom-badge {
-  font-size: 0.65rem;
-  padding: 0.25em 0.4em;
-  line-height: 1;
-}
-</style>
+<style scoped></style>

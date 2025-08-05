@@ -5,6 +5,7 @@ import NotFoundView from "../components/layout/NotFoundView.vue"; // Componente 
 import AdminPoi from "./AdminPoi";
 import AdminAuth from "./AdminAuth";
 import AdminGore from "./AdminGore";
+import AdminDimon from "./AdminDimon";
 
 const routes = [
   {
@@ -39,6 +40,7 @@ const routes = [
   ...AdminPoi,
   ...AdminAuth,
   ...AdminGore,
+  ...AdminDimon,
 ];
 
 const router = createRouter({

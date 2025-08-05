@@ -9,13 +9,13 @@ class SessionTimeoutMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated:
-            last_activity = request.session.get('last_activity')
-            if last_activity:
+            last_login = request.session.get('last_login')
+            if last_login:
                 now = timezone.now()
-                last_activity_time = datetime.datetime.fromisoformat(last_activity)
-                inactivity_duration = (now - last_activity_time).total_seconds()
+                last_login_time = datetime.datetime.fromisoformat(last_login)
+                inactivity_duration = (now - last_login_time).total_seconds()
                 if inactivity_duration > settings.SESSION_COOKIE_AGE:
                     logout(request)  # Cierra la sesión si el tiempo de inactividad supera el límite
-            request.session['last_activity'] = timezone.now().isoformat()
+            request.session['last_login'] = timezone.now().isoformat()
         response = self.get_response(request)
         return response

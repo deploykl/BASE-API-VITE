@@ -8,7 +8,7 @@
 
     <nav class="sidebar-menu">
       <ul>
-        <li v-for="(item, index) in filteredMenuItems" :key="index" :class="{
+        <li v-for="(item, index) in filteredallItems" :key="index" :class="{
           'active': activeMenu === index,
           'menu-header': item.isHeader,
           'menu-item-wrapper': !item.isHeader
@@ -96,25 +96,8 @@ const isSuperuser = computed(() => {
   return localStorage.getItem('is_superuser') === 'true'
 })
 
-// Verificar si el usuario tiene acceso a un módulo específico
-const hasModuleAccess = (moduleName) => {
-  return isSuperuser.value || userModulos.value.includes(moduleName)
-}
 
-const filteredMenuItems = computed(() => {
-  return menuItems.value.filter(item => {
-    if (item.isHeader) return true;
-    
-    // Si no requiere módulo específico, mostrarlo
-    if (!item.requiredModule) return true;
-    
-    // Verificar si el usuario tiene acceso
-    return hasModuleAccess(item.requiredModule);
-  });
-});
-
-// Datos del menú
-const menuItems = ref([
+const allItems = ref([
   {
     title: "Principal",
     isHeader: true
@@ -122,61 +105,114 @@ const menuItems = ref([
   {
     title: 'Dashboard',
     icon: 'fa-tachometer-alt',
-    path: '/dashboard',
-    submenu: null
+    path: '/dashboard'
   },
   {
     title: 'Usuarios',
     icon: 'fa-users',
     path: '/user/create',
-    submenu: null,
-    requiredModule: 'Usuarios' // Especificar módulo requerido
+    requiredModule: 'Usuarios'
   },
   {
     title: "Pacientes",
-    isHeader: true
+    isHeader: true,
+    requiredModule: 'Usuarios'
+
   },
   {
     title: 'Emergencia',
     icon: 'fa-user-injured',
     path: '/patients',
+    requiredModule: 'Pacientes',
     submenu: [
-      { title: 'Fichas de Monitoreo', icon: 'fa-chart-bar', path: '/fichas' },
-      { title: 'Matriz de compromiso', icon: 'fa-book', path: '/matriz-list' },
+      {
+        title: 'Fichas de Monitoreo',
+        icon: 'fa-chart-bar',
+        path: '/fichas',
+        requiredModule: 'Fichas'
+      },
+      {
+        title: 'Matriz de compromiso',
+        icon: 'fa-book',
+        path: '/matriz-list',
+        requiredModule: 'Matriz'
+      },
     ]
   },
   {
     title: "Reportes",
-    isHeader: true
+    isHeader: true,
+    requiredModule: 'Consulta Externa'
   },
   {
-    title: 'Fichas de Monitoreo',
-    icon: 'fa-chart-bar',
-    path: '/fichas',
-    submenu: null
+    title: 'Consulta Externa',
+    icon: 'fa-stethoscope',
+    path: '/consulta-externa',
+    requiredModule: 'Consulta Externa'
   },
   {
-    title: 'Matriz de compromiso',
-    icon: 'fa-book',
-    path: '/matriz-list',
-    submenu: null
+    title: 'Cirugía',
+    icon: 'fa-user-doctor',
+    path: '/consulta-externa',
+    requiredModule: 'Consulta Externa'
   },
-  {
-    title: 'Alertas',
-    icon: 'fa-bell',
-    path: '/alertas',
-    submenu: null
-  },
-    {
-    title: 'Presupuesto',
-    icon: 'fa-bell',
-    path: '/presupuesto',
-    submenu: null
-  }
-])
+]);
+// Verificar si el usuario tiene acceso a un módulo específico
+const hasModuleAccess = (moduleName) => {
+  if (!moduleName) return true; // Si no requiere módulo, siempre visible
+  if (isSuperuser.value) return true;
 
+  const userModules = userModulos.value.map(m => m.toLowerCase());
+  const moduleToCheck = moduleName.toLowerCase();
+
+  // Verifica si el módulo existe en los módulos del usuario
+  return userModules.includes(moduleToCheck);
+}
+
+const filteredallItems = computed(() => {
+  const result = [];
+  let lastHeader = null;
+  let headerHasVisibleItems = false;
+
+  for (const item of allItems.value) {
+    if (item.isHeader) {
+      // Guardamos el header temporalmente
+      lastHeader = item;
+      headerHasVisibleItems = false;
+    } else {
+      // Verificamos si el item es visible
+      const isItemVisible = hasModuleAccess(item.requiredModule);
+
+      if (isItemVisible) {
+        // Si hay un header pendiente y es el primer item visible, lo añadimos
+        if (lastHeader && !headerHasVisibleItems) {
+          // Verificamos si el header requiere módulo y el usuario tiene acceso
+          if (!lastHeader.requiredModule || hasModuleAccess(lastHeader.requiredModule)) {
+            result.push(lastHeader);
+          }
+          headerHasVisibleItems = true;
+        }
+
+        // Añadimos el item visible (con submenús filtrados)
+        const filteredItem = { ...item };
+        if (filteredItem.submenu) {
+          filteredItem.submenu = filteredItem.submenu.filter(sub =>
+            hasModuleAccess(sub.requiredModule)
+          );
+        }
+
+        // Solo añadir si tiene submenús o no es un menú desplegable
+        if (!filteredItem.submenu || filteredItem.submenu.length > 0) {
+          result.push(filteredItem);
+        }
+      }
+    }
+  }
+
+  return result;
+});
 const toggleSubmenu = (index) => {
-  if (filteredMenuItems.value[index]?.submenu) {
+  if (filteredallItems.value[index]?.submenu) {
     const submenuIndex = openSubmenus.value.indexOf(index)
     if (submenuIndex === -1) {
       openSubmenus.value.push(index)
@@ -225,7 +261,7 @@ onMounted(() => {
 
   // Marcar menú activo según la ruta actual
   const currentPath = route.path
-  filteredMenuItems.value.forEach((item, index) => {
+  filteredallItems.value.forEach((item, index) => {
     if (item.path === currentPath) {
       activeMenu.value = index
     } else if (item.submenu) {

@@ -48,31 +48,31 @@ class LoginView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Permitir acceso si es staff O superusuario
-        if not user.is_staff and not user.is_superuser:
-            return Response(
-                {'detail': 'Acceso restringido a administradores'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        # Obtener los códigos de los módulos
+        ## Permitir acceso si es staff O superusuario
+        #if not user.is_staff and not user.is_superuser:
+        #    return Response(
+        #        {'detail': 'Acceso restringido a administradores'},
+        #        status=status.HTTP_403_FORBIDDEN
+        #    )
+        # Obtener los módulos correctamente
         if user.is_superuser:
-            # Si es superusuario, obtener todos los módulos activos
             modulos = Modulo.objects.filter(is_active=True).values_list('codename', flat=True)
         else:
-            # Si no, obtener solo los módulos asignados al usuario
             modulos = user.modulos.filter(is_active=True).values_list('codename', flat=True)
-            modulos = [m.lower() for m in modulos]  # Convertir a minúsculas
+        
+        # Convertir a lista para la respuesta
+        modulos_list = list(modulos)
 
         # Generar tokens JWT
         refresh = RefreshToken.for_user(user)
         # Obtener los códigos de los módulos asignados al usuario
-        modulos = user.modulos.values_list('codename', flat=True)
+        # Convertir a lista para la respuesta
         user_data = {
             'access': str(refresh.access_token),
             'refresh': str(refresh),
             'is_superuser': user.is_superuser,
             'is_staff': user.is_staff,
-            'modulos': list(modulos),  # Lista de códigos de módulos
+            'modulos': modulos_list,  # Usar la lista directamente
 
         }
 
@@ -152,12 +152,20 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         user = serializer.save()
         user.updated_by = self.request.user  # Asigna quien actualizó
+        user.updated_at=timezone.now()      # Fecha de actualización actual
         user.save()  # Guarda el usuario
-
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):
         user = self.get_object()
         user.is_active = True
+        user.activated_at = timezone.now()
+        user.activated_by = request.user
         user.save()
         return Response({'status': 'user activated'})
 
@@ -165,8 +173,11 @@ class UserViewSet(viewsets.ModelViewSet):
     def deactivate(self, request, pk=None):
         user = self.get_object()
         user.is_active = False
+        user.deactivated_at = timezone.now()
+        user.deactivated_by = request.user
         user.save()
         return Response({'status': 'user deactivated'})
+
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -186,3 +197,11 @@ class UserViewSet(viewsets.ModelViewSet):
         user.is_staff = False
         user.save()
         return Response({'status': 'user removed from staff'})
+    
+class ModuloViewSet(viewsets.ModelViewSet):
+    queryset = Modulo.objects.all()
+    serializer_class = ModuloSerializer
+    permission_classes = [IsAuthenticated]
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)

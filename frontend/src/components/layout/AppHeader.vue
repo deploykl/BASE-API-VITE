@@ -15,19 +15,10 @@
       <ConnectionManager
         v-slot="{ isOnline, isApiConnected, isCheckingApi, isCheckingNetwork, lastApiCheck, lastNetworkChange, checkApiConnection, checkNetworkConnection }">
         <div class="connection-indicators">
-          <NetworkStatusIndicator 
-            :isOnline="isOnline" 
-            :isMobile="isMobile" 
-            :lastNetworkCheck="lastNetworkChange"
-            :isCheckingNetwork="isCheckingNetwork" 
-            @force-check="checkNetworkConnection" 
-          />
-          <ApiStatusIndicator 
-            :isApiConnected="isApiConnected" 
-            :isCheckingApi="isCheckingApi" 
-            :isMobile="isMobile"
-            @check-api="checkApiConnection" 
-          />
+          <NetworkStatusIndicator :isOnline="isOnline" :isMobile="isMobile" :lastNetworkCheck="lastNetworkChange"
+            :isCheckingNetwork="isCheckingNetwork" @force-check="checkNetworkConnection" />
+          <ApiStatusIndicator :isApiConnected="isApiConnected" :isCheckingApi="isCheckingApi" :isMobile="isMobile"
+            @check-api="checkApiConnection" />
         </div>
       </ConnectionManager>
 
@@ -37,38 +28,28 @@
           <li class="nav-item dropdown">
             <a class="nav-profile d-flex align-items-center" href="#" @click.prevent="toggleDropdown">
               <div class="avatar-container">
-                <img 
-                  :src="userStore.effectiveUserImage" 
-                  alt="Foto de perfil" 
-                  class="avatar-img" 
-                  @error="userStore.setImageError(true)"
-                >
+                <img :src="userStore.effectiveUserImage" alt="Foto de perfil" class="avatar-img"
+                  @error="userStore.setImageError(true)">
               </div>
               <span class="user-name">{{ userStore.userData.username }}</span>
               <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
             </a>
 
             <!-- Dropdown Menu -->
-            <div 
-              v-if="showDropdown" 
-              class="dropdown-menu"
-              ref="dropdownMenu"
-              @mouseleave="handleMouseLeave"
-              @focusout="handleFocusOut"
-              tabindex="-1"
-            >
+            <div v-if="showDropdown" class="dropdown-menu" ref="dropdownMenu" @mouseleave="handleMouseLeave"
+              @focusout="handleFocusOut" tabindex="-1">
               <div class="dropdown-header">
                 <div class="avatar-container-lg">
-                  <img 
-                    :src="userStore.effectiveUserImage" 
-                    alt="Foto de perfil" 
-                    class="avatar-img" 
-                    @error="userStore.setImageError(true)"
-                  >
+                  <img :src="userStore.effectiveUserImage" alt="Foto de perfil" class="avatar-img"
+                    @error="userStore.setImageError(true)">
                 </div>
                 <div class="user-info">
-                  <div class="user-fullname">{{ userStore.fullName }}</div>
-                  <div class="user-email">{{ userStore.userData.email }}</div>
+                  <div class="user-fullname text-truncate">
+                    {{ userStore.fullName }}
+                  </div>
+                  <div class="user-email text-truncate">
+                    {{ userStore.userData.email }}
+                  </div>
                 </div>
               </div>
 
@@ -147,7 +128,7 @@ const handleFocusOut = (event) => {
 
 const handleClickOutside = (event) => {
   const profileBtn = document.querySelector('.nav-profile');
-  
+
   if (dropdownMenu.value && profileBtn &&
     !dropdownMenu.value.contains(event.target) &&
     !profileBtn.contains(event.target)) {
@@ -308,15 +289,27 @@ onUnmounted(() => {
   color: #364257;
 }
 
+/* Estilos para el nombre de usuario */
 .user-fullname {
   font-weight: 600;
   color: #333;
   margin-bottom: 3px;
+  white-space: nowrap; /* Evita el salto de línea */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Muestra puntos suspensivos cuando se trunca */
+  max-width: 100%; /* Asegura que no exceda el ancho del contenedor */
+  display: block; /* Necesario para que funcione text-overflow */
 }
 
+/* Estilos para el email (por si acaso) */
 .user-email {
   font-size: 0.85rem;
   color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
 .dropdown-menu {
@@ -335,11 +328,13 @@ onUnmounted(() => {
   pointer-events: auto;
 }
 
+/* Ajustes para el dropdown header */
 .dropdown-header {
   display: flex;
   align-items: center;
   padding: 15px;
   background: #f8f9fa;
+  min-width: 0; /* Importante para el truncado */
 }
 
 .dropdown-divider {
@@ -347,7 +342,12 @@ onUnmounted(() => {
   background: #e9ecef;
   margin: 0;
 }
-
+/* Contenedor padre - esencial para el truncado */
+.user-info {
+  flex: 1;
+  min-width: 0; /* Esto permite que el truncado funcione en flex containers */
+  overflow: hidden; /* Oculta el contenido que se desborda */
+}
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -402,8 +402,13 @@ onUnmounted(() => {
 }
 
 @keyframes fa-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(359deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(359deg);
+  }
 }
 
 @media (max-width: 768px) {

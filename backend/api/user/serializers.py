@@ -9,7 +9,7 @@ User = get_user_model()
 class ModuloSerializer(serializers.ModelSerializer):
     class Meta:
         model = Modulo
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'codename', 'description']
         
 class UserSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()

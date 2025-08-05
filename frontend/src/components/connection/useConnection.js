@@ -1,7 +1,6 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { api } from "@/components/services/Axios";
-import { useToast } from 'primevue/usetoast' // Asegúrate de tener esta importación
-
+import { useCustomToast } from "@/components/utils/toast";
 
 // Constantes para mejor mantenibilidad
 const NETWORK_TEST_ENDPOINTS = [
@@ -11,56 +10,65 @@ const NETWORK_TEST_ENDPOINTS = [
 ];
 
 const DEFAULT_CHECK_INTERVALS = {
-  online: 60000,
-  offline: 10000,
-  retry: 1000,
-  network: 5000,
-  debounce: 2000,
-  apiTimeout: 3000,
+  online: 60000,    // 1 minuto cuando está online
+  offline: 10000,   // 10 segundos cuando está offline
+  retry: 1000,      // 1 segundo para reintentos
+  network: 5000,    // 5 segundos para chequeo de red
+  debounce: 2000,   // 2 segundos debounce
+  apiTimeout: 3000, // 3 segundos timeout para API
 };
 
 export function useConnection() {
-  const toast = useToast();
-
-  // Estados agrupados
+  const toast = useCustomToast(); // Correcta inicialización dentro del composable
+  
+  // Estados reactivos
   const state = {
     isOnline: ref(navigator.onLine),
     isApiConnected: ref(null),
     isCheckingApi: ref(false),
-    isCheckingNetwork: ref(false), // Nuevo estado
+    isCheckingNetwork: ref(false),
     lastApiCheck: ref(null),
     lastNetworkChange: ref(null),
   };
 
-  // Timers como referencia para mejor limpieza
+  // Timers para manejo de intervalos
   const timers = {
     apiCheck: null,
     retry: null,
     network: null,
   };
 
-  // Mostrar notificación (memoizada)
- const showNotification = (message, type = 'info') => {
-    toast.add({
-      severity: type, // 'success', 'info', 'warn', 'error'
-      summary: type === 'error' ? 'Error' : 'Información',
-      detail: message,
-      life: 3000
-    });
+  // Mostrar notificación usando PrimeVue Toast
+  const showNotification = (message, type = "info") => {
+    switch (type) {
+      case "success":
+        toast.showSuccess(message);
+        break;
+      case "error":
+        toast.showError(message);
+        break;
+      case "warning":
+        toast.showWarning(message);
+        break;
+      default:
+        toast.showInfo(message);
+    }
   };
 
-  // En useConnection.js
-  // Modifica checkRealNetworkStatus
+  // Verificar estado real de la red
   const checkRealNetworkStatus = async () => {
+    if (state.isCheckingNetwork.value) return;
+    
     state.isCheckingNetwork.value = true;
     clearTimeout(timers.network);
 
     let isConnected = false;
 
+    // Probar múltiples endpoints
     for (const endpoint of NETWORK_TEST_ENDPOINTS) {
       try {
         const url = new URL(endpoint);
-        url.searchParams.append("ts", Date.now());
+        url.searchParams.append("ts", Date.now()); // Evitar caché
 
         const response = await fetch(url, {
           method: endpoint.includes("generate_204") ? "HEAD" : "GET",
@@ -68,8 +76,8 @@ export function useConnection() {
           mode: "no-cors",
         });
 
-        isConnected = endpoint.includes("generate_204")
-          ? response.status === 204
+        isConnected = endpoint.includes("generate_204") 
+          ? response.status === 204 
           : true;
 
         if (isConnected) break;
@@ -78,30 +86,31 @@ export function useConnection() {
       }
     }
 
+    // Solo actualizar si hay cambio de estado
     if (isConnected !== state.isOnline.value) {
       state.isOnline.value = isConnected;
       showNotification(
-        isConnected
-          ? "Conexión a Internet restablecida"
+        isConnected 
+          ? "Conexión a Internet restablecida" 
           : "Se perdió la conexión a Internet",
         isConnected ? "success" : "error"
       );
+      
       if (isConnected) checkApiConnection();
     }
 
     state.isCheckingNetwork.value = false;
     timers.network = setTimeout(
-      checkRealNetworkStatus,
+      checkRealNetworkStatus, 
       DEFAULT_CHECK_INTERVALS.network
     );
   };
 
+  // Actualizar estado de red con debounce
   const updateNetworkStatus = () => {
     const now = Date.now();
-    if (
-      state.lastNetworkChange.value &&
-      now - state.lastNetworkChange.value < DEFAULT_CHECK_INTERVALS.debounce
-    ) {
+    if (state.lastNetworkChange.value && 
+        now - state.lastNetworkChange.value < DEFAULT_CHECK_INTERVALS.debounce) {
       return;
     }
 
@@ -111,11 +120,12 @@ export function useConnection() {
     if (newStatus !== state.isOnline.value) {
       state.isOnline.value = newStatus;
       showNotification(
-        newStatus
-          ? "Conexión a Internet restablecida"
+        newStatus 
+          ? "Conexión a Internet restablecida" 
           : "Se perdió la conexión a Internet",
         newStatus ? "success" : "error"
       );
+      
       if (newStatus) checkApiConnection();
       else state.isApiConnected.value = false;
     }
@@ -123,9 +133,9 @@ export function useConnection() {
     checkRealNetworkStatus();
   };
 
+  // Verificar conexión con la API
   const checkApiConnection = async () => {
     if (state.isCheckingApi.value || !state.isOnline.value) {
-      // Si no hay internet, forzar estado offline
       if (!state.isOnline.value) {
         state.isApiConnected.value = false;
       }
@@ -140,23 +150,11 @@ export function useConnection() {
     );
 
     try {
-      const response = await api
-        .options("", {
-          signal: controller.signal,
-          timeout: DEFAULT_CHECK_INTERVALS.apiTimeout,
-        })
-        .catch((error) => {
-          // Manejar errores de axios específicamente
-          if (
-            error.code === "ECONNABORTED" ||
-            error.message.includes("timeout")
-          ) {
-            throw new Error("Timeout");
-          }
-          throw error;
-        });
+      const response = await api.options("", {
+        signal: controller.signal,
+        timeout: DEFAULT_CHECK_INTERVALS.apiTimeout,
+      });
 
-      // Solo considerar éxito respuestas 2xx
       const newStatus = response.status >= 200 && response.status < 300;
 
       if (state.isApiConnected.value !== newStatus) {
@@ -172,11 +170,9 @@ export function useConnection() {
       state.lastApiCheck.value = new Date();
       resetCheckInterval();
     } catch (error) {
-      // Cualquier error debe marcar la API como desconectada
       state.isApiConnected.value = false;
 
       if (error.message !== "Timeout" && state.lastApiCheck.value) {
-        // Solo mostrar notificación si previamente estaba conectado
         showNotification("Error al conectar con el servidor", "error");
       }
 
@@ -187,24 +183,16 @@ export function useConnection() {
     }
   };
 
-  // Modificar los intervalos para ser más reactivos
-  const DEFAULT_CHECK_INTERVALS = {
-    online: 30000, // 30 segundos cuando está online
-    offline: 5000, // 5 segundos cuando está offline
-    retry: 2000, // 2 segundos para reintentos
-    network: 5000, // 5 segundos para chequeo de red
-    debounce: 1000, // 1 segundo debounce
-    apiTimeout: 1500, // 1.5 segundos timeout para API
-  };
-
+  // Programar reintento
   const scheduleRetry = () => {
     clearTimeout(timers.retry);
     timers.retry = setTimeout(
-      checkApiConnection,
+      checkApiConnection, 
       DEFAULT_CHECK_INTERVALS.retry
     );
   };
 
+  // Reiniciar intervalo de chequeo
   const resetCheckInterval = () => {
     clearInterval(timers.apiCheck);
     const interval = state.isApiConnected.value
@@ -213,6 +201,7 @@ export function useConnection() {
     timers.apiCheck = setInterval(checkApiConnection, interval);
   };
 
+  // Setup y limpieza
   onMounted(() => {
     window.addEventListener("online", updateNetworkStatus);
     window.addEventListener("offline", updateNetworkStatus);
@@ -224,14 +213,12 @@ export function useConnection() {
   onUnmounted(() => {
     window.removeEventListener("online", updateNetworkStatus);
     window.removeEventListener("offline", updateNetworkStatus);
-    Object.values(timers).forEach((timer) => {
-      if (timer) clearTimeout(timer);
-    });
+    Object.values(timers).forEach(clearTimeout);
   });
 
   return {
     ...state,
-  checkApiConnection,
-  checkRealNetworkStatus
+    checkApiConnection,
+    checkRealNetworkStatus,
   };
 }
