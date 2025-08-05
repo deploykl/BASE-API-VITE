@@ -1,6 +1,6 @@
 <template>
   <main id="main" class="main">
-    <p>HOLA MUNDO</p>
+    <p>MAIN DASHBOARD</p>
   </main>
 </template>
   
