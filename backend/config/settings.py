@@ -44,6 +44,7 @@ OWN_APPS = [
     "api",
     "api.user",
     "api.gore",
+    "api.dimon",
 ]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
