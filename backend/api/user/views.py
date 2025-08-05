@@ -48,12 +48,12 @@ class LoginView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Permitir acceso si es staff O superusuario
-        if not user.is_staff and not user.is_superuser:
-            return Response(
-                {'detail': 'Acceso restringido a administradores'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        ## Permitir acceso si es staff O superusuario
+        #if not user.is_staff and not user.is_superuser:
+        #    return Response(
+        #        {'detail': 'Acceso restringido a administradores'},
+        #        status=status.HTTP_403_FORBIDDEN
+        #    )
         # Obtener los códigos de los módulos
         if user.is_superuser:
             # Si es superusuario, obtener todos los módulos activos
@@ -154,7 +154,12 @@ class UserViewSet(viewsets.ModelViewSet):
         user.updated_by = self.request.user  # Asigna quien actualizó
         user.updated_at=timezone.now()      # Fecha de actualización actual
         user.save()  # Guarda el usuario
-         
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):
         user = self.get_object()
@@ -192,3 +197,11 @@ class UserViewSet(viewsets.ModelViewSet):
         user.is_staff = False
         user.save()
         return Response({'status': 'user removed from staff'})
+    
+class ModuloViewSet(viewsets.ModelViewSet):
+    queryset = Modulo.objects.all()
+    serializer_class = ModuloSerializer
+    permission_classes = [IsAuthenticated]
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)

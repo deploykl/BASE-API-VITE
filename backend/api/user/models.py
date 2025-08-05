@@ -162,16 +162,10 @@ class User(AbstractUser):
             self.image = "img/empty.png"
 
     def delete(self, *args, **kwargs):
-        """Elimina la imagen del almacenamiento si no es por defecto y registra quién eliminó"""
+        """Elimina físicamente el usuario y su imagen si no es por defecto"""
         request = kwargs.pop("request", None)
-
-        if request and request.user.is_authenticated:
-            self.deleted_by = request.user
-        self.deleted_at = timezone.now()
-        self.is_active = False  # En lugar de borrar, desactivamos
-        self.save()
-
-        # Opcional: eliminar la imagen si no es la por defecto
+        
+        # Elimina la imagen si no es por defecto
         try:
             if self.image and not self.image.name.startswith(
                 ("img/empty", "img/mujer", "img/hombre")
@@ -179,3 +173,6 @@ class User(AbstractUser):
                 default_storage.delete(self.image.path)
         except Exception as e:
             print(f"Error al eliminar imagen: {e}")
+        
+        # Eliminación física (llama al delete() original de models.Model)
+        super().delete(*args, **kwargs)
