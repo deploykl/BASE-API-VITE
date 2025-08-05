@@ -11,6 +11,12 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from api.permissions import IsSuperUser, HasModuleAccess
+import datetime
+from django.http import JsonResponse
+from django.views import View
+from django.db import connection
+from redis import Redis
+from django.conf import settings
 
 User = get_user_model()
 
@@ -205,3 +211,42 @@ class ModuloViewSet(viewsets.ModelViewSet):
     ordering = ["id"]
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+#VERTIFICAR CONEXION BACKEND
+class HealthCheckView(View):
+    def get(self, request):
+        health_status = {
+            'status': 'OK',
+            'timestamp': datetime.datetime.now().isoformat(),
+            'version': '1.0.0',
+            'services': {
+                'database': False,
+                'cache': False,
+                'external_services': {}
+            }
+        }
+        status_code = 200
+        
+        try:
+            # Verificar base de datos
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                health_status['services']['database'] = True
+        except Exception as e:
+            health_status['status'] = 'DEGRADED'
+            health_status['services']['database'] = False
+            health_status['services']['database_error'] = str(e)
+            status_code = 503
+
+        try:
+            # Verificar Redis si está configurado
+            if hasattr(settings, 'REDIS_URL'):
+                redis_conn = Redis.from_url(settings.REDIS_URL)
+                health_status['services']['cache'] = redis_conn.ping()
+        except Exception as e:
+            health_status['status'] = 'DEGRADED'
+            health_status['services']['cache'] = False
+            health_status['services']['cache_error'] = str(e)
+            status_code = 503
+
+        return JsonResponse(health_status, status=status_code)

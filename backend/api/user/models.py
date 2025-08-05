@@ -176,3 +176,4 @@ class User(AbstractUser):
         
         # Eliminación física (llama al delete() original de models.Model)
         super().delete(*args, **kwargs)
+

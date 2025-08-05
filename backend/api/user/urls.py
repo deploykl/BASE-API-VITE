@@ -14,6 +14,7 @@ urlpatterns = [
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
     path('login/', LoginView.as_view(), name='login'),  # Esta es la ruta con nombre 'login'
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('health-check/', HealthCheckView.as_view(), name='health-check'),
 
     #path('register/', RegisterView.as_view(), name='register'),
     #path('password/reset/', PasswordResetRequestView.as_view(), name='password-reset'),

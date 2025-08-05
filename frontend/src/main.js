@@ -22,10 +22,11 @@ import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/Tag';
 import ToggleSwitch from 'primevue/toggleswitch';
 import ProgressBar from 'primevue/ProgressBar';
+import Card from 'primevue/Card';
+import Divider from 'primevue/Divider';
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import 'vue-sonner/style.css'
@@ -81,6 +82,8 @@ app.component('Column', Column);
 app.component('Dropdown', Dropdown);
 app.component('Tag', Tag);
 app.component('ToggleSwitch', ToggleSwitch);
+app.component('Card', Card);
+app.component('Divider', Divider);
 
 // Monta la aplicación
 app.mount('#app')
