@@ -41,19 +41,19 @@
                 </div>
 
                 <!-- Formulario de importación -->
-               <template v-if="!esStaff">
-  
-                <div class="mb-3">
-                    <label for="excelFile" class="form-label">Seleccionar archivo Excel</label>
-                    <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls"
-                        @change="handleFileChange" :disabled="loading">
-                    <div class="form-text">Formatos soportados: .xlsx, .xls (Máx. 10MB)</div>
-                </div>
+                <template v-if="!esStaff">
+                    <div class="mb-3">
+                        <label for="excelFile" class="form-label">Seleccionar archivo Excel</label>
+                        <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls"
+                            @change="handleFileChange" :disabled="loading">
+                        <div class="form-text">Formatos soportados: .xlsx, .xls (Máx. 10MB)</div>
+                    </div>
+                </template>
 
                 <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
                     <!-- Botón Importar Datos -->
-                    <button class="btn btn-primary d-flex align-items-center" :disabled="!file || loading"
-                        @click="uploadFile">
+                    <button v-if="!esStaff" class="btn btn-primary d-flex align-items-center"
+                        :disabled="!file || loading" @click="uploadFile">
                         <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
                         <i v-else class="bi bi-upload me-2"></i>
                         {{ loading ? 'Importando...' : 'Importar Datos' }}
@@ -122,7 +122,6 @@
                         </button>
                     </div>
                 </div>
-</template>
 
                 <!-- Resultados de importación -->
                 <div v-if="importResult" class="mt-3 alert"
@@ -632,10 +631,10 @@ const verificarPermisos = () => {
     try {
         // Verificar si es superusuario
         esSuperusuario.value = localStorage.getItem('is_superuser') === 'true';
-        
+
         // Verificar si es staff
         esStaff.value = localStorage.getItem('is_staff') === 'true';
-        
+
         console.log('Permisos:', {
             superuser: esSuperusuario.value,
             staff: esStaff.value

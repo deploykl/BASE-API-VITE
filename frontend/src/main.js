@@ -24,6 +24,7 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import ProgressBar from 'primevue/ProgressBar';
 import Card from 'primevue/Card';
 import Divider from 'primevue/Divider';
+import Password from 'primevue/Password';
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -84,6 +85,7 @@ app.component('Tag', Tag);
 app.component('ToggleSwitch', ToggleSwitch);
 app.component('Card', Card);
 app.component('Divider', Divider);
+app.component('Password', Password);
 
 // Monta la aplicación
 app.mount('#app')

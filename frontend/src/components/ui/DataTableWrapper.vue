@@ -33,10 +33,15 @@
         <slot name="header"></slot>
         <div class="flex flex-wrap justify-end gap-2">
           <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
-          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm" />
+          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-2" />
           <!-- Botón de Exportación CSV -->
-          <Button icon="pi pi-file-excel" label="Export CSV" @click="exportCSV" class="p-button-sm"
-            severity="success" :loading="exportingCSV" />
+          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-2" severity="success"
+            :loading="exportingCSV" />
+          <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-2" severity="danger" />
+          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-2"
+            severity="success" />
+          <Button icon="pi pi-file-excel" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="success" />
+
         </div>
       </template>
 
@@ -107,7 +112,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { utils, writeFile } from 'xlsx';
 
 const FilterMatchMode = {
   CONTAINS: 'contains',
@@ -187,11 +195,11 @@ const exportingCSV = ref(false);
 
 const exportCSV = () => {
   exportingCSV.value = true; // Activar spinner
-  
+
   // Pequeño delay para que se vea el spinner
   setTimeout(() => {
     dt.value.exportCSV(); // Llamar a la exportación real
-    
+
     // Desactivar spinner después de un breve momento
     setTimeout(() => {
       exportingCSV.value = false;
@@ -368,6 +376,305 @@ watch([searchTerm, filters], () => {
     }
   }
 }, { deep: true });
+
+const exportPDF = async () => {
+  // Configuración del documento con estilo moderno
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+    filters: ["ASCIIHexEncode"]
+  });
+
+  const title = props.title || "Reporte";
+  const date = new Date().toLocaleDateString();
+  const recordCount = filteredData.value.length;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14; // Margen izquierdo base
+
+  // Color palette moderna (azul corporativo + grises)
+  const primaryColor = [41, 128, 185];
+  const secondaryColor = [99, 110, 114];
+  const lightGray = [241, 242, 246];
+
+  // Encabezado estilizado
+  doc.setFillColor(...primaryColor);
+  doc.rect(0, 0, pageWidth, 25, 'F');
+
+  // Logo con efecto de borde circular
+  try {
+    const svgUrl = (await import('@/assets/google.png?url')).default;
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = svgUrl;
+    });
+
+    // Tamaño deseado en el PDF (en mm)
+    const targetSize = 20;
+
+    // Calcular relación de aspecto
+    const aspectRatio = img.width / img.height;
+
+    // Crear canvas con tamaño intermedio para mejor calidad
+    const canvas = document.createElement('canvas');
+    const intermediateSize = 100; // Tamaño intermedio para mejor calidad
+    canvas.width = intermediateSize;
+    canvas.height = intermediateSize / aspectRatio;
+    const ctx = canvas.getContext('2d');
+
+    // Aplicar suavizado
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // Crear máscara circular
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+
+    // Dibujar imagen con tamaño intermedio
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const logoData = canvas.toDataURL('image/png', 1.0); // Calidad máxima
+
+    // Añadir al PDF con el tamaño final deseado
+    doc.addImage(logoData, 'PNG', margin, 5, targetSize, targetSize / aspectRatio);
+  } catch (error) {
+    console.error('Error al cargar el logo:', error);
+    // Fallback elegante
+    doc.setFillColor(255, 255, 255);
+    doc.circle(margin + 10, 15, 8, 'F');
+  }
+
+  // Calcular posición del texto (logo + espacio de 7mm ≈ 20px)
+  const textStartX = margin + 20 + 7; // margen(14) + logo(20) + espacio(7)
+
+  // Título principal (en blanco sobre fondo azul)
+  doc.setFontSize(16);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.text(title, textStartX, 15);
+
+  // Subtítulo con fecha y conteo
+  doc.setFontSize(10);
+  doc.text(`Generado el ${date} • ${recordCount} registros`, textStartX, 22);
+
+  // Reset de estilos para el contenido
+  doc.setTextColor(...secondaryColor);
+  doc.setFont("helvetica", "normal");
+
+  // Función para formatear valores consistentemente
+  const formatCellValue = (value, column) => {
+    if (value === null || value === undefined) return '-';
+    
+    // Manejo especial para campos booleanos (como staff)
+    if (column.dataType === 'boolean' || typeof value === 'boolean') {
+      return value ? 'Sí' : 'No';
+    }
+    // Formatear fechas
+    else if (column.dataType === 'date') {
+      return value ? new Date(value).toLocaleDateString() : '-';
+    }
+    // Formatear números
+    else if (column.dataType === 'numeric') {
+      return new Intl.NumberFormat('es-ES').format(value);
+    }
+    // Valor por defecto (string)
+    return value || '-';
+  };
+
+  // Preparar datos para la tabla
+  const headers = props.columns.map(col => ({
+    title: col.header,
+    dataKey: col.field,
+    dataType: col.dataType
+  }));
+
+  const data = filteredData.value.map(row => {
+    const rowData = {};
+    props.columns.forEach(col => {
+      if (col.bodyTemplate) {
+        rowData[col.field] = col.field === "full_name"
+          ? (row.full_name || "-")
+          : "-";
+      } else {
+        rowData[col.field] = formatCellValue(row[col.field], col);
+      }
+    });
+    return rowData;
+  });
+
+  // Generar tabla con estilo moderno
+  autoTable(doc, {
+    head: [headers.map(h => h.title)],
+    body: data.map(row => headers.map(header => row[header.dataKey])),
+    startY: 30,
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      overflow: "linebreak",
+      textColor: secondaryColor,
+      font: "helvetica"
+    },
+    headStyles: {
+      fillColor: primaryColor,
+      textColor: 255,
+      fontStyle: "bold",
+      fontSize: 9
+    },
+    alternateRowStyles: {
+      fillColor: lightGray
+    },
+    margin: { top: 30 },
+    tableLineColor: [189, 195, 199],
+    tableLineWidth: 0.2
+  });
+
+  // Pie de página
+  const footerY = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(8);
+  doc.setTextColor(...secondaryColor);
+  doc.text(`© ${new Date().getFullYear()} - Sistema de Gestión`, pageWidth - 20, footerY, { align: "right" });
+
+  // Guardar el PDF
+  doc.save(`${title.replace(/\s/g, "_")}_${date.replace(/\//g, "-")}.pdf`);
+};
+
+// Agrega esta función en tus métodos
+const exportExcel = () => {
+  // Preparar los datos
+  const headers = props.columns.map(col => ({
+    title: col.header,
+    dataKey: col.field,
+    dataType: col.dataType
+  }));
+
+  // Crear matriz de datos incluyendo encabezados
+  const excelData = [
+    // Fila de encabezado
+    headers.map(h => h.title),
+    // Filas de datos
+    ...filteredData.value.map(row => {
+      return headers.map(col => {
+        // Formatear valores según tipo
+        const value = row[col.dataKey];
+        
+        // Manejar valores null/undefined
+        if (value === null || value === undefined) return '';
+        
+        // Caso especial para booleanos (incluyendo el campo staff)
+        if (col.dataType === 'boolean' || typeof value === 'boolean') {
+          return value ? 'Sí' : 'No'; // Mostrar "No" cuando es false
+        }
+        // Formatear fechas
+        else if (col.dataType === 'date') {
+          return value ? new Date(value).toLocaleDateString() : '';
+        } 
+        // Formatear números
+        else if (col.dataType === 'numeric') {
+          return Number(value) || 0;
+        }
+        // Valor por defecto (string)
+        return value || '';
+      });
+    })
+  ];
+
+  // Crear hoja de trabajo
+  const ws = utils.aoa_to_sheet(excelData);
+
+  // Estilos para encabezados
+  const headerStyle = {
+    fill: { fgColor: { rgb: "2c3e50" } }, // Fondo oscuro
+    font: { bold: true, color: { rgb: "FFFFFF" } }, // Texto blanco en negrita
+    alignment: { horizontal: "center" }
+  };
+
+  // Aplicar estilos a la primera fila (encabezados)
+  const range = utils.decode_range(ws['!ref']);
+  for (let C = range.s.c; C <= range.e.c; ++C) {
+    const cellAddress = utils.encode_cell({ r: 0, c: C });
+    if (!ws[cellAddress].s) ws[cellAddress].s = {};
+    Object.assign(ws[cellAddress].s, headerStyle);
+  }
+
+  // Ajustar anchos de columnas
+  ws['!cols'] = headers.map(col => ({
+    wch: Math.max(10, Math.min(30, col.title.length * 1.3))
+  }));
+
+  // Crear libro y guardar
+  const wb = utils.book_new();
+  utils.book_append_sheet(wb, ws, "Datos");
+
+  const dateStr = new Date().toISOString().slice(0, 10);
+  writeFile(wb, `${props.title || 'Reporte'}_${dateStr}.xlsx`);
+};
+
+const exportCSV2 = () => {
+  exportingCSV.value = true;
+
+  // Preparar los encabezados
+  const headers = props.columns
+    .filter(col => !col.excludeFromExport)
+    .map(col => `"${col.header.replace(/"/g, '""')}"`); // Escapar comillas en encabezados
+
+  // Preparar los datos
+  const data = filteredData.value.map(row => {
+    return props.columns
+      .filter(col => !col.excludeFromExport)
+      .map(col => {
+        const value = row[col.field];
+        
+        // Manejar valores null/undefined primero
+        if (value === null || value === undefined) return '';
+        
+        // Caso especial para booleanos (incluyendo el campo staff)
+        if (col.dataType === 'boolean' || typeof value === 'boolean') {
+          return value ? 'Sí' : 'No'; // Mostrar "No" cuando es false
+        }
+        // Formatear fechas
+        else if (col.dataType === 'date') {
+          return `"${value ? new Date(value).toLocaleDateString() : ''}"`;
+        }
+        // Formatear números
+        else if (col.dataType === 'numeric') {
+          return value ? Number(value) : '';
+        }
+        // Valor por defecto (string)
+        return `"${String(value).replace(/"/g, '""')}"`; // Escapar comillas
+      });
+  });
+
+  // Crear contenido CSV
+  let csvContent = '';
+  
+  // Encabezados
+  csvContent += headers.join(',') + '\r\n';
+  
+  // Datos
+  data.forEach(row => {
+    csvContent += row.join(',') + '\r\n';
+  });
+
+  // Crear blob y descargar
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${props.title || 'Reporte'}_${new Date().toISOString().slice(0, 10)}.csv`);
+  link.style.visibility = 'hidden';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  exportingCSV.value = false;
+};
+
+
 </script>
 
 <style scoped>
@@ -509,5 +816,10 @@ watch([searchTerm, filters], () => {
 
 :deep(.p-datatable .p-row-expanded) {
   background-color: #f8f9fa;
+}
+
+:deep(.p-datatable) {
+  font-size: 0.85rem;
+  /* Ajusta este valor según necesites */
 }
 </style>
