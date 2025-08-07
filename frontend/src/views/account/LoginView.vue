@@ -89,41 +89,70 @@ const handleLowerCASE = (event) => {
 };
 
 const handleSubmit = async () => {
-  errorStore.clearMessage() // Usa el store para limpiar
+  errorStore.clearMessage()
   isLoading.value = true;
 
   try {
+  
     const response = await api.post('user/login/', {
       username: username.value,
       password: password.value,
     });
 
-    const { access, refresh, is_superuser, is_staff ,modulos } = response.data;
+    const { access, refresh, is_superuser, is_staff, modulos } = response.data;
+    //console.log("Respuesta del servidor:", {
+    //  access: !!access,
+    //  refresh: !!refresh,
+    //  is_superuser,
+    //  is_staff,
+    //  modulos
+    //})
 
     if (!access) {
-      errorStore.showMessage('No se recibió token de acceso.') // Usa el store
+      console.error("Error: No se recibió token de acceso")
+      errorStore.showMessage('No se recibió token de acceso.')
       return;
     }
 
-    // Guardar solo lo esencial
+    // Guardar datos
     localStorage.setItem('auth_token', access);
     if (refresh) localStorage.setItem('refreshToken', refresh);
     localStorage.setItem('is_superuser', is_superuser ? 'true' : 'false');
     localStorage.setItem('is_staff', is_staff ? 'true' : 'false');
-    // Guardar los módulos como string JSON
     localStorage.setItem('user_modulos', JSON.stringify(modulos));
-       // Mostrar módulos en consola para debug
-    console.log('Módulos del usuario:', modulos);
-    // Redirigir
+
+    console.log("Datos almacenados en localStorage:", {
+      token: !!localStorage.getItem('auth_token'),
+      modulos: JSON.parse(localStorage.getItem('user_modulos'))
+    })
+
+    // Redirigir al dashboard
+    console.log("Redirigiendo a dashboard...")
     router.push('/dashboard');
 
   } catch (error) {
+    console.error("Error en login:", error)
+    
     if (error.response?.data?.detail) {
-      errorStore.showMessage(error.response.data.detail) // Usa el store
+      console.log("Detalle del error:", error.response.data)
+      
+      // Manejo especial para módulos desactivados
+      if (error.response.data.detail.includes('desactivados')) {
+        const message = 'Tienes módulos asignados pero están temporalmente desactivados. ' +
+                       'Por favor contacta al administrador.'
+        
+        if (error.response.data.modulos_desactivados) {
+          console.log("Módulos desactivados detectados:", 
+            error.response.data.modulos_desactivados)
+        }
+        
+        errorStore.showMessage(message)
+      } else {
+        errorStore.showMessage(error.response.data.detail)
+      }
     } else {
-      errorStore.showMessage('Error al conectar con el servidor. Por favor intente nuevamente.') // Usa el store
-      console.log('Base URL:', import.meta.env.VITE_API_URL); // Añade esto
-
+      const message = 'Error al conectar con el servidor. Por favor intente nuevamente.'
+      errorStore.showMessage(message)
     }
   } finally {
     isLoading.value = false;

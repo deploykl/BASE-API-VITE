@@ -21,12 +21,13 @@ from django.conf import settings
 User = get_user_model()
 
 class LoginView(APIView):
-    permission_classes = [AllowAny]  # Permitir acceso sin autenticación previa
+    permission_classes = [AllowAny]
 
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
 
+        # Validación básica de campos
         if not username or not password:
             return Response(
                 {'detail': 'Las credenciales de autenticación no se proveyeron.'}, 
@@ -35,6 +36,7 @@ class LoginView(APIView):
 
         user = User.objects.filter(username=username).first()
 
+        # Validaciones de usuario
         if user is None:
             return Response(
                 {'detail': 'Usuario no encontrado'}, 
@@ -47,41 +49,60 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Verificar si el usuario está activo
         if not user.is_active:
             return Response(
                 {'detail': 'Cuenta desactivada'}, 
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # Lógica de módulos mejorada
+        if user.is_superuser:
+            modulos_activos = Modulo.objects.filter(is_active=True)
+            modulos_asignados = Modulo.objects.all()
+        else:
+            modulos_activos = user.modulos.filter(is_active=True)
+            modulos_asignados = user.modulos.all()
+        
+        modulos_activos_list = list(modulos_activos.values_list('codename', flat=True))
+        
         ## Permitir acceso si es staff O superusuario
         #if not user.is_staff and not user.is_superuser:
         #    return Response(
         #        {'detail': 'Acceso restringido a administradores'},
         #        status=status.HTTP_403_FORBIDDEN
         #    )
-        # Obtener los módulos correctamente
-        if user.is_superuser:
-            modulos = Modulo.objects.filter(is_active=True).values_list('codename', flat=True)
-        else:
-            modulos = user.modulos.filter(is_active=True).values_list('codename', flat=True)
-        
-        # Convertir a lista para la respuesta
-        modulos_list = list(modulos)
 
-        # Generar tokens JWT
+        # Validación de módulos
+        if not user.is_superuser:
+            if modulos_asignados.exists() and not modulos_activos.exists():
+                modulos_desactivados = list(modulos_asignados.values('codename', 'description'))
+                print(f"Módulos desactivados: {modulos_desactivados}")
+                
+                return Response(
+                    {
+                        'detail': 'Tienes módulos asignados pero están desactivados',
+                        'modulos_desactivados': modulos_desactivados
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            elif not modulos_asignados.exists():
+                return Response(
+                    {'detail': 'No tienes módulos asignados. Contacta al administrador.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        # Generación de token
         refresh = RefreshToken.for_user(user)
-        # Obtener los códigos de los módulos asignados al usuario
-        # Convertir a lista para la respuesta
+        
         user_data = {
             'access': str(refresh.access_token),
             'refresh': str(refresh),
             'is_superuser': user.is_superuser,
             'is_staff': user.is_staff,
-            'modulos': modulos_list,  # Usar la lista directamente
-
+            'modulos': modulos_activos_list,
         }
 
+        print("Login exitoso. Datos devueltos:", user_data)
         return Response(user_data, status=status.HTTP_200_OK)
     
 class LogoutView(APIView):
@@ -205,12 +226,16 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({'status': 'user removed from staff'})
     
 class ModuloViewSet(viewsets.ModelViewSet):
-    queryset = Modulo.objects.all()
     serializer_class = ModuloSerializer
     permission_classes = [IsAuthenticated]
     ordering = ["id"]
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Modulo.objects.all()  # Superusuarios ven todo
+        return Modulo.objects.filter(is_active=True)  # Usuarios normales solo activos
     
 #VERTIFICAR CONEXION BACKEND
 class HealthCheckView(View):

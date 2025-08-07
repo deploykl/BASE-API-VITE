@@ -104,7 +104,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=8),  # Tiempo de vida del token de acceso
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Tiempo de vida del token de refresco
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # 1 día para el token de refresco
     "ROTATE_REFRESH_TOKENS": True,  # Rotar los tokens de refresco
     "BLACKLIST_AFTER_ROTATION": True,  # Añadir tokens de refresco a la lista negra después de rotación
     "UPDATE_LAST_LOGIN": True,  # Actualizar la última fecha de inicio de sesión del usuario
@@ -190,7 +190,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SESSION_COOKIE_AGE = 12 * 60 * 60  # 12 horas
+SESSION_COOKIE_AGE = 8 * 60 * 60  # 8 horas en segundos (8h * 60m * 60s)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Para respetar el tiempo de expiración
 SESSION_SAVE_EVERY_REQUEST = True  # Renueva el tiempo de expiración con cada solicitud
 
