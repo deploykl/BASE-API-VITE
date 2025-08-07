@@ -403,7 +403,7 @@ const exportPDF = async () => {
 
   // Logo con efecto de borde circular
   try {
-    const svgUrl = (await import('@/assets/google.png?url')).default;
+    const svgUrl = (await import('@/assets/logo.png?url')).default;
     const img = new Image();
     await new Promise((resolve, reject) => {
       img.onload = resolve;

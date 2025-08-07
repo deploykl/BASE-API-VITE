@@ -223,9 +223,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 if not DEBUG:
     SECURE_HSTS_SECONDS = 3600  # 1 hora
     SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Configuración de seguridad para cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True  # Previene acceso via JavaScript
+CSRF_COOKIE_HTTPONLY = False  # Debe ser False para que AJAX funcione
+SESSION_COOKIE_SAMESITE = 'Strict'  # o 'Strict' para más seguridad
+CSRF_COOKIE_SAMESITE = 'Lax'
+CORS_ALLOW_CREDENTIALS = True  # Importante para incluir cookies/autorización
+
+# Configuración adicional de seguridad
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 if not DEBUG and os.getenv("AWS_ACCESS_KEY_ID"):
     # Configuración para AWS S3 en producción
@@ -251,6 +263,7 @@ else:
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 
+#CREAR DOCKERS CON CLAVE
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",

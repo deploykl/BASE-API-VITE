@@ -2,8 +2,8 @@
   <div v-if="isMobile && !isCollapsed" class="sidebar-overlay" @click="toggleSidebar"></div>
   <aside :class="['sidebar', { 'collapsed': isCollapsed, 'mobile-hidden': isMobile && isCollapsed }]">
     <div class="sidebar-header">
-      <img src="@/assets/logo.png" alt="Logo" class="logo-img">
-      <span class="logo-text" v-if="!isCollapsed || isMobile">LOGO NAME</span>
+      <img src="@/assets/logo-white.png" alt="Logo" class="logo-img">
+      <span class="logo-text" v-if="!isCollapsed || isMobile">VEXA</span>
     </div>
 
     <nav class="sidebar-menu">

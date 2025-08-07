@@ -9,48 +9,73 @@
           <div class="mb-3">
             <label class="form-label">Contraseña Actual</label>
             <div class="input-group">
-              <input :type="showCurrentPassword ? 'text' : 'password'" class="form-control"
-                v-model="passwords.current_password" :class="{ 'is-invalid': errors.current_password }" required>
-              <button class="btn btn-outline-secondary" type="button"
-                @click="showCurrentPassword = !showCurrentPassword">
-                <i :class="showCurrentPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              <input 
+                :type="showCurrentPassword ? 'text' : 'password'" 
+                class="form-control" 
+                v-model="passwords.current_password" 
+                :class="{ 'is-invalid': errors.current_password }"
+                required
+              >
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                @click="showCurrentPassword = !showCurrentPassword"
+              >
+                <i :class="showCurrentPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
               </button>
             </div>
             <div v-if="errors.current_password" class="invalid-feedback d-block">
               {{ errors.current_password }}
             </div>
           </div>
-
+          
           <div class="mb-3">
             <label class="form-label">Nueva Contraseña</label>
-            <Password v-model="passwords.new_password" :feedback="false" toggleMask
-              :inputClass="{ 'p-invalid': errors.new_password }" class="w-full">
-              <template #header>
-                <small class="form-text text-muted">Mínimo 8 caracteres</small>
-              </template>
-              <template #footer>
-                <div v-if="errors.new_password" class="p-error">
-                  {{ errors.new_password }}
-                </div>
-              </template>
-            </Password>
+            <div class="input-group">
+              <input 
+                :type="showNewPassword ? 'text' : 'password'" 
+                class="form-control" 
+                v-model="passwords.new_password" 
+                :class="{ 'is-invalid': errors.new_password }"
+                required
+              >
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                @click="showNewPassword = !showNewPassword"
+              >
+                <i :class="showNewPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+              </button>
+            </div>
+            <small class="form-text text-muted">Mínimo 8 caracteres</small>
+            <div v-if="errors.new_password" class="invalid-feedback d-block">
+              {{ errors.new_password }}
+            </div>
           </div>
-
+          
           <div class="mb-3">
             <label class="form-label">Confirmar Nueva Contraseña</label>
             <div class="input-group">
-              <input :type="showConfirmPassword ? 'text' : 'password'" class="form-control"
-                v-model="passwords.confirm_password" :class="{ 'is-invalid': errors.confirm_password }" required>
-              <button class="btn btn-outline-secondary" type="button"
-                @click="showConfirmPassword = !showConfirmPassword">
-                <i :class="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              <input 
+                :type="showConfirmPassword ? 'text' : 'password'" 
+                class="form-control" 
+                v-model="passwords.confirm_password" 
+                :class="{ 'is-invalid': errors.confirm_password }"
+                required
+              >
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <i :class="showConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
               </button>
             </div>
             <div v-if="errors.confirm_password" class="invalid-feedback d-block">
               {{ errors.confirm_password }}
             </div>
           </div>
-
+          
           <div class="d-flex justify-content-between mt-4">
             <router-link to="/perfil" class="btn btn-outline-secondary">
               Volver al Perfil
@@ -70,9 +95,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/components/services/Axios'
-import { toast } from 'vue-sonner'
+import { useToast } from 'primevue/usetoast'
 
 const router = useRouter()
+const toast = useToast()
 
 const passwords = ref({
   current_password: '',
@@ -137,21 +163,26 @@ const changePassword = async () => {
       confirm_password: passwords.value.confirm_password
     })
 
-    toast.success('Contraseña cambiada exitosamente')
-
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'Contraseña cambiada exitosamente',
+      life: 3000
+    })
+    
     // Limpiar formulario
     passwords.value = {
       current_password: '',
       new_password: '',
       confirm_password: ''
     }
-
+    
     // Redirigir al perfil
     router.push('/perfil')
-
+    
   } catch (err) {
     console.error('Error al cambiar contraseña:', err)
-
+    
     // Manejo de errores del backend
     if (err.response?.data) {
       // Asignar errores a los campos correspondientes
@@ -159,11 +190,21 @@ const changePassword = async () => {
         if (errors.value.hasOwnProperty(field)) {
           errors.value[field] = Array.isArray(messages) ? messages[0] : messages
         } else {
-          toast.error(Array.isArray(messages) ? messages[0] : messages)
+          toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: Array.isArray(messages) ? messages[0] : messages,
+            life: 3000
+          })
         }
       }
     } else {
-      toast.error('Error al cambiar la contraseña')
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al cambiar la contraseña',
+        life: 3000
+      })
     }
   } finally {
     loading.value = false
@@ -172,6 +213,7 @@ const changePassword = async () => {
 </script>
 
 <style scoped>
+/* Tus estilos actuales permanecen igual */
 .change-password-container {
   max-width: 600px;
   margin: 2rem auto;
