@@ -38,8 +38,8 @@
           <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-2" severity="success"
             :loading="exportingCSV" />
           <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-2" severity="danger" />
-          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-2"
-            severity="success" />
+          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-2" 
+            severity="info" />
           <Button icon="pi pi-file-excel" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="success" />
 
         </div>

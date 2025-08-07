@@ -1,132 +1,260 @@
 <template>
-  <div class="page-wrapper">
-    <header class="header">
-      <div class="header-content">
-        <img src="@/assets/img/home/bot.png" alt="Logo" class="logo">
-      </div>
-    </header>
-
-    <main class="main-content py-4">
+  <div class="d-flex flex-column min-vh-100">
+    <main class="flex-grow-1 py-4">
       <div class="container">
-        <div class="row align-items-center justify-content-center"> <!-- Centrado vertical y horizontal -->
-          <!-- Columna de la imagen -->
+        <!-- Sección de presentación -->
+        <div class="row align-items-center justify-content-center mb-5">
           <div class="col-md-6 mb-4 mb-md-0 d-flex justify-content-center">
             <img src="@/assets/img/home/work.png" alt="Presentación"
-              class="img-fluid rounded mx-auto d-block image-style me-5">
+              class="img-fluid rounded mx-auto d-block me-lg-5 image-style" style="max-width: 100%;">
           </div>
-
-          <!-- Columna del texto - centrada vertical y horizontalmente -->
           <div class="col-md-6 text-center">
-            <!-- Título principal -->
-            <h1 class="mb-3 text-center text-primary fw-bold">Dirección de Monitoreo y Evaluación de la Gestión en Salud
-            </h1>
-            <!-- Descripción -->
-            <p class="mb-3 lead">
-              Dirección de Monitoreo y Evaluación de la Gestión en Salud.
-            </p>
+            <h1 class="mb-3 text-center text-primary fw-bold">Dirección de Monitoreo y Evaluación de la Gestión en Salud</h1>
+            <p class="mb-3 lead">Dirección de Monitoreo y Evaluación de la Gestión en Salud.</p>
 
-            <!-- Alertas importantes -->
             <div class="alert alert-info d-flex align-items-center mb-4">
               <i class="bi bi-exclamation-circle-fill me-2 fs-4"></i>
               <div>
                 <strong>Novedad:</strong> Lanzamiento de la Versión Demo (v1.0) con módulos esenciales
               </div>
             </div>
-
+            
             <!-- Módulos destacados -->
             <div class="mb-4">
-              <h5 class="mb-3 text-center"><i class="bi bi-grid-fill me-2"></i>Módulos Principales</h5>
-              <div class="row justify-content-center g-3"> <!-- Centrado y mejor espaciado -->
-                <!-- Módulo de Fichas -->
-                <div class="col-8 col-sm-3 col-md-5 col-lg-3">
-                  <div class="p-3 border rounded bg-light text-center h-100 module-card">
-                    <i class="bi bi-clipboard-check fs-3 text-success mb-2"></i>
-                    <h6 class="fw-bold">Fichas de Verificación</h6>
-                    <p class="small text-muted mb-0">Gestión completa de fichas técnicas</p>
+              <h5 class="mb-3 text-center"><i class="pi pi-th-large me-2"></i>Módulos Principales</h5>
+              <div class="row justify-content-center g-3">
+                <!-- Módulo de Arquitectura -->
+                <div class="col-8 col-sm-6 col-md-5 col-lg-3">
+                  <div class="p-3 border rounded bg-light text-center h-100">
+                    <i class="pi pi-sitemap fs-3 text-primary mb-2"></i>
+                    <h6 class="fw-bold">Arquitectura</h6>
+                    <p class="small text-muted mb-0">Diseño del sistema completo</p>
                   </div>
                 </div>
 
-                <!-- Módulo de Compromisos -->
-                <div class="col-8 col-sm-3 col-md-5 col-lg-3">
-                  <div class="p-3 border rounded bg-light text-center h-100 module-card">
-                    <i class="bi bi-microsoft-teams fs-3 text-primary mb-2"></i>
-                    <h6 class="fw-bold">Compromisos</h6>
-                    <p class="small text-muted mb-0">Seguimiento de acuerdos</p>
+                <!-- Módulo de Autenticación -->
+                <div class="col-8 col-sm-6 col-md-5 col-lg-3">
+                  <div class="p-3 border rounded bg-light text-center h-100">
+                    <i class="pi pi-lock fs-3 text-warning mb-2"></i>
+                    <h6 class="fw-bold">Autenticación</h6>
+                    <p class="small text-muted mb-0">Gestión de usuarios y accesos</p>
                   </div>
                 </div>
 
-                <!-- Módulo de Alertas -->
-                <div class="col-8 col-sm-3 col-md-5 col-lg-3">
-                  <div class="p-3 border rounded bg-light text-center h-100 module-card">
-                    <i class="bi bi-exclamation-triangle fs-3 text-warning mb-2"></i>
-                    <h6 class="fw-bold">Alertas</h6>
-                    <p class="small text-muted mb-0">Notificaciones importantes</p>
+                <!-- Módulo de Personal -->
+                <div class="col-8 col-sm-6 col-md-5 col-lg-3">
+                  <div class="p-3 border rounded bg-light text-center h-100">
+                    <i class="pi pi-users fs-3 text-purple mb-2"></i>
+                    <h6 class="fw-bold">Personal</h6>
+                    <p class="small text-muted mb-0">Gestión del equipo</p>
                   </div>
                 </div>
 
-                <!-- Módulo de Enlaces -->
-                <div class="col-8 col-sm-3 col-md-5 col-lg-3">
-                  <div class="p-3 border rounded bg-light text-center h-100 module-card">
-                    <i class="bi bi-link-45deg fs-3 text-info mb-2"></i>
-                    <h6 class="fw-bold">Enlaces Rápidos</h6>
-                    <p class="small text-muted mb-0">Acceso directo a recursos</p>
+                <!-- Módulo de Informática -->
+                <div class="col-8 col-sm-6 col-md-5 col-lg-3">
+                  <div class="p-3 border rounded bg-light text-center h-100">
+                    <i class="pi pi-desktop fs-3 text-success mb-2"></i>
+                    <h6 class="fw-bold">Informática</h6>
+                    <p class="small text-muted mb-0">Control de equipos</p>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Botón de acceso -->
-            <!-- Por esta versión condicional -->
-            <div class="access-buttons">
-              <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-primary btn-lg">
+            
+            <div class="access-buttons d-flex flex-column align-items-center">
+              <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-primary btn-lg mb-3 px-4">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
               </button>
-              <router-link v-else to="/login" class="btn btn-primary px-4">
+              <router-link v-else to="/login" class="btn btn-primary btn-lg mb-3 px-4">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
               </router-link>
+
+              <button @click="scrollToRoadmap" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-arrow-down me-2"></i>Ver Roadmap del Proyecto
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer flotante -->
+      <footer class="footer-float bg-dark text-white py-3 fixed-bottom">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-8 mb-3 mb-lg-0">
+              <div class="quote-slider position-relative" style="min-height: 80px;">
+                <div class="quote position-absolute w-100" :class="{ 'opacity-100': currentQuoteIndex === 0, 'opacity-0': currentQuoteIndex !== 0 }" style="transition: opacity 0.5s ease;">
+                  <div class="d-flex">
+                    <span class="fs-1 me-2 text-primary opacity-25">“</span>
+                    <div>
+                      <p class="mb-1 fst-italic text-white">Si lo puedes imaginar, lo puedes programar</p>
+                      <div class="d-flex align-items-center">
+                        <div class="flex-grow-1 border-top border-primary opacity-25 me-2"></div>
+                        <span class="text-muted small">Alan Kay</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="quote position-absolute w-100" :class="{ 'opacity-100': currentQuoteIndex === 1, 'opacity-0': currentQuoteIndex !== 1 }" style="transition: opacity 0.5s ease;">
+                  <div class="d-flex">
+                    <span class="fs-1 me-2 text-primary opacity-25">“</span>
+                    <div>
+                      <p class="mb-1 fst-italic text-white">Camina hacia el futuro, abriendo nuevas puertas y probando cosas nuevas...</p>
+                      <div class="d-flex align-items-center">
+                        <div class="flex-grow-1 border-top border-primary opacity-25 me-2"></div>
+                        <span class="text-muted small">Walt Disney</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-lg-end text-center text-lg-start">
+                <div class="mb-2 mb-md-0">
+                  <small class="text-muted">&copy; {{ currentYear }} - Desarrollado por el área de TI de la DGOS</small>
+                </div>
+                <div>
+                  <small class="text-muted me-2">Tecnologías:</small>
+                  <span class="badge bg-secondary bg-opacity-25 me-1 mb-1"><i class="fab fa-python me-1"></i>Python</span>
+                  <span class="badge bg-secondary bg-opacity-25 me-1 mb-1"><i class="fab fa-js me-1"></i>Vue.js</span>
+                  <span class="badge bg-secondary bg-opacity-25 mb-1"><i class="fas fa-database me-1"></i>SQL Server</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+      
+      <!-- Sección del Roadmap -->
+      <div class="container py-4 mt-5">
+        <div id="roadmap-section" class="bg-white rounded-3 shadow-sm p-4 p-md-5 mb-5">
+          <div class="text-center mb-5 py-3 bg-primary bg-opacity-10 rounded-3">
+            <h1 class="display-5 fw-bold text-primary"><i class="fas fa-map-marked-alt me-2"></i>Roadmap del Proyecto</h1>
+            <p class="lead mb-0">Planificación y módulos a implementar</p>
+          </div>
+
+          <div class="row mb-4 g-4">
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title text-primary"><i class="fa fa-info-circle me-2"></i>Resumen del Proyecto</h5>
+                  <p class="card-text">Este proyecto tiene como objetivo desarrollar una plataforma integral para el Monitoreo y Evaluación de la Gestión en Salud con múltiples módulos que se implementarán en fases sucesivas.</p>
+                  <div>
+                    <label class="form-label">Progreso general del proyecto:</label>
+                    <div class="progress mb-2">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20%</div>
+                    </div>
+                    <small class="text-muted">Fase 1 de 6 en progreso</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title text-primary"><i class="fa fa-filter me-2"></i>Filtrar Módulos</h5>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary active filter-btn" data-filter="all">Todos</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary filter-btn" data-filter="POI">Planificación</button>
+                    <button type="button" class="btn btn-sm btn-outline-success filter-btn" data-filter="Informática">Base de Datos</button>
+                    <button type="button" class="btn btn-sm btn-outline-info filter-btn" data-filter="Frontend">Interfaz</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark filter-btn" data-filter="Backend">Servidor</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning filter-btn" data-filter="security">Seguridad</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="position-relative my-5">
+            <div class="position-absolute top-0 start-50 translate-middle-x h-100" style="width: 4px; background-color: #0b4a7a;"></div>
+            
+            <!-- Fases -->
+            <div v-for="(phase, index) in phases" :key="phase.id" 
+                 class="position-relative mb-4" 
+                 :class="{'ms-auto': index % 2 !== 0, 'me-auto': index % 2 === 0}" 
+                 style="width: 50%;">
+              <div class="card shadow-sm border-0" 
+                   :class="{'ms-4': index % 2 === 0, 'me-4': index % 2 !== 0, 'border-start border-3 border-success': phase.isCurrent}">
+                <div class="card-body">
+                  <div class="d-flex align-items-center text-muted mb-2">
+                    <i class="fa fa-calendar-alt me-2"></i>
+                    <span>{{ phase.date }}</span>
+                  </div>
+                  <h3 class="h5 mb-3" :class="{'text-success': phase.isCurrent}">{{ phase.title }}</h3>
+                  <p class="mb-3">{{ phase.description }}</p>
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span v-for="module in phase.modules" :key="module.name" 
+                          class="badge" 
+                          :class="getBadgeClass(module.type)" 
+                          :data-type="module.type">
+                      {{ module.name }}
+                    </span>
+                  </div>
+                  <span class="badge" :class="getStatusClass(phase.status)">
+                    {{ getStatusText(phase.status) }}
+                  </span>
+                </div>
+              </div>
+              <div class="position-absolute top-50 translate-middle-y rounded-circle bg-white border border-3 border-primary" 
+                   :class="{'start-100': index % 2 === 0, 'end-100': index % 2 !== 0}" 
+                   style="width: 25px; height: 25px;"></div>
+            </div>
+          </div>
+
+          <!-- Tabla de módulos -->
+          <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+              <h5 class="card-title text-primary"><i class="fa fa-tasks me-2"></i>Detalle de Módulos</h5>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Módulo</th>
+                      <th>Tipo</th>
+                      <th>Fase</th>
+                      <th>Estado</th>
+                      <th>Descripción</th>
+                      <th>Entregables</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="module in allModules" :key="module.name" :data-type="module.type">
+                      <td>{{ module.name }}</td>
+                      <td><span class="badge" :class="getBadgeClass(module.type)">{{ getTypeText(module.type) }}</span></td>
+                      <td>{{ module.phase }}</td>
+                      <td><span class="badge" :class="getStatusClass(module.status)">{{ getStatusText(module.status) }}</span></td>
+                      <td>{{ module.description }}</td>
+                      <td>
+                        <ul class="list-unstyled mb-0">
+                          <li v-for="(deliverable, index) in module.deliverables" :key="index" class="small">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> {{ deliverable }}
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </main>
 
-    <footer class="footer">
-      <div class="quotes-container">
-        <div id="quoteCarousel" class="quotes-slider">
-          <div class="quote active">
-            <div class="quote-content">
-              <div class="quote-icon">“</div>
-              <p class="quote-text">Si lo puedes imaginar, lo puedes programar</p>
-              <div class="quote-author">
-                <div class="author-line"></div>
-                <span>Alan Kay</span>
-              </div>
-            </div>
-          </div>
-          <div class="quote">
-            <div class="quote-content">
-              <div class="quote-icon">“</div>
-              <p class="quote-text">Camina hacia el futuro, abriendo nuevas puertas y probando cosas nuevas...</p>
-              <div class="quote-author">
-                <div class="author-line"></div>
-                <span>Walt Disney</span>
-              </div>
-            </div>
-          </div>
+    <!-- Footer normal (para móviles) -->
+    <footer class="footer bg-dark text-white py-3 d-lg-none">
+      <div class="container">
+        <div class="text-center mb-3">
+          <small class="text-muted">&copy; {{ currentYear }} - Desarrollado por el área de TI de la DGOS</small>
         </div>
-      </div>
-
-      <div class="footer-info">
-        <div class="copyright">
-          &copy; {{ currentYear }} - Desarrollado por el área de TI de la DGOS
-        </div>
-        <div class="technologies">
-          Tecnologías:
-          <span class="tech-tag"><i class="fab fa-python"></i> Python</span>
-          <span class="tech-tag"><i class="fab fa-python"></i> Django</span>
-          <span class="tech-tag"><i class="fas fa-layer-group"></i> REST API</span>
-          <span class="tech-tag"><i class="fab fa-js"></i> Vue.js</span>
-          <span class="tech-tag"><i class="fas fa-database"></i> SQL Server</span>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+          <small class="text-muted me-2">Tecnologías:</small>
+          <span class="badge bg-secondary bg-opacity-25 me-1 mb-1"><i class="fab fa-python me-1"></i>Python</span>
+          <span class="badge bg-secondary bg-opacity-25 me-1 mb-1"><i class="fab fa-js me-1"></i>Vue.js</span>
+          <span class="badge bg-secondary bg-opacity-25 mb-1"><i class="fas fa-database me-1"></i>SQL Server</span>
         </div>
       </div>
     </footer>
@@ -134,302 +262,313 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isAuthenticated = computed(() => localStorage.getItem('auth_token'));
+const currentQuoteIndex = ref(0);
+const currentYear = ref(new Date().getFullYear());
+let quoteInterval = null;
+let lastScrollPosition = 0;
 
 const goToDashboard = () => {
   router.push('/dashboard');
 };
 
-const currentYear = ref(new Date().getFullYear());
+const scrollToRoadmap = () => {
+  const roadmapSection = document.getElementById('roadmap-section');
+  if (roadmapSection) {
+    roadmapSection.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
+const startQuoteRotation = () => {
+  quoteInterval = setInterval(() => {
+    currentQuoteIndex.value = (currentQuoteIndex.value + 1) % 2;
+  }, 5000);
+};
+
+const handleScroll = () => {
+  const floatingFooter = document.querySelector('.footer-float');
+  if (!floatingFooter || window.innerWidth < 992) return;
+
+  const currentScrollPosition = window.scrollY;
+  
+  if (currentScrollPosition > lastScrollPosition && currentScrollPosition > 100) {
+    floatingFooter.style.transform = 'translateY(100%)';
+  } else {
+    floatingFooter.style.transform = 'translateY(0)';
+  }
+
+  lastScrollPosition = currentScrollPosition;
+};
 
 onMounted(() => {
-  const quotes = document.querySelectorAll('.quote');
-  let currentIndex = 0;
+  startQuoteRotation();
+  window.addEventListener('scroll', handleScroll);
 
-  setInterval(() => {
-    quotes[currentIndex].classList.remove('active');
-    currentIndex = (currentIndex + 1) % quotes.length;
-    quotes[currentIndex].classList.add('active');
-  }, 5000);
+  // Filtrado de módulos
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const moduleBadges = document.querySelectorAll('.module-badge');
+  const moduleRows = document.querySelectorAll('tbody tr');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      const filter = this.getAttribute('data-filter');
+
+      moduleBadges.forEach(badge => {
+        badge.style.display = (filter === 'all' || badge.getAttribute('data-type') === filter) ? 'inline-block' : 'none';
+      });
+
+      moduleRows.forEach(row => {
+        row.style.display = (filter === 'all' || row.getAttribute('data-type') === filter) ? '' : 'none';
+      });
+    });
+  });
+
+  // Animación de progreso
+  const progressBar = document.querySelector('.progress-bar');
+  if (progressBar) {
+    let width = 0;
+    const targetWidth = parseInt(progressBar.getAttribute('aria-valuenow'));
+    const interval = setInterval(() => {
+      if (width >= targetWidth) {
+        clearInterval(interval);
+      } else {
+        width++;
+        progressBar.style.width = width + '%';
+        progressBar.textContent = width + '%';
+      }
+    }, 30);
+  }
 });
+
+onUnmounted(() => {
+  clearInterval(quoteInterval);
+  window.removeEventListener('scroll', handleScroll);
+});
+
+// Datos de las fases
+const phases = ref([
+  {
+    id: 1,
+    date: 'Agosto - Diciembre 2024',
+    title: 'Fase 1: Diseño e Infraestructura',
+    description: 'Definición de arquitectura, diseño de base de datos y configuración inicial.',
+    modules: [
+      { name: 'Arquitectura del Sistema', type: 'POI' },
+      { name: 'Modelo de Datos', type: 'Informática' },
+      { name: 'Entorno de Desarrollo', type: 'Infraestructura' },
+      { name: 'API Core', type: 'Backend' },
+    ],
+    status: 'in-progress',
+    isCurrent: true,
+    deliverables: ['Documentación técnica', 'Prototipo de BD', 'Entorno configurado']
+  },
+  {
+    id: 2,
+    date: 'Enero - Marzo 2025',
+    title: 'Fase 2: Desarrollo de Módulos Básicos',
+    description: 'Implementación de funcionalidades centrales y autenticación.',
+    modules: [
+      { name: 'Sistema de Autenticación', type: 'security' },
+      { name: 'Módulo de Usuarios', type: 'Administración' },
+      { name: 'CRUD Básico', type: 'Backend' },
+      { name: 'Interfaz Administrativa', type: 'Frontend' },
+    ],
+    status: 'upcoming',
+    isCurrent: false,
+    deliverables: ['Login funcional', 'Gestión de usuarios', 'Panel admin básico']
+  },
+  {
+    id: 3,
+    date: 'Abril - Junio 2025',
+    title: 'Fase 3: Módulos Específicos',
+    description: 'Desarrollo de módulos funcionales según áreas de negocio.',
+    modules: [
+      { name: 'Módulo de Personal', type: 'Administración' },
+      { name: 'Módulo de Informática', type: 'Informática' },
+      { name: 'Módulo de Patrimonio', type: 'Inventario' },
+      { name: 'Reportes Básicos', type: 'Business Intelligence' },
+    ],
+    status: 'upcoming',
+    isCurrent: false,
+    deliverables: ['Gestión completa de personal', 'Control de equipos', 'Registro de activos']
+  },
+  {
+    id: 4,
+    date: 'Julio - Septiembre 2025',
+    title: 'Fase 4: Integración y Pruebas',
+    description: 'Integración de módulos, pruebas exhaustivas y preparación para producción.',
+    modules: [
+      { name: 'Integración de Módulos', type: 'POI' },
+      { name: 'Pruebas de Carga', type: 'Calidad' },
+      { name: 'Seguridad y Auditoría', type: 'security' },
+      { name: 'Migración de Datos', type: 'Informática' },
+    ],
+    status: 'upcoming',
+    isCurrent: false,
+    deliverables: ['Sistema integrado', 'Reporte de pruebas', 'Plan de migración']
+  },
+  {
+    id: 5,
+    date: 'Octubre 2025',
+    title: 'Fase 5: Implementación Inicial',
+    description: 'Despliegue en ambiente productivo para usuarios clave.',
+    modules: [
+      { name: 'Despliegue en Producción', type: 'Infraestructura' },
+      { name: 'Capacitación Inicial', type: 'Soporte' },
+      { name: 'Monitoreo Post-Implementación', type: 'Calidad' },
+    ],
+    status: 'upcoming',
+    isCurrent: false,
+    deliverables: ['Sistema en producción', 'Manuales de usuario', 'Plan de soporte']
+  },
+  {
+    id: 6,
+    date: 'Noviembre - Diciembre 2025',
+    title: 'Fase 6: Consolidación y Mejoras',
+    description: 'Ajustes basados en feedback y plan de mejoras continuas.',
+    modules: [
+      { name: 'Recolección de Feedback', type: 'POI' },
+      { name: 'Implementación de Mejoras', type: 'Desarrollo' },
+      { name: 'Plan de Roadmap', type: 'Gestión' },
+    ],
+    status: 'upcoming',
+    isCurrent: false,
+    deliverables: ['Reporte de ajustes', 'Versión estable', 'Plan de evolución']
+  }
+]);
+
+// Todos los módulos para la tabla
+const allModules = computed(() => {
+  return phases.value.flatMap(phase => {
+    return phase.modules.map(module => ({
+      ...module,
+      phase: phase.id,
+      phaseTitle: phase.title,
+      status: phase.status,
+      description: getModuleDescription(module.name, phase.id),
+      deliverables: phase.deliverables || []
+    }));
+  });
+});
+
+// Funciones de ayuda
+const getBadgeClass = (type) => {
+  const classes = {
+    POI: 'bg-primary',
+    Informática: 'bg-success',
+    Frontend: 'bg-info',
+    Backend: 'bg-dark',
+    security: 'bg-warning',
+    Administración: 'bg-purple',
+    'Business Intelligence': 'bg-indigo',
+    Infraestructura: 'bg-teal',
+    Calidad: 'bg-pink',
+    Soporte: 'bg-orange',
+    Gestión: 'bg-cyan',
+    Inventario: 'bg-brown',
+    Desarrollo: 'bg-blue'
+  };
+  return classes[type] || 'bg-secondary';
+};
+
+const getTypeText = (type) => {
+  const texts = {
+    POI: 'Planificación',
+    Informática: 'Base de Datos',
+    Frontend: 'Interfaz',
+    Backend: 'Servidor',
+    security: 'Seguridad',
+    Administración: 'Admin',
+    'Business Intelligence': 'BI',
+    Infraestructura: 'Infra',
+    Calidad: 'QA',
+    Soporte: 'Soporte',
+    Gestión: 'Gestión',
+    Inventario: 'Inventario',
+    Desarrollo: 'Dev'
+  };
+  return texts[type] || type;
+};
+
+const getStatusClass = (status) => {
+  const classes = {
+    completed: 'bg-success',
+    'in-progress': 'bg-warning',
+    upcoming: 'bg-light text-dark'
+  };
+  return classes[status] || 'bg-light text-dark';
+};
+
+const getStatusText = (status) => {
+  const texts = {
+    completed: 'Completado',
+    'in-progress': 'En progreso',
+    upcoming: 'Próximamente'
+  };
+  return texts[status] || status;
+};
+
+const getModuleDescription = (name, phase) => {
+  const descriptions = {
+    'Arquitectura del Sistema': 'Diseño de la arquitectura técnica del sistema completo',
+    'Modelo de Datos': 'Diseño e implementación inicial de la base de datos',
+    'Entorno de Desarrollo': 'Configuración de ambientes de desarrollo y testing',
+    'API Core': 'API principal del sistema con endpoints básicos',
+    'Sistema de Autenticación': 'Módulo de login, registro y manejo de sesiones',
+    'Módulo de Usuarios': 'Gestión de perfiles, roles y permisos',
+    'CRUD Básico': 'Operaciones básicas para todos los módulos',
+    'Interfaz Administrativa': 'Panel de administración principal',
+    'Módulo de Personal': 'Gestión completa del personal de la organización',
+    'Módulo de Informática': 'Control de equipos y recursos tecnológicos',
+    'Módulo de Patrimonio': 'Registro y seguimiento de activos de la organización',
+    'Reportes Básicos': 'Generación de reportes estadísticos básicos',
+    'Integración de Módulos': 'Conectar todos los módulos entre sí',
+    'Pruebas de Carga': 'Evaluación de performance bajo carga',
+    'Seguridad y Auditoría': 'Análisis de vulnerabilidades y registro de actividades',
+    'Migración de Datos': 'Transferencia de datos antiguos al nuevo sistema',
+    'Despliegue en Producción': 'Implementación en servidores productivos',
+    'Capacitación Inicial': 'Entrenamiento a usuarios clave',
+    'Monitoreo Post-Implementación': 'Seguimiento a problemas iniciales',
+    'Recolección de Feedback': 'Obtención de comentarios de usuarios',
+    'Implementación de Mejoras': 'Ajustes basados en feedback',
+    'Plan de Roadmap': 'Planificación de futuras versiones'
+  };
+  
+  return descriptions[name] || `Módulo ${name} correspondiente a la fase ${phase}`;
+};
 </script>
 
 <style>
-/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', 'Roboto', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f8f9fa;
-}
-.access-buttons {
-  margin-top: 2rem;
-}
-
-.btn-primary {
-  background-color: #0b4a7a;
-  border-color: #0b4a7a;
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary:hover {
-  background-color: #083758;
-  border-color: #083758;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-/* Estructura principal */
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Header */
-.header {
-  background: linear-gradient(to right, #0b4a7a, #083758);
-  padding: 1rem 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.logo {
-  height: 50px;
-  width: auto;
-}
-
-/* Contenido principal */
-.main-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 3rem 0;
-  text-align: center;
-
-}
-
-.container {
-  width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
-  margin-right: auto;
-  margin-left: auto;
-  text-align: center;
-
-}
-
-/* Footer */
-.footer {
-  background-color: #0f172a;
-  color: white;
-  padding: 1rem 0;
-}
-
-/* Contenedor de frases - Versión compacta */
-.quotes-container {
-  width: 90%;
-  max-width: 700px;
-  margin: 0 auto 1rem;
-  padding: 1rem;
-  background: linear-gradient(145deg, #1e293b, #0f172a);
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.quotes-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-}
-
-.quotes-slider {
-  position: relative;
-  min-height: 80px;
+/* Solo estilos mínimos necesarios que no pueden ser reemplazados por Bootstrap */
+.footer-float {
+  transition: transform 0.3s ease-in-out;
 }
 
 .quote {
-  position: absolute;
-  width: 100%;
-  opacity: 0;
-  transition: all 0.5s ease;
+  transition: opacity 0.5s ease;
 }
 
-.quote.active {
-  opacity: 1;
+/* Asegurar espacio para el footer flotante */
+.main-content {
+  padding-bottom: 180px;
 }
 
-.quote-content {
-  padding: 0 1rem;
-}
-
-.quote-icon {
-  font-size: 3rem;
-  color: #3b82f6;
-  opacity: 0.2;
-  position: absolute;
-  top: -1rem;
-  left: 0;
-  line-height: 1;
-  font-family: Georgia, serif;
-}
-
-.quote-text {
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: #f8fafc;
-  margin-bottom: 1rem;
-  position: relative;
-  font-style: italic;
-  padding-left: 1rem;
-}
-
-.quote-author {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.author-line {
-  flex-grow: 1;
-  height: 1px;
-  background: linear-gradient(to right, rgba(59, 130, 246, 0.5), transparent);
-}
-
-.quote-author span {
-  color: #94a3b8;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
-/* Información del footer */
-.footer-info {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.copyright {
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
-
-.technologies {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.tech-tag {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-/* Estilos para el botón */
-.btn-primary {
-  background-color: #0b4a7a;
-  border-color: #0b4a7a;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #083758;
-  border-color: #083758;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 991.98px) {
+  .footer-float {
+    position: relative !important;
+    transform: none !important;
+  }
   .main-content {
-    padding: 1rem 0;
-  }
-
-  .min-vh-75 {
-    min-height: auto;
-    padding: 2rem 0;
-  }
-
-  .quotes-container {
-    padding: 1.2rem;
-    min-height: 100px;
-  }
-
-  .quote-text {
-    font-size: 1rem;
-  }
-
-  .quote-icon {
-    font-size: 2.5rem;
-    top: -0.8rem;
-  }
-
-  .footer-info {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .technologies {
-    justify-content: center;
-  }
-
-  .col-md-6 {
-    text-align: center !important;
-  }
-
-  .d-flex.justify-content-center.justify-content-md-start {
-    justify-content: center !important;
+    padding-bottom: 0;
   }
 }
-
-/* Estilos para la imagen */
+* Estilos para la imagen */
 .image-style {
   border: none !important;
   box-shadow: none !important;
