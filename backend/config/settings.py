@@ -9,13 +9,19 @@ AUTH_USER_MODEL = "user.User"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-#a4$*hi^a5ml$v1vs7pv=l&o&=93@ozg&4k3fv&i_(im##%o(e"
-)
-# si no hay ninguna variable se considera como TRUE
+# Obtener la clave sin valor por defecto
+SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "True") == "True"
+# Validación en producción
+if not DEBUG and not SECRET_KEY:
+    raise ValueError("SECRET_KEY no configurado - Configura la variable de entorno")
+
+# Valor solo para desarrollo (opcional)
+if DEBUG and not SECRET_KEY:
+    SECRET_KEY = "django-insecure-dev-only-key"  # Solo para desarrollo local
+    print("ADVERTENCIA: Usando clave de desarrollo insegura")
+    
+# si no hay ninguna variable se considera como TRUE
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 # Application definition
@@ -103,12 +109,12 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=8),  # Tiempo de vida del token de acceso
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # 1 día para el token de refresco
-    "ROTATE_REFRESH_TOKENS": True,  # Rotar los tokens de refresco
-    "BLACKLIST_AFTER_ROTATION": True,  # Añadir tokens de refresco a la lista negra después de rotación
-    "UPDATE_LAST_LOGIN": True,  # Actualizar la última fecha de inicio de sesión del usuario
-    "AUTH_HEADER_TYPES": ("Bearer",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=8),  # Token de acceso válido por 8 horas
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Token de refresco válido por 1 día
+    "ROTATE_REFRESH_TOKENS": True,  # Genera nuevo token al refrescar
+    "BLACKLIST_AFTER_ROTATION": True,  # Invalida tokens viejos
+    "UPDATE_LAST_LOGIN": True,  # Actualiza última conexión del usuario
+    "AUTH_HEADER_TYPES": ("Bearer",),  # Uso: "Bearer <token>"
 }
 
 # Configuración de DRF Spectacular
@@ -190,9 +196,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SESSION_COOKIE_AGE = 8 * 60 * 60  # 8 horas en segundos (8h * 60m * 60s)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Para respetar el tiempo de expiración
-SESSION_SAVE_EVERY_REQUEST = True  # Renueva el tiempo de expiración con cada solicitud
+
 
 LANGUAGE_CODE = "es-pe"
 TIME_ZONE = "America/Lima"
@@ -226,6 +230,9 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Configuración de seguridad para cookies
+SESSION_COOKIE_AGE = 8 * 60 * 60  # 8 horas en segundos (8h * 60m * 60s)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Para respetar el tiempo de expiración
+SESSION_SAVE_EVERY_REQUEST = True  # Renueva el tiempo de expiración con cada solicitud
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True  # Previene acceso via JavaScript
@@ -295,3 +302,10 @@ LOGIN_REDIRECT_URL = "/api/schema/swagger/"
 # Opcional: Configuración adicional
 SIMPLE_HISTORY_HISTORY_CHANGE_REASON_USE_TEXT_FIELD = True
 SIMPLE_HISTORY_REVERT_DISABLED = False  # Permite revertir cambios
+
+
+# PARA PRODUCCIÓN
+#DEBUG = False
+#SECURE_HSTS_SECONDS = 31536000  # 1 año
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#SECURE_HSTS_PRELOAD = True
