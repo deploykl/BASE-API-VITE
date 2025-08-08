@@ -70,10 +70,15 @@ const checkScreenSize = () => {
   updateCssVariables()
 }
 
-const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
-  // Marcar que el usuario ha modificado el estado
+// Función mejorada para alternar el sidebar
+const toggleSidebar = (forceState = null) => {
+  if (forceState !== null) {
+    isCollapsed.value = forceState
+  } else {
+    isCollapsed.value = !isCollapsed.value
+  }
   localStorage.setItem('sidebar-state-changed', 'true')
+  updateCssVariables()
 }
 
 watch(isCollapsed, updateCssVariables)
