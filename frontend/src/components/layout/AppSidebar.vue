@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isMobile && !isCollapsed" class="sidebar-overlay" @click="toggleSidebar"></div>
+  <div v-if="isMobile && !isCollapsed" class="sidebar-overlay" @click.stop="handleOverlayClick"></div>
   <aside :class="['sidebar', { 'collapsed': isCollapsed, 'mobile-hidden': isMobile && isCollapsed }]">
     <div class="sidebar-header">
       <img src="@/assets/logo-white.png" alt="Logo" class="logo-img">
@@ -79,12 +79,6 @@ const props = defineProps({
   }
 })
 
-// Función para alternar el sidebar
-const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
-  emit('toggle-collapse', isCollapsed.value)
-  emit('update:isCollapsed', isCollapsed.value)
-}
 
 // Obtener módulos del usuario desde localStorage
 const userModulos = computed(() => {
@@ -95,7 +89,10 @@ const userModulos = computed(() => {
 const isSuperuser = computed(() => {
   return localStorage.getItem('is_superuser') === 'true'
 })
-
+// Función modificada para manejar el click en el overlay
+const handleOverlayClick = () => {
+  emit('toggle-collapse', true) // Forzar colapso
+}
 
 const allItems = ref([
   {
@@ -291,7 +288,7 @@ watch(() => props.isCollapsed, (newVal) => {
   position: fixed;
   left: 0;
   top: 0;
-background: linear-gradient(135deg, #364257 0%, #2a3548 100%);
+  background: linear-gradient(135deg, #364257 0%, #2a3548 100%);
   color: white;
   transition: all 0.3s ease;
   z-index: 1001;
@@ -303,6 +300,9 @@ background: linear-gradient(135deg, #364257 0%, #2a3548 100%);
   margin: 0;
   padding: 0;
   font-size: 0.9rem;
+  z-index: 1001;
+  /* Un nivel por encima del overlay */
+
 }
 
 .sidebar.collapsed {
@@ -318,6 +318,10 @@ background: linear-gradient(135deg, #364257 0%, #2a3548 100%);
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   backdrop-filter: blur(2px);
+  animation: fadeIn 0.3s ease;
+  touch-action: none;
+  /* Evita desplazamiento en móvil */
+
 }
 
 /* Header del sidebar */
