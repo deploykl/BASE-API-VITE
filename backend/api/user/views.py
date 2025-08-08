@@ -237,6 +237,18 @@ class ModuloViewSet(viewsets.ModelViewSet):
             return Modulo.objects.all()  # Superusuarios ven todo
         return Modulo.objects.filter(is_active=True)  # Usuarios normales solo activos
     
+    
+class ModuloViewSetTEST(viewsets.ModelViewSet):
+    serializer_class = ModuloSerializer
+    permission_classes = [AllowAny]  # Permite acceso sin autenticación
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+    def get_queryset(self):
+        return Modulo.objects.filter(is_active=True)
+        return Modulo.objects.filter(is_active=True)
+    
 #VERTIFICAR CONEXION BACKEND
 class HealthCheckView(View):
     def get(self, request):
