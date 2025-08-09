@@ -302,7 +302,6 @@ watch(() => props.isCollapsed, (newVal) => {
   font-size: 0.9rem;
   z-index: 1001;
   /* Un nivel por encima del overlay */
-
 }
 
 .sidebar.collapsed {
