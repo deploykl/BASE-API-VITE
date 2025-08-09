@@ -10,7 +10,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/api/schema/swagger/', permanent=False)),  # <-- Redirección
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
- # Protege estas rutas:
+    # ruta protegida:
     path('api/schema/', login_required(SpectacularAPIView.as_view()), name='schema'),
     path('api/schema/swagger/', login_required(SpectacularSwaggerView.as_view(url_name='schema')), name='swagger-ui'),
     

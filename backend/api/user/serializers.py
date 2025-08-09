@@ -11,6 +11,11 @@ class ModuloSerializer(serializers.ModelSerializer):
         model = Modulo
         fields = ['id', 'codename', 'description']
         
+class ModuloSerializerTest(serializers.ModelSerializer):
+    class Meta:
+        model = Modulo
+        fields = ['id', 'codename', 'description']
+        
 class UserSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     updated_by = serializers.SerializerMethodField()

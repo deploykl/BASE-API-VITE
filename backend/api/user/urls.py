@@ -8,6 +8,7 @@ router = DefaultRouter()
 
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'modulo', ModuloViewSet, basename='modulo')
+router.register(r'modulo-test', ModuloViewSetTEST, basename='modulo-test')
 
 urlpatterns = [  
     path('profile/', UserProfileView.as_view(), name='user-profile'),
