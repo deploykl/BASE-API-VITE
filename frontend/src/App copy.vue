@@ -58,9 +58,9 @@ const updateCssVariables = () => {
   document.documentElement.style.setProperty('--sidebar-width', isCollapsed.value ? '0px' : '250px');
 };
 
-// Manejar resize solo para detectar móvil, no para cambiar estado
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth < 768;
+  isCollapsed.value = isMobile.value;
 };
 
 const toggleSidebar = () => {

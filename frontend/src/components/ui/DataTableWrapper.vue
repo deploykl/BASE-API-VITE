@@ -25,23 +25,28 @@
       :loading="loading" :totalRecords="totalRecords" :sortField="sortField" :sortOrder="sortOrder" removableSort
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       :rowsPerPageOptions="[5, 10, 25, 50, 100]"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" responsiveLayout="scroll"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" responsiveLayout="stack"
       :sortable="sortable" class="elegant-table" filterDisplay="menu" :globalFilterFields="globalFilterFields"
       :expandedRows="expandedRows" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" ref="dt">
 
       <template #header>
         <slot name="header"></slot>
-        <div class="flex flex-wrap justify-end gap-2">
-          <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
-          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-2" />
-          <!-- Botón de Exportación CSV -->
-          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-2" severity="success"
-            :loading="exportingCSV" />
-          <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-2" severity="danger" />
-          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-2" 
-            severity="info" />
-          <Button icon="pi pi-file-excel" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="success" />
+        <div class="flex flex-wrap align-items-center justify-content-end gap-2 p-2 ">
+          <!-- Botones de Expandir/Colapsar -->
+          <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm"
+            severity="secondary" />
+          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm"
+            severity="secondary" />
 
+          <!-- Separador visual (opcional) -->
+          <span class="flex-grow-1"></span>
+
+          <!-- Botones de Exportación -->
+          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm" severity="success"
+            :loading="exportingCSV" />
+          <Button icon="pi pi-file-pdf" label="PDF" @click="exportPDF" class="p-button-sm" severity="danger" />
+          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm" severity="info" />
+          <Button icon="pi pi-file-export" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="help" />
         </div>
       </template>
 
@@ -467,7 +472,7 @@ const exportPDF = async () => {
   // Función para formatear valores consistentemente
   const formatCellValue = (value, column) => {
     if (value === null || value === undefined) return '-';
-    
+
     // Manejo especial para campos booleanos (como staff)
     if (column.dataType === 'boolean' || typeof value === 'boolean') {
       return value ? 'Sí' : 'No';
@@ -559,10 +564,10 @@ const exportExcel = () => {
       return headers.map(col => {
         // Formatear valores según tipo
         const value = row[col.dataKey];
-        
+
         // Manejar valores null/undefined
         if (value === null || value === undefined) return '';
-        
+
         // Caso especial para booleanos (incluyendo el campo staff)
         if (col.dataType === 'boolean' || typeof value === 'boolean') {
           return value ? 'Sí' : 'No'; // Mostrar "No" cuando es false
@@ -570,7 +575,7 @@ const exportExcel = () => {
         // Formatear fechas
         else if (col.dataType === 'date') {
           return value ? new Date(value).toLocaleDateString() : '';
-        } 
+        }
         // Formatear números
         else if (col.dataType === 'numeric') {
           return Number(value) || 0;
@@ -626,10 +631,10 @@ const exportCSV2 = () => {
       .filter(col => !col.excludeFromExport)
       .map(col => {
         const value = row[col.field];
-        
+
         // Manejar valores null/undefined primero
         if (value === null || value === undefined) return '';
-        
+
         // Caso especial para booleanos (incluyendo el campo staff)
         if (col.dataType === 'boolean' || typeof value === 'boolean') {
           return value ? 'Sí' : 'No'; // Mostrar "No" cuando es false
@@ -649,10 +654,10 @@ const exportCSV2 = () => {
 
   // Crear contenido CSV
   let csvContent = '';
-  
+
   // Encabezados
   csvContent += headers.join(',') + '\r\n';
-  
+
   // Datos
   data.forEach(row => {
     csvContent += row.join(',') + '\r\n';
@@ -678,11 +683,16 @@ const exportCSV2 = () => {
 </script>
 
 <style scoped>
+/* Estilos base */
 .card {
   background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 1.5rem;
+  width: calc(100% - 2rem);
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .table-header-container {
@@ -784,24 +794,6 @@ const exportCSV2 = () => {
   padding: 0 !important;
 }
 
-@media (max-width: 768px) {
-  .header-actions-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .right-actions-container {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .header-search-container {
-    width: 100%;
-  }
-}
-
-/* expansion  */
 .expansion-content {
   background: #f8f9fa;
   border-left: 4px solid var(--primary-color);
@@ -820,6 +812,126 @@ const exportCSV2 = () => {
 
 :deep(.p-datatable) {
   font-size: 0.85rem;
-  /* Ajusta este valor según necesites */
+}
+
+/* Estilos para móviles */
+@media screen and (max-width: 768px) {
+  .card {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+  }
+
+  .header-actions-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .right-actions-container {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .header-search-container {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .export-buttons .p-button {
+    width: 100%;
+    margin-right: 0 !important;
+    margin-bottom: 0.5rem;
+  }
+
+  :deep(.p-datatable) {
+    width: 100% !important;
+    max-width: 100vw;
+    overflow-x: auto;
+    display: block;
+  }
+
+  :deep(.p-datatable-wrapper) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :deep(.p-datatable.p-datatable-stack) .p-datatable-thead>tr>th,
+  :deep(.p-datatable.p-datatable-stack) .p-datatable-tbody>tr>td {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    box-sizing: border-box;
+  }
+
+  :deep(.p-datatable.p-datatable-stack) .p-datatable-thead>tr>th {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  :deep(.p-datatable.p-datatable-stack) .p-datatable-tbody>tr>td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: inline-block;
+    width: 40%;
+    vertical-align: top;
+    padding-right: 1rem;
+  }
+
+  :deep(.p-datatable.p-datatable-stack) .p-datatable-tbody>tr>td {
+    border: 0 none !important;
+    padding: 0.5rem !important;
+    display: flex;
+    align-items: center;
+  }
+
+  :deep(.p-datatable.p-datatable-stack) .p-datatable-tbody>tr {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0.5rem 0;
+    display: block;
+    width: 100%;
+  }
+
+  :deep(.p-paginator) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  :deep(.p-paginator .p-paginator-pages) {
+    margin: 0.5rem 0;
+  }
+
+  .expansion-content {
+    padding: 0.75rem;
+  }
+}
+
+/* Estilos para pantallas muy pequeñas */
+@media screen and (max-width: 400px) {
+  .card {
+    padding: 0.5rem;
+  }
+
+  :deep(.p-datatable) {
+    font-size: 0.8rem;
+  }
+
+  .table-title {
+    font-size: 1rem;
+  }
+
+  .header-search-container .p-inputtext {
+    font-size: 0.8rem;
+  }
 }
 </style>

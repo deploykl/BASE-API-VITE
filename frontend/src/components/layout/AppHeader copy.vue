@@ -1,67 +1,75 @@
 <template>
   <header id="header" class="header fixed-top">
     <div class="container-fluid d-flex align-items-center justify-content-between">
+      <!-- Botones de toggle -->
       <div class="d-flex align-items-center gap-3">
         <button v-if="!isMobile" class="toggle-btn" @click="toggleSidebar">
-          <i :class="isCollapsed ? 'fas fa-bars' : 'fas fa-bars'"></i>
+          <i class="fas fa-bars"></i>
         </button>
-
         <button v-if="isMobile" class="mobile-toggle-btn" @click="toggleSidebar">
           <i class="fas fa-bars"></i>
         </button>
+        <Button icon="pi pi-arrow-right" @click="visible = true" />
+      </div>
 
-        <div class="connection-status me-2" :class="{ 'online': isOnline, 'offline': !isOnline }">
-          <i :class="isOnline ? 'fas fa-wifi' : 'fas fa-wifi-slash'"></i>
-          <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
+      <!-- Indicadores de conexión -->
+      <ConnectionManager
+        v-slot="{ isOnline, isApiConnected, isCheckingApi, isCheckingNetwork, lastApiCheck, lastNetworkChange, checkApiConnection, checkNetworkConnection }">
+        <div class="connection-indicators">
+          <NetworkStatusIndicator :isOnline="isOnline" :isMobile="isMobile" :lastNetworkCheck="lastNetworkChange"
+            :isCheckingNetwork="isCheckingNetwork" @force-check="checkNetworkConnection" />
+          <ApiStatusIndicator :isApiConnected="isApiConnected" :isCheckingApi="isCheckingApi" :isMobile="isMobile"
+            @check-api="checkApiConnection" />
         </div>
-      </div>
-      <!-- Indicador de conexión al API -->
-      <div class="connection-status" :class="{
-        'online': isApiConnected === true,
-        'offline': isApiConnected === false,
-        'checking': isApiConnected === null || isCheckingApi
-      }">
-        <i :class="{
-          'fas fa-server': isApiConnected === true,
-          'fas fa-server-slash': isApiConnected === false,
-          'fas fa-circle-notch fa-spin': isApiConnected === null || isCheckingApi
-        }"></i>
-        <span class="status-text">
-          <template v-if="isCheckingApi">Verificando API...</template>
-          <template v-else-if="isApiConnected === true">API Conectado</template>
-          <template v-else-if="isApiConnected === false">API Desconectado</template>
-          <template v-else>Estado API</template>
-        </span>
-      </div>
+      </ConnectionManager>
+
+      <!-- Menú de usuario -->
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
           <li class="nav-item dropdown">
             <a class="nav-profile d-flex align-items-center" href="#" @click.prevent="toggleDropdown">
               <div class="avatar-container">
-                <img :src="effectiveUserImage" @error="handleImageError" alt="Profile" class="avatar-img">
+                <img :src="userStore.effectiveUserImage" alt="Foto de perfil" class="avatar-img"
+                  @error="userStore.setImageError(true)">
               </div>
-              <span class="user-name">{{ userData.username }}</span>
+              <span class="user-name">{{ userStore.userData.username }}</span>
               <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
             </a>
 
-            <div v-if="showDropdown" class="dropdown-menu">
+            <!-- Dropdown Menu -->
+            <div v-if="showDropdown" class="dropdown-menu" ref="dropdownMenu" @mouseleave="handleMouseLeave"
+              @focusout="handleFocusOut" tabindex="-1">
               <div class="dropdown-header">
                 <div class="avatar-container-lg">
-                  <img :src="effectiveUserImage" alt="Profile" class="avatar-img" @error="handleImageError">
+                  <img :src="userStore.effectiveUserImage" alt="Foto de perfil" class="avatar-img"
+                    @error="userStore.setImageError(true)">
                 </div>
                 <div class="user-info">
-                  <div class="user-fullname">{{ fullName }}</div>
-                  <div class="user-email">{{ userData.email }}</div>
+                  <div class="user-fullname text-truncate">
+                    {{ userStore.fullName }}
+                  </div>
+                  <div class="user-email text-truncate">
+                    {{ userStore.userData.email }}
+                  </div>
                 </div>
               </div>
+
               <div class="dropdown-divider"></div>
-              <router-link to="/settings" class="dropdown-item">
-                <i class="fas fa-cog"></i> Configuración
+
+              <router-link to="/perfil" class="dropdown-item">
+                <i class="fas fa-cog"></i> Perfil
               </router-link>
+
               <router-link to="/change-password" class="dropdown-item">
                 <i class="fas fa-key"></i> Cambiar contraseña
               </router-link>
+
+              <router-link to="/settings" class="dropdown-item">
+                <i class="fas fa-cog"></i> Configuración
+              </router-link>
+
               <div class="dropdown-divider"></div>
+
               <a href="#" class="dropdown-item logout-item" @click.prevent="logout">
                 <i class="fas fa-sign-out-alt"></i> Cerrar sesión
               </a>
@@ -74,13 +82,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
-import defaultAvatar from '@/assets/img/header/default-avatar.png';
-import { useApiConnection } from '@/components/utils/ApiConnection'; // Importa el composable
+import { useUserStore } from '@/stores/user';
+import ConnectionManager from '@/components/connection/ConnectionManager.vue';
+import NetworkStatusIndicator from '@/components/connection/NetworkStatusIndicator.vue';
+import ApiStatusIndicator from '@/components/connection/ApiStatusIndicator.vue';
 
-const { isApiConnected, isLoading: isCheckingApi } = useApiConnection()
 // Props
 const props = defineProps({
   isCollapsed: Boolean,
@@ -90,52 +99,39 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['toggle-sidebar']);
 
-// Router
-const router = useRouter();
-
-// Estado del usuario
-const userData = ref({
-  firstName: '',
-  lastName: '',
-  email: '',
-  image: '',
-  username: ''
-});
-
-// Estado de la UI
+// Refs
+const dropdownMenu = ref(null);
 const isOnline = ref(navigator.onLine);
-const imageError = ref(false);
 const showDropdown = ref(false);
-const imgServerURL = process.env.VUE_APP_IMG_SERVER;
 
-// Computed properties
-const effectiveUserImage = computed(() => {
-  return imageError.value || !userData.value.image ? defaultAvatar : userData.value.image;
-});
+// Stores y router
+const router = useRouter();
+const userStore = useUserStore();
 
-const fullName = computed(() => {
-  return `${userData.value.firstName} ${userData.value.lastName}`.trim();
-});
+// Methods
+const toggleSidebar = () => emit('toggle-sidebar');
 
-// Métodos
-const toggleSidebar = () => {
-  emit('toggle-sidebar');
+const toggleDropdown = () => showDropdown.value = !showDropdown.value;
+
+const handleMouseLeave = () => {
+  setTimeout(() => {
+    if (showDropdown.value && !dropdownMenu.value.contains(document.activeElement)) {
+      showDropdown.value = false;
+    }
+  }, 100);
 };
 
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const handleImageError = () => {
-  imageError.value = true;
+const handleFocusOut = (event) => {
+  if (dropdownMenu.value && !dropdownMenu.value.contains(event.relatedTarget)) {
+    showDropdown.value = false;
+  }
 };
 
 const handleClickOutside = (event) => {
-  const dropdown = document.querySelector('.dropdown-menu');
   const profileBtn = document.querySelector('.nav-profile');
 
-  if (dropdown && profileBtn &&
-    !dropdown.contains(event.target) &&
+  if (dropdownMenu.value && profileBtn &&
+    !dropdownMenu.value.contains(event.target) &&
     !profileBtn.contains(event.target)) {
     showDropdown.value = false;
   }
@@ -143,14 +139,9 @@ const handleClickOutside = (event) => {
 
 const updateOnlineStatus = async () => {
   try {
-    // Verificación más robusta que solo navigator.onLine
-    const response = await fetch('https://www.google.com', { 
-      method: 'HEAD',
-      cache: 'no-store',
-      mode: 'no-cors'
-    });
+    await fetch('https://www.google.com', { method: 'HEAD', cache: 'no-store', mode: 'no-cors' });
     isOnline.value = true;
-  } catch (error) {
+  } catch {
     isOnline.value = false;
   }
 };
@@ -159,41 +150,9 @@ const checkConnection = async () => {
   try {
     await fetch('https://httpbin.org/get', { method: 'HEAD' });
     isOnline.value = true;
-  } catch (error) {
+  } catch {
     isOnline.value = false;
   }
-};
-
-const fetchUserProfile = async () => {
-  const accessToken = localStorage.getItem('auth_token');
-  if (!accessToken) return;
-
-  try {
-    const response = await api.get('user/profile/', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    const { first_name, last_name, email, image, username } = response.data;
-
-    userData.value = {
-      firstName: first_name || '',
-      lastName: last_name || '',
-      email: email || '',
-      username: username || '',
-      image: image ? buildImageUrl(image) : defaultAvatar
-    };
-
-    imageError.value = false;
-  } catch (error) {
-    console.error('Error al obtener perfil:', error);
-    userData.value.image = defaultAvatar;
-  }
-};
-
-const buildImageUrl = (imagePath) => {
-  if (!imagePath) return defaultAvatar;
-  if (imagePath.startsWith('http')) return imagePath;
-  return `${imgServerURL.replace(/\/+$/, '')}/${imagePath.replace(/^\/+/, '')}`;
 };
 
 const logout = async () => {
@@ -205,21 +164,20 @@ const logout = async () => {
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
   } finally {
-    // Limpiar almacenamiento
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('is_superuser');
     localStorage.removeItem('is_staff');
-    router.push('/login');
+    router.push('/');
   }
 };
 
 // Lifecycle hooks
 onMounted(() => {
+  userStore.fetchUserProfile();
   window.addEventListener('online', updateOnlineStatus);
   window.addEventListener('offline', updateOnlineStatus);
   document.addEventListener('click', handleClickOutside);
-  fetchUserProfile();
   checkConnection();
 });
 
@@ -231,7 +189,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Base Styles */
+/* Estilos se mantienen igual que en tu versión anterior */
 .header {
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   height: 70px;
@@ -246,26 +204,11 @@ onUnmounted(() => {
   background: white;
 }
 
-.toggle-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #364257;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-right: 10px;
+.container-fluid {
+  height: 100%;
 }
 
-.toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
-}
-
+.toggle-btn,
 .mobile-toggle-btn {
   background: rgba(255, 255, 255, 0.1);
   border: none;
@@ -280,11 +223,16 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-.container-fluid {
-  height: 100%;
+.toggle-btn {
+  margin-right: 10px;
 }
 
-/* Reset list styles */
+.toggle-btn:hover,
+.mobile-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
 .header-nav ul {
   list-style: none;
   padding-left: 0;
@@ -296,7 +244,6 @@ onUnmounted(() => {
   display: inline-block;
 }
 
-/* User Profile */
 .nav-profile {
   text-decoration: none;
   color: #364257;
@@ -309,9 +256,8 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.avatar-container {
-  width: 40px;
-  height: 40px;
+.avatar-container,
+.avatar-container-lg {
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid rgba(0, 0, 0, 0.1);
@@ -319,6 +265,17 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.avatar-container {
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-container-lg {
+  width: 50px;
+  height: 50px;
+  margin-right: 12px;
 }
 
 .avatar-img {
@@ -333,32 +290,29 @@ onUnmounted(() => {
   color: #364257;
 }
 
-/* Estilos para el indicador de conexión */
-.connection-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
+/* Estilos para el nombre de usuario */
+.user-fullname {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3px;
+  white-space: nowrap; /* Evita el salto de línea */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Muestra puntos suspensivos cuando se trunca */
+  max-width: 100%; /* Asegura que no exceda el ancho del contenedor */
+  display: block; /* Necesario para que funcione text-overflow */
 }
 
-.connection-status.online {
-  background-color: rgba(40, 167, 69, 0.15);
-  color: #28a745;
+/* Estilos para el email (por si acaso) */
+.user-email {
+  font-size: 0.85rem;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
 }
 
-.connection-status.offline {
-  background-color: rgba(220, 53, 69, 0.15);
-  color: #dc3545;
-}
-
-.status-text {
-  font-weight: 500;
-}
-
-/* Dropdown styles */
 .dropdown-menu {
   position: absolute;
   right: 15px;
@@ -371,37 +325,17 @@ onUnmounted(() => {
   padding: 0;
   overflow: hidden;
   display: block;
+  outline: none;
+  pointer-events: auto;
 }
 
+/* Ajustes para el dropdown header */
 .dropdown-header {
   display: flex;
   align-items: center;
   padding: 15px;
   background: #f8f9fa;
-}
-
-.avatar-container-lg {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  margin-right: 12px;
-}
-
-.user-info {
-  flex: 1;
-}
-
-.user-fullname {
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 3px;
-}
-
-.user-email {
-  font-size: 0.85rem;
-  color: #6c757d;
+  min-width: 0; /* Importante para el truncado */
 }
 
 .dropdown-divider {
@@ -409,7 +343,12 @@ onUnmounted(() => {
   background: #e9ecef;
   margin: 0;
 }
-
+/* Contenedor padre - esencial para el truncado */
+.user-info {
+  flex: 1;
+  min-width: 0; /* Esto permite que el truncado funcione en flex containers */
+  overflow: hidden; /* Oculta el contenido que se desborda */
+}
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -417,6 +356,7 @@ onUnmounted(() => {
   color: #495057;
   text-decoration: none;
   transition: all 0.2s;
+  pointer-events: auto;
 }
 
 .dropdown-item i {
@@ -452,95 +392,10 @@ onUnmounted(() => {
   transform: rotate(180deg);
 }
 
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  .header {
-    left: 0;
-    padding: 0 0.5rem;
-    width: 100% !important;
-  }
-
-  .mobile-toggle-btn {
-    display: flex;
-  }
-
-  .toggle-btn {
-    display: none;
-  }
-
-  .status-text {
-    display: none;
-  }
-
-  .connection-status {
-    padding: 0.25rem;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    justify-content: center;
-  }
-
-  .user-name {
-    font-size: 0.8rem;
-    margin-left: 5px;
-    max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .dropdown-menu {
-    right: 10px;
-    width: 260px;
-  }
-
-  .user-name {
-    display: none;
-  }
-
-  .dropdown-arrow {
-    display: none;
-  }
-
-  .avatar-container {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-.connection-status {
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+.connection-indicators {
   display: flex;
-  align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-/* Internet status */
-.connection-status.online:not(.checking) {
-  background-color: rgba(40, 167, 69, 0.15);
-  color: #28a745;
-  border: 1px solid #28a745;
-}
-
-.connection-status.offline:not(.checking) {
-  background-color: rgba(220, 53, 69, 0.15);
-  color: #dc3545;
-  border: 1px solid #dc3545;
-}
-
-/* API status */
-.connection-status.checking {
-  background-color: rgba(255, 193, 7, 0.15);
-  color: #ffc107;
-  border: 1px solid #ffc107;
-}
-
-/* Iconos */
-.connection-status i {
-  font-size: 0.9rem;
+  align-items: center;
 }
 
 .fa-spin {
@@ -558,20 +413,46 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .header {
+    left: 0;
+    padding: 0 0.5rem;
+    width: 100% !important;
+  }
+
+  .mobile-toggle-btn {
+    display: flex;
+  }
+
+  .toggle-btn {
+    display: none;
+  }
+
+  .status-text,
+  .user-name,
+  .dropdown-arrow {
+    display: none;
+  }
+
   .connection-status {
     padding: 0.25rem;
     width: 30px;
     height: 30px;
-    justify-content: center;
     border-radius: 50%;
-  }
-
-  .connection-status .status-text {
-    display: none;
+    justify-content: center;
   }
 
   .connection-status i {
     margin: 0;
+  }
+
+  .dropdown-menu {
+    right: 10px;
+    width: 260px;
+  }
+
+  .avatar-container {
+    width: 32px;
+    height: 32px;
   }
 }
 </style>

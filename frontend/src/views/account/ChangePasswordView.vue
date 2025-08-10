@@ -78,11 +78,11 @@
           
           <div class="d-flex justify-content-between mt-4">
             <router-link to="/perfil" class="btn btn-outline-secondary">
-              Volver al Perfil
+              Volver
             </router-link>
             <button type="submit" class="btn btn-primary" :disabled="loading">
               <span v-if="loading" class="spinner-border spinner-border-sm"></span>
-              Cambiar Contraseña
+              Cambiar
             </button>
           </div>
         </form>

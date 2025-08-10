@@ -6,6 +6,7 @@
     :header="dynamicTitle"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
     @hide="handleClose"
+    
   >
     <div class="dialog-content">
       <slot name="content"></slot>

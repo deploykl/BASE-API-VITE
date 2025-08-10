@@ -2,7 +2,7 @@ PARA NPM
 
 /npm install bootstrap bootstrap-icons sweetalert2
 /ejecutar uvicorn config.asgi:application --reload --interface asgi3
-
+uvicorn config.asgi:application --reload --port 5000 --host 0.0.0.0
 
 solucion migracion
 

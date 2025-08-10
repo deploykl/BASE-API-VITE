@@ -27,29 +27,29 @@
           </div>
 
           <div class="row">
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-1">
               <FloatInput id="username" label="Nombre de usuario" v-model="userStore.userData.username" icon="fas fa-user" required />
             </div>
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-1">
               <FloatInput id="firstname" label="Nombres" v-model="userStore.userData.first_name" icon="fas fa-signature" required />
             </div>
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-1">
               <FloatInput id="lastname" label="Apellidos" v-model="userStore.userData.last_name" icon="fas fa-users" />
             </div>
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-1">
               <FloatInput id="dni" label="DNI" v-model="userStore.userData.dni" icon="fas fa-id-card" validationType="dni" maxlength="8" />
             </div>
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-1">
               <FloatInput id="phone" label="N° Celular" v-model="userStore.userData.celular" icon="fas fa-mobile-alt" validationType="phone" maxlength="9" />
             </div>
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-1">
               <FloatInput id="email" label="Correo electrónico" v-model="userStore.userData.email" icon="fas fa-envelope" type="email" />
             </div>
           </div>
 
           <div class="d-flex justify-content-between border-top pt-3">
             <router-link to="/change-password" class="btn btn-outline-secondary">
-              <i class="pi pi-key me-1"></i>Cambiar Contraseña
+              <i class="pi pi-key me-1"></i>Cambiar
             </router-link>
             <button type="submit" class="btn btn-primary" :disabled="userStore.loading">
               <span v-if="userStore.loading" class="spinner-border spinner-border-sm"></span>

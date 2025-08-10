@@ -93,7 +93,7 @@ const isSuperuser = computed(() => {
 })
 // Función modificada para manejar el click en el overlay
 const handleOverlayClick = () => {
-  emit('toggle-sidebar') // en vez de toggle-collapse
+  emit('toggle-collapse', true) // Forzar colapso
 }
 
 const allItems = ref([
