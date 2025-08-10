@@ -8,19 +8,29 @@ from rest_framework import viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from django.db.models.functions import ExtractYear, ExtractMonth
 from dateutil.parser import parse
-from datetime import datetime, timedelta
+from datetime import datetime
+from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 
-from .models import ConsultaExterna
-from .serializers import ConsultaExternaSerializer
+from .models import *
+from .serializers import *
 
 User = get_user_model()
+
+class TableroViewSet(viewsets.ModelViewSet):
+    queryset = Tablero.objects.all()  # Añade esta línea
+    serializer_class = TableroSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
 
 # Create your views here.
 class LargeResultsSetPagination(PageNumberPagination):
     page_size = 50  # Puedes ajustar este valor
     page_size_query_param = "page_size"
     max_page_size = 200
-
 
 class ConsultaExternaViewSet(viewsets.ModelViewSet):
     queryset = ConsultaExterna.objects.all()

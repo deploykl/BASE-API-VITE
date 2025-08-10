@@ -138,6 +138,17 @@ const allItems = ref([
       },
     ]
   },
+    {
+    title: "DIMON",
+    isHeader: true,
+    requiredModule: 'Sistemas'
+  },
+  {
+    title: 'Tableros',
+    icon: 'fa-stethoscope',
+    path: '/dimon/tablero',
+    requiredModule: 'Sistemas'
+  },
   {
     title: "Reportes",
     isHeader: true,
@@ -146,13 +157,13 @@ const allItems = ref([
   {
     title: 'Consulta Externa',
     icon: 'fa-stethoscope',
-    path: '/consulta-externa',
+    path: '/dimon/consulta-externa',
     requiredModule: 'Consulta Externa'
   },
   {
     title: 'Cirugía',
     icon: 'fa-user-doctor',
-    path: '/consulta-externa',
+    path: '/dimon/cirugia',
     requiredModule: 'Consulta Externa'
   },
 ]);

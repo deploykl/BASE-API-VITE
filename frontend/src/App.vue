@@ -14,7 +14,7 @@
         />
         <div class="content-wrapper">
           <main class="content-area">
-            <router-view />
+            <router-view :key="$route.fullPath" />
           </main>
           <OnlineStatus v-if="shouldShowLayout" />
           <AppFooter />
@@ -22,7 +22,7 @@
       </div>
     </template>
     <template v-else>
-      <router-view />
+      <router-view :key="$route.fullPath" />
     </template>
     
     <Toast 

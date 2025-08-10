@@ -247,7 +247,6 @@ class ModuloViewSetTEST(viewsets.ModelViewSet):
     
     def get_queryset(self):
         return Modulo.objects.filter(is_active=True)
-        return Modulo.objects.filter(is_active=True)
     
 #VERTIFICAR CONEXION BACKEND
 class HealthCheckView(View):

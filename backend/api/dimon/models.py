@@ -4,6 +4,25 @@ from .Choises import GENDER_CHOICES
 from django.core.exceptions import ValidationError
 
 # Create your models here.
+class Tablero(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
+    url = models.URLField(max_length=500, verbose_name="URL del Tablero")
+    description = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    source = models.CharField(max_length=255, verbose_name="Fuente de datos")
+    last_updated = models.DateTimeField(verbose_name="Última actualización")
+    update_frequency  = models.TextField(blank=True, null=True, verbose_name="Frecuencia de actualización")
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")   
+    
+    def __str__(self):
+        return f"{self.name} ({self.get_dashboard_type_display()})"
+    
+    class Meta:
+        verbose_name = "Tablero"
+        verbose_name_plural = "Tableros"
+        ordering = ['name']
+        
 class ConsultaExterna(models.Model):
     tipo_seguro = models.CharField(max_length=70)
     fecha_nacimiento = models.DateField()
