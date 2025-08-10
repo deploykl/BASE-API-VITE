@@ -11,6 +11,7 @@ class Tablero(models.Model):
     source = models.CharField(max_length=255, verbose_name="Fuente de datos")
     last_updated = models.DateTimeField(verbose_name="Última actualización")
     update_frequency  = models.TextField(blank=True, null=True, verbose_name="Frecuencia de actualización")
+    is_active = models.BooleanField(default=True)
     created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)    
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")   
