@@ -175,13 +175,15 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
         ).values(
             "id", "username", "first_name", "last_name", "is_online"
         )
-
+    
         return [
             {
                 "id": u["id"],
                 "username": u["username"],
                 "fullname": self._get_user_fullname(u),
                 "is_online": u["is_online"],
+                "connections": len(self.active_connections.get(u["id"], {})),  # Número de conexiones
+                "device_count": len(self.active_connections.get(u["id"], {}))  # Alias para claridad en frontend
             }
             for u in users
             if u["username"] and u["username"].lower() not in ["admin_red", "undefined"]

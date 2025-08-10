@@ -27,10 +27,8 @@
             </div>
         </div>
 
-        <button class="panel-toggle-button" 
-                :class="{ 'is-collapsed': isCollapsed }"
-                @mousedown="startDrag"
-                @click="handleButtonClick">
+        <button class="panel-toggle-button" :class="{ 'is-collapsed': isCollapsed }" @mousedown="startDrag"
+            @click="handleButtonClick">
             <i class="pi pi-users"></i>
             <span class="badge">{{ onlineCount }}</span>
         </button>
@@ -57,7 +55,6 @@ const maxReconnectAttempts = 5;
 const reconnectDelay = 3000;
 let heartbeatInterval = null;
 
-// WebSocket connection logic (same as before)
 const connectWebSocket = () => {
     loading.value = true;
 
@@ -68,17 +65,24 @@ const connectWebSocket = () => {
         return;
     }
 
-    const isSecure = window.location.protocol === 'https:';
-    const wsProtocol = isSecure ? 'wss://' : 'ws://';
-    const host = process.env.VUE_APP_WS_HOST || window.location.hostname;
-    const port = process.env.VUE_APP_WS_PORT || (isSecure ? 443 : 8000);
-    const wsUrl = `${wsProtocol}${host}:${port}/ws/online-status/?token=${token}`;
+    // Use the Vite environment variable directly
+    const wsUrl = import.meta.env.VITE_API_URL_WS_URL || 
+                 `${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}/ws/online-status/`;
+
+    socket = new WebSocket(wsUrl);
 
     socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
         reconnectAttempts = 0;
-        console.log('WebSocket connection established');
+
+        // Enviar token como primer mensaje
+        socket.send(JSON.stringify({
+            type: 'authenticate',
+            token: token
+        }));
+
+        // Configurar heartbeat
         heartbeatInterval = setInterval(() => {
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(JSON.stringify({ type: 'heartbeat' }));
@@ -94,6 +98,8 @@ const connectWebSocket = () => {
                 onlineUsers.value = data.users;
                 onlineCount.value = data.users.length;
                 loading.value = false;
+            } else if (data.type === 'authentication_success') {
+                console.log('Autenticación WebSocket exitosa');
             }
         } catch (e) {
             console.error('Error parsing WebSocket message:', e);
@@ -101,28 +107,22 @@ const connectWebSocket = () => {
     };
 
     socket.onclose = (event) => {
-        console.log('WebSocket cerrado:', event);
+        console.log('WebSocket cerrado:', event.code, event.reason);
         if (heartbeatInterval) clearInterval(heartbeatInterval);
 
         if (!event.wasClean && reconnectAttempts < maxReconnectAttempts) {
             setTimeout(() => {
                 reconnectAttempts++;
+                console.log(`Reconectando (intento ${reconnectAttempts}/${maxReconnectAttempts})...`);
                 connectWebSocket();
             }, reconnectDelay);
         }
     };
 
     socket.onerror = (error) => {
-        console.error('Error en WebSocket:', error);
+        console.error('WebSocket error:', error);
         if (heartbeatInterval) clearInterval(heartbeatInterval);
     };
-};
-
-const reconnect = () => {
-    if (socket) {
-        socket.close();
-    }
-    connectWebSocket();
 };
 
 const togglePanel = () => {
@@ -148,14 +148,14 @@ const handleButtonClick = (e) => {
 
 const startDrag = (e) => {
     if (!isCollapsed.value) return;
-    
+
     isDragging.value = true;
     hasDragged.value = false;
     dragStartY.value = e.clientY;
     dragStartTop.value = panelTop.value;
-    
+
     panelRef.value.classList.add('dragging-active');
-    
+
     document.addEventListener('mousemove', handleDrag, { passive: false });
     document.addEventListener('mouseup', stopDrag, { passive: true });
     document.body.style.userSelect = 'none';
@@ -164,14 +164,14 @@ const startDrag = (e) => {
 
 const startHeaderDrag = (e) => {
     if (isCollapsed.value) return;
-    
+
     isDragging.value = true;
     hasDragged.value = false;
     dragStartY.value = e.clientY;
     dragStartTop.value = panelTop.value;
-    
+
     panelRef.value.classList.add('dragging-active');
-    
+
     document.addEventListener('mousemove', handleDrag, { passive: false });
     document.addEventListener('mouseup', stopDrag, { passive: true });
     document.body.style.userSelect = 'none';
@@ -181,15 +181,15 @@ const startHeaderDrag = (e) => {
 const handleDrag = (e) => {
     if (!isDragging.value) return;
     e.preventDefault();
-    
+
     // Detect if we've dragged more than 5px to consider it a drag
     if (Math.abs(e.clientY - dragStartY.value) > 5) {
         hasDragged.value = true;
     }
-    
+
     const deltaY = e.clientY - dragStartY.value;
     let newTop = dragStartTop.value + deltaY;
-    
+
     requestAnimationFrame(() => {
         panelTop.value = Math.max(0, Math.min(window.innerHeight - 44, newTop));
     });
@@ -197,14 +197,14 @@ const handleDrag = (e) => {
 
 const stopDrag = () => {
     if (!isDragging.value) return;
-    
+
     isDragging.value = false;
     panelRef.value.classList.remove('dragging-active');
     document.body.style.userSelect = '';
-    
+
     document.removeEventListener('mousemove', handleDrag);
     document.removeEventListener('mouseup', stopDrag);
-    
+
     // Small delay to allow click event to check hasDragged
     setTimeout(() => {
         hasDragged.value = false;
@@ -214,7 +214,7 @@ const stopDrag = () => {
 onMounted(() => {
     panelTop.value = window.innerHeight / 2 - 22;
     connectWebSocket();
-    
+
     window.addEventListener('resize', () => {
         panelTop.value = Math.min(panelTop.value, window.innerHeight - 44);
     });
@@ -234,11 +234,14 @@ onUnmounted(() => {
 .floating-users-panel {
     position: fixed;
     right: 0;
-    z-index: 1000;
+    z-index: 100;
+    /* Valor intermedio seguro */
     display: flex;
     contain: layout;
     backface-visibility: hidden;
     transform: translate3d(0, 0, 0);
+    pointer-events: none;
+    /* Permite clicks a través del panel */
 }
 
 .floating-users-panel.dragging-active {
@@ -246,13 +249,14 @@ onUnmounted(() => {
 }
 
 .panel-content {
-    width: 300px;
+    width: 200px;
     background: rgba(255, 255, 255, 0.98);
     border-radius: 12px 0 0 12px;
     box-shadow: -4px 0 15px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-right: none;
-    overflow: hidden; /* Asegura que no haya overflow */
+    overflow: hidden;
+    /* Asegura que no haya overflow */
     backdrop-filter: blur(5px);
     transform-origin: right center;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
@@ -283,11 +287,13 @@ onUnmounted(() => {
 
 .panel-body {
     max-height: 400px;
-    overflow: hidden; /* Desactivamos completamente el scroll */
+    overflow: hidden;
+    /* Desactivamos completamente el scroll */
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
 }
+
 /* Ocultar scrollbar en WebKit (Chrome, Safari) */
 .panel-body::-webkit-scrollbar {
     display: none;
@@ -303,6 +309,7 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 0.5rem;
 }
+
 .user-item {
     display: flex;
     align-items: center;
@@ -378,6 +385,9 @@ onUnmounted(() => {
     clip-path: circle(71% at 50% 50%);
     will-change: transform;
     transform: translate3d(0, 0, 0);
+    pointer-events: auto;
+    /* El botón siempre debe ser clickeable */
+
 }
 
 .panel-toggle-button:hover {
@@ -412,26 +422,50 @@ onUnmounted(() => {
 }
 
 .panel-collapsed .panel-content {
-    transform: translateX(calc(100% - 22px)) scaleX(0.1);
+    transform: translateX(100%);
+    /* Mueve completamente fuera de pantalla */
     opacity: 0;
-    width: 300px;
+    width: 0;
     border: none;
     padding: 0;
     margin: 0;
+    pointer-events: none;
+    /* Desactiva interacción cuando está colapsado */
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .user-item {
     animation: fadeIn 0.3s ease forwards;
 }
 
-.user-item:nth-child(1) { animation-delay: 0.05s; }
-.user-item:nth-child(2) { animation-delay: 0.1s; }
-.user-item:nth-child(3) { animation-delay: 0.15s; }
-.user-item:nth-child(4) { animation-delay: 0.2s; }
-.user-item:nth-child(5) { animation-delay: 0.25s; }
+.user-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.user-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.user-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.user-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.user-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
 </style>

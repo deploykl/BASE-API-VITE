@@ -31,22 +31,17 @@
 
       <template #header>
         <slot name="header"></slot>
-        <div class="flex flex-wrap align-items-center justify-content-end gap-2 p-2 ">
-          <!-- Botones de Expandir/Colapsar -->
-          <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm"
-            severity="secondary" />
-          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm"
-            severity="secondary" />
+        <div class="bottom-center flex flex-wrap justify-end gap-1">
+          <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
+          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-1" />
+          <!-- Botón de Exportación CSV -->
+          <!--<Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-1" severity="success"
+            :loading="exportingCSV" />-->
+          <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-1"
+            severity="danger" />
+          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-1" severity="info" />
+          <Button icon="pi pi-file-excel" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="success" />
 
-          <!-- Separador visual (opcional) -->
-          <span class="flex-grow-1"></span>
-
-          <!-- Botones de Exportación -->
-          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm" severity="success"
-            :loading="exportingCSV" />
-          <Button icon="pi pi-file-pdf" label="PDF" @click="exportPDF" class="p-button-sm" severity="danger" />
-          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm" severity="info" />
-          <Button icon="pi pi-file-export" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="help" />
         </div>
       </template>
 
@@ -820,11 +815,12 @@ const exportCSV2 = () => {
     width: 100%;
     padding: 0.75rem;
     margin: 0;
-    border-radius: 0;
     box-shadow: none;
     box-sizing: border-box;
     border: 1px solid #e0e0e0;
   }
+
+
 
   .header-actions-container {
     flex-direction: column;
@@ -913,6 +909,10 @@ const exportCSV2 = () => {
 
   .expansion-content {
     padding: 0.75rem;
+  }
+
+  .bottom-center {
+    text-align: center;
   }
 }
 

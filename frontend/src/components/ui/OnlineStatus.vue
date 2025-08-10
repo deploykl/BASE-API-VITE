@@ -22,6 +22,9 @@
                             <span class="username">{{ user.username }}</span>
                             <span class="fullname">{{ user.fullname }}</span>
                         </div>
+                        <span v-if="user.device_count > 1" class="connection-count">
+                            {{ user.device_count }}x
+                        </span>
                     </div>
                 </div>
             </div>
@@ -66,8 +69,8 @@ const connectWebSocket = () => {
     }
 
     // Use the Vite environment variable directly
-    const wsUrl = import.meta.env.VITE_API_URL_WS_URL || 
-                 `${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}/ws/online-status/`;
+    const wsUrl = import.meta.env.VITE_API_URL_WS_URL ||
+        `${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}/ws/online-status/`;
 
     socket = new WebSocket(wsUrl);
 
@@ -311,6 +314,7 @@ onUnmounted(() => {
 }
 
 .user-item {
+    position: relative;
     display: flex;
     align-items: center;
     padding: 0.75rem;
@@ -467,5 +471,15 @@ onUnmounted(() => {
 
 .user-item:nth-child(5) {
     animation-delay: 0.25s;
+}
+
+.connection-count {
+    margin-left: auto;
+    background: #e2e8f0;
+    color: #4a5568;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
 }
 </style>
