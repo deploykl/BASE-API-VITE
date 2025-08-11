@@ -22,6 +22,7 @@ User = get_user_model()
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = UserSerializer  # Añade esto
 
     def post(self, request):
         username = request.data.get('username')
@@ -107,6 +108,7 @@ class LoginView(APIView):
     
 class LogoutView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = UserSerializer  # Añade esto
 
     def post(self, request):
         refresh_token = request.data.get('refresh')
@@ -126,6 +128,7 @@ class LogoutView(APIView):
         
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserProfileSerializer  # Añade esto
 
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
@@ -144,6 +147,7 @@ class UserProfileView(APIView):
     
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer  # Añade esto
 
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)

@@ -108,7 +108,7 @@
     <!-- Listado de usuarios -->
     <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"
       :showCreateButton="true" title="GESTIÓN DE USUARIOS" createButtonLabel="Nuevo Usuario"
-      createButtonIcon="pi pi-user-plus" @create="openCreateModal">
+      createButtonIcon="pi pi-user-plus" :expandable="true" @create="openCreateModal">
       <!-- sortField="is_active" :sortOrder="-1" para poner estado activo -->
 
       <!-- Template para full_name -->
@@ -350,7 +350,9 @@ const proceedDelete = async () => {
 };
 
 const handleSubmit = async () => {
+  // Validación de contraseñas
   if ((!editing.value || resetPassword.value) && form.value.password !== form.value.password2) {
+    errors.value = { password2: ["Las contraseñas no coinciden"] };
     toast.error('Las contraseñas no coinciden');
     return;
   }
@@ -365,25 +367,26 @@ const handleSubmit = async () => {
       delete userData.password;
     }
 
+    let result;
     if (editing.value) {
-      await userStore.updateUser(userToEdit.value.id, userData);
+      result = await userStore.updateUser(userToEdit.value.id, userData);
     } else {
-      await userStore.createUser(userData);
+      result = await userStore.createUser(userData);
     }
 
-    closeUserModal();
-  } catch (error) {
-    if (error.response?.data) {
-      // Asignar errores al objeto errors para mostrarlos en los campos
-      errors.value = error.response.data;
-
-      // Mostrar errores generales en toast solo si no son errores de campo específicos
-      if (error.response.data.non_field_errors) {
-        toast.error(error.response.data.non_field_errors.join(', '));
+    if (result.success) {
+      closeUserModal();
+    } else if (result.errors) {
+      // Asignar errores específicos
+      errors.value = result.errors;
+      
+      // Mostrar errores generales si existen
+      if (result.errors.non_field_errors) {
+        toast.error(result.errors.non_field_errors.join(', '));
       }
-    } else {
-      toast.error('Error al guardar: ' + error.message);
     }
+  } catch (error) {
+    toast.error('Error inesperado: ' + error.message);
   } finally {
     isSubmitting.value = false;
   }

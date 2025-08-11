@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema_field
 
 User = get_user_model()
 
@@ -35,7 +36,8 @@ class UserSerializer(serializers.ModelSerializer):
             'date_joined': {'read_only': True},
             'last_login': {'read_only': True},
         }
-    def get_full_name(self, obj):
+    @extend_schema_field(str)
+    def get_full_name(self, obj) -> str:
         return f"{obj.first_name} {obj.last_name}".strip() or "-"
     
     def validate(self, data):
@@ -90,8 +92,8 @@ class UserSerializer(serializers.ModelSerializer):
         return None
     
 class UserProfileSerializer(serializers.ModelSerializer):
-    dependencia_name = serializers.ReadOnlyField(source="dependencia.name")
-    area_name = serializers.ReadOnlyField(source="area.name")
+    #dependencia_name = serializers.ReadOnlyField(source="dependencia.name")
+    #area_name = serializers.ReadOnlyField(source="area.name")
     full_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -105,10 +107,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "dni",
             "celular",
             "image",  # Este es el campo real del modelo
-            "dependencia_name",
-            "area_name",
+            #"dependencia_name",
+            #"area_name",
         ]
-    def get_full_name(self, obj):
+    @extend_schema_field(str)
+    def get_full_name(self, obj) -> str:
         return f"{obj.first_name} {obj.last_name}".strip() or "-"
     
     def validate_username(self, value):

@@ -29,32 +29,31 @@ export const useUserStore = defineStore("userStore", () => {
     }
   };
 
-  const createUser = async (userData) => {
-    try {
-      const { password2, ...dataToSend } = userData;
-      const response = await api.post("user/users/", dataToSend);
+const createUser = async (userData) => {
+  try {
+    const { password2, ...dataToSend } = userData;
+    const response = await api.post("user/users/", dataToSend);
 
-      users.value.unshift(response.data);
-      toast.showSuccess("Usuario creado correctamente");
-      return response.data;
-    } catch (err) {
-      error.value = err;
+    users.value.unshift(response.data);
+    toast.showSuccess("Usuario creado correctamente");
+    return { success: true, data: response.data };
+  } catch (err) {
+    error.value = err;
 
-      // Manejo mejorado de errores
-      if (err.response?.data) {
-        // Mostrar todos los errores de campo
-        for (const [field, messages] of Object.entries(err.response.data)) {
-          const errorMsg = Array.isArray(messages) ? messages[0] : messages;
-          toast.showError(`${field}: ${errorMsg}`);
-        }
-      } else {
-        toast.showError(err.message || "Error al crear usuario");
-      }
-
-      throw err;
-    } finally {
+    // Manejo mejorado de errores
+    if (err.response?.data) {
+      // Devolver los errores estructurados
+      return { 
+        success: false, 
+        errors: err.response.data,
+        message: "Error al crear usuario"
+      };
+    } else {
+      toast.showError(err.message || "Error al crear usuario");
+      return { success: false, message: err.message };
     }
-  };
+  }
+};
 
   const updateUser = async (id, userData) => {
     try {

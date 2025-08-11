@@ -26,6 +26,9 @@ import Card from 'primevue/Card';
 import Divider from 'primevue/Divider';
 import Password from 'primevue/Password';
 import Sidebar from 'primevue/sidebar';
+import Textarea from 'primevue/Textarea';
+import Select  from 'primevue/Select';
+import DatePicker from 'primevue/datepicker';
 
 // LIBRERÍAS
 import 'bootstrap'
@@ -89,6 +92,9 @@ app.component('Card', Card);
 app.component('Divider', Divider);
 app.component('Password', Password);
 app.component('Sidebar', Sidebar);
+app.component('Textarea', Textarea);
+app.component('Select', Select);
+app.component('DatePicker', DatePicker);
 
 // Monta la aplicación
 app.mount('#app')

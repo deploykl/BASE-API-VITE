@@ -1,180 +1,167 @@
 <template>
-    <div class="container">
-        <ModalBase :visible="showUserModal" :mode="editing ? 'edit' : 'create'" entityName="usuario"
-            :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeUserModal"
-            @confirm="handleSubmit">
-            <template #content>
-                <form @submit.prevent="handleSubmit">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!-- Username -->
-                            <FloatInput id="username" label="Nombre de usuario" v-model="form.username"
-                                icon="pi pi-user-edit" :errors="errors" :invalid="!!errors.username" size="small" />
+  <div class="container-fluid">
+    <ModalBase :visible="showModal" :mode="editing ? 'edit' : 'create'" entityName="tablero"
+      :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeModal"
+      @confirm="handleSubmit">
+      <template #content>
+        <form @submit.prevent="handleSubmit">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Nombre del tablero -->
+              <FloatInput id="name" label="Nombre del tablero" v-model="form.name" icon="pi pi-table" :errors="errors"
+                :invalid="!!errors.name" size="small" />
 
-                            <!-- Email -->
-                            <FloatInput id="email" label="Email" v-model="form.email" type="email" icon="pi pi-envelope"
-                                :invalid="!!errors.email" :errors="errors" size="small" />
+              <!-- URL -->
+              <FloatInput id="url" label="URL" v-model="form.url" type="url" icon="pi pi-link" :invalid="!!errors.url"
+                :errors="errors" size="small" placeholder="https://ejemplo.com/tablero" />
 
-                        </div>
+              <!-- Fuente -->
+              <FloatInput id="source" label="Fuente de datos" v-model="form.source" icon="pi pi-database"
+                :invalid="!!errors.source" :errors="errors" size="small" />
+            </div>
 
-                        <div class="col-md-6">
-                            <!-- Nombres -->
-                            <FloatInput id="first_name" label="Nombres" v-model="form.first_name" icon="pi pi-user"
-                                :invalid="!!errors.first_name" :errors="errors" size="small" />
+            <div class="col-md-6">
+              <!-- Frecuencia de actualización -->
+              <div class="mb-3">
+                <label for="update_frequency" class="form-label">Frecuencia de actualización</label>
+                <Select v-model="form.update_frequency" :options="frequencyOptions" optionLabel="label"
+                  optionValue="value" placeholder="Seleccione frecuencia" class="w-100"
+                  :class="{ 'p-invalid': !!errors.update_frequency }" />
+                <small v-if="errors.update_frequency" class="p-error">{{ errors.update_frequency[0] }}</small>
+              </div>
 
-                            <!-- Apellidos -->
-                            <FloatInput id="last_name" label="Apellidos" v-model="form.last_name" icon="pi pi-users"
-                                :invalid="!!errors.last_name" :errors="errors" size="small" />
+              <!-- Última actualización -->
+              <DatePicker v-model="form.last_updated" label="Última actualización" dateFormat="dd/mm/yy"
+                :showIcon="true" :showTime="true" class="w-100 mb-3" :class="{ 'p-invalid': !!errors.last_updated }" />
+              <small v-if="errors.last_updated" class="p-error">{{ errors.last_updated[0] }}</small>
 
-                            <!-- DNI -->
-                            <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" maxlength="8"
-                                :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" size="small" />
+              <!-- Descripción -->
+              <div class="mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <Textarea v-model="form.description" rows="3" class="w-100"
+                  :class="{ 'p-invalid': !!errors.description }" />
+                <small v-if="errors.description" class="p-error">{{ errors.description[0] }}</small>
+              </div>
+            </div>
+          </div>
 
-                            <!-- Celular -->
-                            <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone"
-                                maxlength="9" :invalid="!!errors.celular" :errors="errors"
-                                placeholder="Ingrese 9 dígitos" size="small" />
-                        </div>
-                    </div>
+          <div class="row mt-2">
+            <div class="col-md-12">
+              <div class="form-check form-switch mb-3">
+                <input v-model="form.is_active" class="form-check-input" type="checkbox" id="isActiveCheck">
+                <label class="form-check-label" for="isActiveCheck">Activo</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </template>
+    </ModalBase>
+    <!-- Modal de confirmación para eliminar -->
+    <ModalBase :visible="showDeleteModal" mode="delete" entityName="tablero" confirm-text="Eliminar Permanentemente"
+      confirm-class="p-button-danger" :loading="isDeleting" @close="closeDeleteModal" @confirm="proceedDelete">
+      <template #content>
+        ¿Estás seguro de eliminar permanentemente el tablero <strong>{{ tableroToDelete?.name }}</strong>?
+        <div class="alert alert-warning mt-3">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Esta acción no se puede deshacer y eliminará todos los datos asociados al tablero.
+        </div>
+      </template>
+    </ModalBase>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-check form-switch mb-3">
-                                <input v-model="form.is_active" class="form-check-input" type="checkbox"
-                                    id="isActiveCheck">
-                                <label class="form-check-label" for="isActiveCheck">Activo</label>
-                            </div>
-                        </div>
-                       
-                    </div>
-                </form>
-            </template>
-        </ModalBase>
+    <!-- Listado de usuarios -->
+    <DataTableWrapper :data="tableroStore.tableros" :columns="columns" :loading="tableroStore.loading" :actions="true"
+      :showCreateButton="true" title="GESTIÓN DE TABLEROS" createButtonLabel="Nuevo Tablero"
+      createButtonIcon="pi pi-chart-bar" :expandable="false" @create="openCreateModal">
+      <!-- sortField="is_active" :sortOrder="-1" para poner estado activo -->
 
-        <!-- Listado de usuarios -->
-        <DataTableWrapper :data="tableroStore.tableros" :columns="columns" :loading="tableroStore.loading" :actions="true"
-            :showCreateButton="true" title="GESTIÓN DE TABLEROS" createButtonLabel="Nuevo Usuario"
-            createButtonIcon="pi pi-user-plus" @create="openCreateModal">
-            <!-- sortField="is_active" :sortOrder="-1" para poner estado activo -->
+      <!-- Template para full_name -->
+      <template #body-full_name="{ data }">
+        {{ data.name || '-' }}
+      </template>
+      <template #body-url="{ data }">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <span class="text-truncate pe-2 flex-grow-1">
+            {{ truncateUrl(data.url) }}
+          </span>
+          <div class="d-flex gap-2">
+            <Button icon="pi pi-external-link" class="p-button-sm p-button-text p-button-rounded p-button-secondary"
+              v-tooltip.top="'Abrir enlace'" @click.stop="openUrl(data.url)" />
+            <Button icon="pi pi-copy" class="p-button-sm p-button-text p-button-rounded p-button-secondary"
+              v-tooltip.top="'Copiar enlace'" @click.stop="copyToClipboard(data.url)" />
+          </div>
+        </div>
+      </template>
+      <template #body-description="{ data }">
+        {{ data.description }}
+      </template>
+      <template #body-source="{ data }">
+        {{ data.source }}
+      </template>
 
-            <!-- Template para full_name -->
-            <template #body-full_name="{ data }">
-                {{ data.name || '-' }}
-            </template>
-
-            <!-- Template para is_active -->
-            <template #body-is_active="{ data }">
-                <div class="d-flex flex-column align-items-center">
-                    <ToggleSwitch v-model="data.is_active" @change="tableroStore.toggleUserStatus(data.id, data.is_active)"
-                        class="mb-1" />
-                    <span class="badge custom-badge" :class="data.is_active ? 'bg-success' : 'bg-danger'">
-                        {{ data.is_active ? 'Activo' : 'Inactivo' }}
-                    </span>
-                </div>
-            </template>
-
-            <!-- Template para is_staff -->
-            <template #body-is_staff="{ data }">
-                <div class="d-flex flex-column align-items-center">
-                    <ToggleSwitch v-model="data.is_staff" @change="tableroStore.toggleStaffStatus(data.id, data.is_staff)"
-                        class="mb-1" />
-                    <span class="badge custom-badge" :class="data.is_staff ? 'bg-info' : 'bg-secondary'">
-                        {{ data.is_staff ? 'Staff' : 'Normal' }}
-                    </span>
-                </div>
-            </template>
-
-            <!-- Template para roles -->
-            <template #body-roles="{ data }">
-                <div class="d-flex gap-2">
-                    <span v-if="data.is_superuser" class="badge bg-danger"
-                        v-tooltip.top="'Usuario con todos los permisos'">
-                        <i class="fas fa-crown me-1"></i>
-                        SuperUser
-                    </span>
-                    <span v-if="data.is_staff" class="badge bg-info text-dark"
-                        v-tooltip.top="'Usuario con permisos de staff'">
-                        <i class="fas fa-user-tie me-1"></i>
-                        Staff
-                    </span>
-                    <span v-if="!data.is_superuser && !data.is_staff" class="badge bg-secondary"
-                        v-tooltip.top="'Usuario normal'">
-                        <i class="fas fa-user me-1"></i>
-                        Usuario
-                    </span>
-                </div>
-            </template>
-
-            <!-- Template para created_by -->
-            <template #body-created_by="{ data }">
-                {{ data.created_by ? data.created_by.username : 'Sistema' }}
-            </template>
-
-
-            <template #actions="{ data }">
-                <div class="d-flex gap-1">
-                    <!-- Botón Editar -->
-                    <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
-                        v-tooltip.top="'Editar'" @click="openEditModal(data)" />
-
-                    <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
-                        v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
-                </div>
-            </template>
-
-
-            <!-- Template de expansión personalizado -->
-            <template #expansion="{ data }">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Nombre completo:</strong> {{ data.full_name || '-' }}</p>
-                        <p><strong>Email:</strong> {{ data.email }}</p>
-                        <p><strong>DNI:</strong> {{ data.dni || '-' }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Celular:</strong> {{ data.celular || '-' }}</p>
-                        <p><strong>Creado por:</strong> {{ data.created_by?.username || 'Sistema' }}</p>
-                        <p><strong>Estado:</strong>
-                            <Tag :value="data.is_active ? 'Activo' : 'Inactivo'"
-                                :severity="data.is_active ? 'success' : 'danger'" />
-                        </p>
-                        <p><strong>is_superuser:</strong> {{ data.is_superuser || '-' }}</p>
-
-                    </div>
-                </div>
-
-                <div class="mt-3" v-if="data.groups?.length">
-                    <h6>Grupos asignados:</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <Tag v-for="group in data.groups" :key="group.id" :value="group.name" severity="info" />
-                    </div>
-                </div>
-            </template>
+      <template #body-update_frequency="{ data }">
+        {{ data.update_frequency }}
+      </template>
+      <!-- Template para created_by -->
+      <template #body-created_by_username="{ data }">
+        {{ data.created_by_username ? data.created_by_username : 'Sistema' }}
+      </template>
+      <template #body-created_at="{ data }">
+        {{ formatDateTime(data.created_at) }}
+      </template>
+      <template #body-updated_at="{ data }">
+        {{ formatDateTime(data.updated_at) }}
+      </template>
+      <template #body-last_updated="{ data }">
+        {{ formatDateTime(data.last_updated) }}
+      </template>
+      <!-- Template para is_active -->
+      <template #body-is_active="{ data }">
+        <div class="d-flex flex-column align-items-center">
+          <ToggleSwitch v-model="data.is_active" @change="tableroStore.toggleTableroStatus(data.id, data.is_active)"
+            class="mb-1" />
+          <span class="badge custom-badge" :class="data.is_active ? 'bg-success' : 'bg-danger'">
+            {{ data.is_active ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+      </template>
 
 
-        </DataTableWrapper>
-    </div>
+      <template #actions="{ data }">
+        <div class="d-flex gap-1">
+          <!-- Botón Editar -->
+          <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
+            v-tooltip.top="'Editar'" @click="openEditModal(data)" />
+
+          <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
+            v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
+        </div>
+      </template>
+
+    </DataTableWrapper>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 
 import ModalBase from '@/components/ui/ModalBase.vue';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
 import { useTableroStore } from '@/stores/dimon/tableroStore';
 import FloatInput from '@/components/widgets/FloatInput.vue';
+import { useCustomToast } from "@/components/utils/toast";
 
 const tableroStore = useTableroStore();
 const errors = ref({});
 
-const showUserModal = ref(false);
+const showModal = ref(false);
 const showDeleteModal = ref(false);
 const editing = ref(false);
 const isSubmitting = ref(false);
 const resetPassword = ref(false);
-const userToDelete = ref(null);
-const userToEdit = ref(null);
+const tableroToDelete = ref(null);
+const tableroToEdit = ref(null);
 const isDeleting = ref(false);
+const toast = useCustomToast();
 
 // Definimos la estructura del formulario como constante
 const FORM_STATE = {
@@ -184,9 +171,10 @@ const FORM_STATE = {
   source: '',
   last_updated: '',
   update_frequency: '',
-  created_by: '',
+  created_by_username: '',
   created_at: '',
   updated_at: '',
+  is_active: '',
 };
 // Usamos la estructura para el formulario reactivo
 const form = ref({ ...FORM_STATE });
@@ -196,12 +184,32 @@ const columns = ref([
     field: 'name',
     header: 'Nombre',
     sortable: true,
-    filter: true,
+    filter: false,
     filterOptions: computed(() =>
       tableroStore.tableros.map(u => u.name).filter((v, i, a) => a.indexOf(v) === i)
     ),
   },
+  { field: 'url', header: 'URL', bodyTemplate: true, filter: false },
+  { field: 'description', header: 'DESCRIPCIÓN', bodyTemplate: true, filter: false },
+  { field: 'source', header: 'FUENTES', bodyTemplate: true, filter: false },
+  { field: 'update_frequency', header: 'FRECUENCIA', bodyTemplate: true, filter: false },
+  { field: 'created_by_username', header: 'CREADO', bodyTemplate: true, filter: true },
+  { field: 'created_at', header: 'created_at', bodyTemplate: true, filter: false },
+  { field: 'updated_at', header: 'updated_at', bodyTemplate: true, filter: false },
+  { field: 'last_updated', header: 'last_updated', bodyTemplate: true, filter: false },
+  { field: 'is_active', header: 'is_active', bodyTemplate: true, filter: false },
 
+]);
+
+const frequencyOptions = ref([
+  { label: 'Diaria', value: 'Diaria' },
+  { label: 'Semanal', value: 'Semanal' },
+  { label: 'Quincenal', value: 'Quincenal' },
+  { label: 'Mensual', value: 'Mensual' },
+  { label: 'Trimestral', value: 'Trimestral' },
+  { label: 'Semestral', value: 'Semestral' },
+  { label: 'Anual', value: 'Anual' },
+  { label: 'Manual', value: 'Manual' }
 ]);
 // Métodos
 const resetForm = () => {
@@ -213,21 +221,59 @@ const resetForm = () => {
 const openCreateModal = () => {
   resetForm();
   editing.value = false;
-  showUserModal.value = true;
+  showModal.value = true;
 };
-const closeUserModal = () => {
-  showUserModal.value = false;
+const closeModal = () => {
+  showModal.value = false;
   resetForm();
 };
 
 const confirmDelete = (user) => {
-  userToDelete.value = user;
+  tableroToDelete.value = user;
   showDeleteModal.value = true;
 };
+const closeDeleteModal = () => {
+  try {
+    showDeleteModal.value = false;
+    // Pequeño delay para la animación antes de resetear
+    setTimeout(() => {
+      tableroToDelete.value = null;
+    }, 300);
+  } catch (error) {
+    console.error("Error al cerrar modal:", error);
+  }
+};
+const openEditModal = async (tablero) => {
+  editing.value = true;
+  tableroToEdit.value = tablero;
+
+  // Resetear formulario manteniendo la reactividad
+  Object.assign(form.value, FORM_STATE);
+
+  // Asignar valores del tablero, normalizando la frecuencia
+  const normalizedFrequency = frequencyOptions.value.find(
+    opt => opt.value.toLowerCase() === tablero.update_frequency?.toLowerCase()
+  )?.value || tablero.update_frequency;
+
+  form.value = {
+    ...form.value,
+    ...tablero,
+    update_frequency: normalizedFrequency, // Usar el valor normalizado
+    last_updated: tablero.last_updated ? new Date(tablero.last_updated) : null
+  };
+
+  // Esperar a que el modal y los componentes estén renderizados
+  await nextTick();
+  showModal.value = true;
+
+  console.log('Valor asignado a form.update_frequency:', form.value.update_frequency);
+  console.log('Opciones disponibles:', frequencyOptions.value);
+};
+
 const proceedDelete = async () => {
   isDeleting.value = true;
   try {
-    const success = await tableroStore.deleteUser(userToDelete.value.id);
+    const success = await tableroStore.DeleteTablero(tableroToDelete.value.id);
     if (success) {
       closeDeleteModal();
     }
@@ -237,54 +283,76 @@ const proceedDelete = async () => {
   }
 };
 const handleSubmit = async () => {
-  if ((!editing.value || resetPassword.value) && form.value.password !== form.value.password2) {
-    toast.error('Las contraseñas no coinciden');
-    return;
-  }
-
   isSubmitting.value = true;
   errors.value = {}; // Limpiar errores anteriores
 
   try {
-    const { password2, ...userData } = form.value;
-
-    if (editing.value && !resetPassword.value) {
-      delete userData.password;
-    }
-
     if (editing.value) {
-      await tableroStore.updateUser(userToEdit.value.id, userData);
+      await tableroStore.UpdateTablero(tableroToEdit.value.id, form.value);
     } else {
-      await tableroStore.createUser(userData);
+      await tableroStore.CreateTablero(form.value);
     }
-
-    closeUserModal();
+    closeModal();
   } catch (error) {
     if (error.response?.data) {
-      // Asignar errores al objeto errors para mostrarlos en los campos
       errors.value = error.response.data;
-
-      // Mostrar errores generales en toast solo si no son errores de campo específicos
-      if (error.response.data.non_field_errors) {
-        toast.error(error.response.data.non_field_errors.join(', '));
-      }
     } else {
-      toast.error('Error al guardar: ' + error.message);
+      console.error('Error al guardar:', error);
     }
   } finally {
     isSubmitting.value = false;
   }
 };
+
 // Inicialización
 onMounted(async () => {
   try {
     tableroStore.loading = true;
-    await tableroStore.listUsers();
+    await tableroStore.ListTablero();
   } catch (error) {
   } finally {
     tableroStore.loading = false;
   }
 });
+
+// Método para truncar la URL
+const truncateUrl = (url) => {
+  if (!url) return '-';
+  if (url.length <= 30) return url;
+  return `${url.substring(0, 15)}...${url.substring(url.length - 10)}`;
+};
+
+// Método para abrir URL
+const openUrl = (url) => {
+  if (!url) return;
+  window.open(url.startsWith('http') ? url : `https://${url}`, '_blank');
+};
+
+// Método para copiar al portapapeles
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.showInfo('URL copiada al portapapeles', 'Copiado exitoso');
+  } catch (err) {
+    toast.showError('Error al copiar la URL');
+  }
+};
+const formatDateTime = (dateString) => {
+  if (!dateString) return '-';
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+    // Resultado: 11/08/2025 10:14
+  } catch {
+    return dateString;
+  }
+};
 </script>
 
 <style scoped></style>

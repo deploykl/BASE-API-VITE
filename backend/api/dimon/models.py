@@ -17,7 +17,7 @@ class Tablero(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")   
     
     def __str__(self):
-        return f"{self.name} ({self.get_dashboard_type_display()})"
+        return f"{self.name}"
     
     class Meta:
         verbose_name = "Tablero"

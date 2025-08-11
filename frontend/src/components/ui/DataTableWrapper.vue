@@ -27,7 +27,8 @@
       :rowsPerPageOptions="[5, 10, 25, 50, 100]"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" responsiveLayout="stack"
       :sortable="sortable" class="elegant-table" filterDisplay="menu" :globalFilterFields="globalFilterFields"
-      :expandedRows="expandedRows" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" ref="dt">
+      :expandedRows="expandedRows" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" ref="dt"
+      :rowClass="rowClass" :rowStyle="rowStyle">
 
       <template #header>
         <slot name="header"></slot>
@@ -45,14 +46,15 @@
         </div>
       </template>
 
-      <!-- Columna expander -->
-      <Column expander style="width: 2rem" headerClass="header-cell">
+      <!-- Columna expander (condicional) -->
+      <Column v-if="expandable" expander style="width: 2rem" headerClass="header-cell">
         <template #header>
           +/-
         </template>
       </Column>
-      <!-- Slot para contenido expandido -->
-      <template #expansion="slotProps">
+
+      <!-- Slot para contenido expandido (condicional) -->
+      <template v-if="expandable" #expansion="slotProps">
         <div class="p-3 expansion-content">
           <slot name="expansion" :data="slotProps.data"></slot>
         </div>
@@ -153,8 +155,8 @@ const props = defineProps({
   sortOrder: { type: Number, default: 1 },
   filterOptions: { type: Array, default: () => [] },
   globalFilterFields: { type: Array, default: () => [] },
-  dataKey: { type: String, default: 'id' }  // Asegúrate de tener esto
-
+  dataKey: { type: String, default: 'id' }, // Asegúrate de tener esto
+  expandable: { type: Boolean, default: false }
 });
 
 const emit = defineEmits([
@@ -350,7 +352,25 @@ const expandAll = () => {
     return acc;
   }, {});
 };
+const rowClass = (data) => {
+  return [
+    {
+      'inactive-row': data.is_active === false // Cambiado para verificar booleano
+    }
+  ];
+};
 
+const rowStyle = (data) => {
+  if (data.is_active === false) {
+    return {
+      backgroundColor: '#f8f9fa',
+      color: '#868e96',
+      'box-shadow': 'inset 3px 0 0 red' // Truco visual que simula borde
+
+    };
+  }
+  return {};
+};
 
 const collapseAll = () => {
   expandedRows.value = []; // Contrae todas las filas

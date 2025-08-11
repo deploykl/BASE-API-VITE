@@ -26,6 +26,23 @@ class TableroViewSet(viewsets.ModelViewSet):
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+        
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        tablero = self.get_object()
+        tablero.is_active = True
+        tablero.save()
+        return Response({'status': 'tablero activated'})
+
+    @action(detail=True, methods=['post'])
+    def deactivate(self, request, pk=None):
+        tablero = self.get_object()
+        tablero.is_active = False
+        tablero.save()
+        return Response({'status': 'tablero deactivated'})
+    
 # Create your views here.
 class LargeResultsSetPagination(PageNumberPagination):
     page_size = 50  # Puedes ajustar este valor
