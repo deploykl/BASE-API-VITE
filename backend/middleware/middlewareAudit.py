@@ -61,6 +61,7 @@ class JWTAuditMiddleware:
         except Exception as e:
             logger.error(f"Error al registrar acceso: {str(e)}", exc_info=True)
 
+
     def _get_client_ip(self, request):
         """Obtiene IP considerando proxy inverso Nginx"""
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
