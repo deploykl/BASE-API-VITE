@@ -21,27 +21,7 @@
                         <h1 class="h3 mb-0">Dashboard</h1>
                         <p class="text-muted mb-0">Welcome back! Here's what's happening.</p>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-primary">
-                            <i class="bi bi-plus-lg me-2"></i>
-                            New Item
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" 
-                                data-bs-toggle="tooltip" 
-                                title="Refresh data">
-                            <i class="bi bi-arrow-clockwise icon-hover"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" 
-                                data-bs-toggle="tooltip" 
-                                title="Export data">
-                            <i class="bi bi-download icon-hover"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" 
-                                data-bs-toggle="tooltip" 
-                                title="Settings">
-                            <i class="bi bi-gear icon-hover"></i>
-                        </button>
-                    </div>
+                   
                 </div>
 
                 <!-- Stats Cards with Alpine.js -->
