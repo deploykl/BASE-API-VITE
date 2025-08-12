@@ -355,7 +355,8 @@ const expandAll = () => {
 const rowClass = (data) => {
   return [
     {
-      'inactive-row': data.is_active === false // Cambiado para verificar booleano
+      'inactive-row': data.is_active === false,
+      'active-row': data.is_active === true
     }
   ];
 };
@@ -365,8 +366,12 @@ const rowStyle = (data) => {
     return {
       backgroundColor: '#f8f9fa',
       color: '#868e96',
-      'box-shadow': 'inset 3px 0 0 red' // Truco visual que simula borde
-
+      'box-shadow': 'inset 5px 0 0 #f04343' // Borde rojo para inactivos
+    };
+  } else if (data.is_active === true) {
+    return {
+      //backgroundColor: '#f0fff0', // Fondo verde claro para activos
+      'box-shadow': 'inset 5px 0 0 #11ba82' // Borde verde para activos
     };
   }
   return {};

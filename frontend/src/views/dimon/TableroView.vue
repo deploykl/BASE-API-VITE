@@ -3,52 +3,72 @@
     <ModalBase :visible="showModal" :mode="editing ? 'edit' : 'create'" entityName="tablero"
       :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeModal"
       @confirm="handleSubmit">
+
       <template #content>
-        <form @submit.prevent="handleSubmit">
-          <div class="row">
+        <form @submit.prevent="handleSubmit" class="needs-validation" novalidate>
+          <div class="row g-3">
+            <!-- Columna Izquierda -->
             <div class="col-md-6">
               <!-- Nombre del tablero -->
-              <FloatInput id="name" label="Nombre del tablero" v-model="form.name" icon="pi pi-table" :errors="errors"
-                :invalid="!!errors.name" size="small" />
+              <div class="mb-3">
+                <FloatInput id="name" label="Nombre del tablero" v-model="form.name" icon="pi pi-table" :errors="errors"
+                  :invalid="!!errors.name" size="small" required />
+              </div>
 
               <!-- URL -->
-              <FloatInput id="url" label="URL" v-model="form.url" type="url" icon="pi pi-link" :invalid="!!errors.url"
-                :errors="errors" size="small" placeholder="https://ejemplo.com/tablero" />
+              <div class="mb-3">
+                <FloatInput id="url" label="URL" v-model="form.url" type="url" icon="pi pi-link" :invalid="!!errors.url"
+                  :errors="errors" size="small" placeholder="https://ejemplo.com/tablero" />
+              </div>
 
-              <!-- Fuente -->
-              <FloatInput id="source" label="Fuente de datos" v-model="form.source" icon="pi pi-database"
-                :invalid="!!errors.source" :errors="errors" size="small" />
+              <!-- Fuente de datos -->
+              <div class="mb-3">
+                <FloatInput id="source" label="Fuente de datos" v-model="form.source" icon="pi pi-database"
+                  :invalid="!!errors.source" :errors="errors" size="small" />
+              </div>
             </div>
 
+            <!-- Columna Derecha -->
             <div class="col-md-6">
               <!-- Frecuencia de actualización -->
               <div class="mb-3">
-                <label for="update_frequency" class="form-label">Frecuencia de actualización</label>
-                <Select v-model="form.update_frequency" :options="frequencyOptions" optionLabel="label"
-                  optionValue="value" placeholder="Seleccione frecuencia" class="w-100"
-                  :class="{ 'p-invalid': !!errors.update_frequency }" />
-                <small v-if="errors.update_frequency" class="p-error">{{ errors.update_frequency[0] }}</small>
+                <Select id="update_frequency" label="Frecuencia de actualización" v-model="form.update_frequency"
+                  :options="frequencyOptions" optionLabel="label" optionValue="value" icon="pi pi-calendar-clock"
+                  placeholder="Seleccione frecuencia" :errors="errors" :invalid="!!errors.update_frequency"
+                  size="small" required/>
+                <div v-if="errors.update_frequency" class="invalid-feedback d-block">
+                  {{ errors.update_frequency[0] }}
+                </div>
               </div>
 
               <!-- Última actualización -->
-              <DatePicker v-model="form.last_updated" label="Última actualización" dateFormat="dd/mm/yy"
-                :showIcon="true" :showTime="true" class="w-100 mb-3" :class="{ 'p-invalid': !!errors.last_updated }" />
-              <small v-if="errors.last_updated" class="p-error">{{ errors.last_updated[0] }}</small>
+              <div class="mb-3">
+                <label for="last_updated" class="form-label">Última actualización</label>
+                <DatePicker v-model="form.last_updated" id="last_updated" dateFormat="dd/mm/yy" :showIcon="true"
+                  :showTime="true" class="w-100" :class="{ 'is-invalid': !!errors.last_updated }" />
+                <div v-if="errors.last_updated" class="invalid-feedback d-block">
+                  {{ errors.last_updated[0] }}
+                </div>
+              </div>
 
               <!-- Descripción -->
               <div class="mb-3">
                 <label for="description" class="form-label">Descripción</label>
-                <Textarea v-model="form.description" rows="3" class="w-100"
-                  :class="{ 'p-invalid': !!errors.description }" />
-                <small v-if="errors.description" class="p-error">{{ errors.description[0] }}</small>
+                <Textarea v-model="form.description" id="description" rows="3" class="w-100 form-control"
+                  :class="{ 'is-invalid': !!errors.description }" />
+                <div v-if="errors.description" class="invalid-feedback d-block">
+                  {{ errors.description[0] }}
+                </div>
               </div>
             </div>
           </div>
 
+          <!-- Switch de activo -->
           <div class="row mt-2">
-            <div class="col-md-12">
-              <div class="form-check form-switch mb-3">
-                <input v-model="form.is_active" class="form-check-input" type="checkbox" id="isActiveCheck">
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input v-model="form.is_active" class="form-check-input" type="checkbox" id="isActiveCheck"
+                  role="switch">
                 <label class="form-check-label" for="isActiveCheck">Activo</label>
               </div>
             </div>
@@ -142,7 +162,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 
 import ModalBase from '@/components/ui/ModalBase.vue';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
@@ -174,7 +194,7 @@ const FORM_STATE = {
   created_by_username: '',
   created_at: '',
   updated_at: '',
-  is_active: '',
+  is_active: 'true',
 };
 // Usamos la estructura para el formulario reactivo
 const form = ref({ ...FORM_STATE });
@@ -192,12 +212,12 @@ const columns = ref([
   { field: 'url', header: 'URL', bodyTemplate: true, filter: false },
   { field: 'description', header: 'DESCRIPCIÓN', bodyTemplate: true, filter: false },
   { field: 'source', header: 'FUENTES', bodyTemplate: true, filter: false },
-  { field: 'update_frequency', header: 'FRECUENCIA', bodyTemplate: true, filter: false },
+  { field: 'update_frequency', header: 'FRECUENCIA', bodyTemplate: true, filter: false, sortable: true },
   { field: 'created_by_username', header: 'CREADO', bodyTemplate: true, filter: true },
-  { field: 'created_at', header: 'created_at', bodyTemplate: true, filter: false },
-  { field: 'updated_at', header: 'updated_at', bodyTemplate: true, filter: false },
-  { field: 'last_updated', header: 'last_updated', bodyTemplate: true, filter: false },
-  { field: 'is_active', header: 'is_active', bodyTemplate: true, filter: false },
+  { field: 'last_updated', header: 'Ult. Actualización', bodyTemplate: true, filter: false },
+  { field: 'created_at', header: 'F. CREACIÓN', bodyTemplate: true, filter: false, sortable: true },
+  { field: 'updated_at', header: 'F. MOD', bodyTemplate: true, filter: false, sortable: true },
+  { field: 'is_active', header: 'is_active', bodyTemplate: true, filter: false, sortable: true },
 
 ]);
 
@@ -208,8 +228,6 @@ const frequencyOptions = ref([
   { label: 'Mensual', value: 'Mensual' },
   { label: 'Trimestral', value: 'Trimestral' },
   { label: 'Semestral', value: 'Semestral' },
-  { label: 'Anual', value: 'Anual' },
-  { label: 'Manual', value: 'Manual' }
 ]);
 // Métodos
 const resetForm = () => {
@@ -286,6 +304,13 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
   errors.value = {}; // Limpiar errores anteriores
 
+  // Validación manual para frecuencia de actualización
+  if (!form.value.update_frequency) {
+    errors.value.update_frequency = ['La frecuencia de actualización es obligatoria'];
+    isSubmitting.value = false;
+    return;
+  }
+
   try {
     if (editing.value) {
       await tableroStore.UpdateTablero(tableroToEdit.value.id, form.value);
@@ -353,6 +378,15 @@ const formatDateTime = (dateString) => {
     return dateString;
   }
 };
+// En tu script setup, añade este watch:
+watch(
+  () => form.value.source,
+  (newValue) => {
+    if (newValue) {
+      form.value.source = newValue.toUpperCase();
+    }
+  }
+);
 </script>
 
 <style scoped></style>
