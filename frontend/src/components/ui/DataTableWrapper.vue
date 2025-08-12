@@ -33,15 +33,18 @@
       <template #header>
         <slot name="header"></slot>
         <div class="bottom-center flex flex-wrap justify-end gap-1">
+          <template v-if="expandable">
           <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
           <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-1" />
+                 </template>
+
           <!-- Botón de Exportación CSV -->
           <!--<Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-1" severity="success"
             :loading="exportingCSV" />-->
           <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-1"
             severity="danger" />
           <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-1" severity="info" />
-          <Button icon="pi pi-file-excel" label="CSV 2" @click="exportCSV2" class="p-button-sm" severity="success" />
+          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV2" class="p-button-sm" severity="success" />
 
         </div>
       </template>

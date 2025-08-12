@@ -8,6 +8,7 @@ import os
 from django.utils.text import slugify
 from api.validators import validate_dni, validate_celular
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
 
 from api.gore.models import *
 from simple_history.models import HistoricalRecords
@@ -177,3 +178,26 @@ class User(AbstractUser):
         # Eliminación física (llama al delete() original de models.Model)
         super().delete(*args, **kwargs)
 
+class UserAudit(models.Model):
+    DEVICE_TYPES = (
+        ('PC', 'Computadora'),
+        ('MOBILE', 'Móvil'),
+        ('TABLET', 'Tablet'),
+        ('OTHER', 'Otro'),
+    )
+    
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='audit_logs')
+    login_date = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de login")
+    ip_address = models.GenericIPAddressField(verbose_name="Dirección IP")
+    device_type = models.CharField(max_length=10, choices=DEVICE_TYPES, verbose_name="Tipo de dispositivo")
+    user_agent = models.TextField(null=True, blank=True, verbose_name="User Agent")
+    logout_date = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de logout")
+    session_key = models.CharField(max_length=40, null=True, blank=True, verbose_name="Clave de sesión")
+
+    class Meta:
+        verbose_name = "Auditoría de Usuario"
+        verbose_name_plural = "Auditorías de Usuarios"
+        ordering = ['-login_date']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.login_date}"

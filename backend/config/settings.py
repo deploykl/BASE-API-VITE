@@ -48,9 +48,10 @@ THIRD_APPS = [
 
 OWN_APPS = [
     "api",
-    "api.user",
+    'api.user.apps.UserConfig',  # ¡Importante el .apps.UserConfig!
     "api.gore",
     "api.dimon",
+    
 ]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "config.middleware.SessionTimeoutMiddleware",  # Primero el de sesión
     #'config.middleware.CustomAuditMiddleware',    # Finalmente nuestro custom
+    'middleware.middlewareAudit.JWTAuditMiddleware',    # Finalmente nuestro custom
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
@@ -93,10 +95,15 @@ CORS_ALLOW_METHODS = (
 )
 
 CORS_ALLOW_HEADERS = [
-    "content-type",
-    "authorization",
-    "x-requested-with",
-    "accept",
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 REST_FRAMEWORK = {
@@ -234,18 +241,25 @@ if not DEBUG:
 SESSION_COOKIE_AGE = 8 * 60 * 60  # 8 horas en segundos (8h * 60m * 60s)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Para respetar el tiempo de expiración
 SESSION_SAVE_EVERY_REQUEST = True  # Renueva el tiempo de expiración con cada solicitud
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True  # Previene acceso via JavaScript
 CSRF_COOKIE_HTTPONLY = False  # Debe ser False para que AJAX funcione
-SESSION_COOKIE_SAMESITE = 'Strict'  # o 'Strict' para más seguridad
-CSRF_COOKIE_SAMESITE = 'Lax'
 CORS_ALLOW_CREDENTIALS = True  # Importante para incluir cookies/autorización
-
+# Configuración para desarrollo (ajusta según entorno)
+if DEBUG:
+    CSRF_COOKIE_SECURE = False  # False en desarrollo, True en producción
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SAMESITE = 'Lax'  # 'Lax' para desarrollo
+    SESSION_COOKIE_SAMESITE = 'Lax'
+else:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'Strict'
+    SESSION_COOKIE_SAMESITE = 'Strict'
 # Configuración adicional de seguridad
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+CORS_EXPOSE_HEADERS = ['Set-Cookie']
 
 if not DEBUG and os.getenv("AWS_ACCESS_KEY_ID"):
     # Configuración para AWS S3 en producción
@@ -310,3 +324,7 @@ SIMPLE_HISTORY_REVERT_DISABLED = False  # Permite revertir cambios
 #SECURE_HSTS_SECONDS = 31536000  # 1 año
 #SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 #SECURE_HSTS_PRELOAD = True
+
+# Configuración para proxy inverso
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
