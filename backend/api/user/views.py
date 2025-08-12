@@ -103,7 +103,7 @@ class LoginView(APIView):
             'modulos': modulos_activos_list,
         }
 
-        print("Login exitoso. Datos devueltos:", user_data)
+        print("Login exitoso")
         return Response(user_data, status=status.HTTP_200_OK)
     
 class LogoutView(APIView):
