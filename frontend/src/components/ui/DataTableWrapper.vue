@@ -33,8 +33,11 @@
       <template #header>
         <slot name="header"></slot>
         <div class="bottom-center flex flex-wrap justify-end gap-1">
+          
+           <template v-if="expandable">
           <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
           <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-1" />
+          </template>
           <!-- Botón de Exportación CSV -->
           <!--<Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-1" severity="success"
             :loading="exportingCSV" />-->
