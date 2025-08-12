@@ -232,6 +232,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
 if not DEBUG:
     SECURE_HSTS_SECONDS = 3600  # 1 hora
     SECURE_SSL_REDIRECT = True
