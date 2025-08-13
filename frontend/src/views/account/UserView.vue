@@ -346,17 +346,35 @@ const proceedDelete = async () => {
     isDeleting.value = false;
   }
 };
+const validateForm = () => {
+  errors.value = {};
+  let isValid = true;
 
-const handleSubmit = async () => {
-  // Validación de contraseñas
+  if (!form.value.username) {
+    errors.value.username = ["El nombre de usuario es requerido"];
+    isValid = false;
+  }
+
+  if (!editing.value && !form.value.password) {
+    errors.value.password = ["La contraseña es requerida"];
+    isValid = false;
+  }
+
   if ((!editing.value || resetPassword.value) && form.value.password !== form.value.password2) {
-    errors.value = { password2: ["Las contraseñas no coinciden"] };
-    toast.error('Las contraseñas no coinciden');
+    errors.value.password2 = ["Las contraseñas no coinciden"];
+    isValid = false;
+  }
+
+  return isValid;
+};
+const handleSubmit = async () => {
+  // Validar formulario
+  if (!validateForm()) {
+    toast.error('Por favor complete todos los campos requeridos');
     return;
   }
 
   isSubmitting.value = true;
-  errors.value = {};
 
   try {
     const { password2, ...userData } = form.value;
@@ -365,19 +383,17 @@ const handleSubmit = async () => {
       delete userData.password;
     }
 
-    console.log('Enviando datos...'); // Debug
-    
     if (editing.value) {
       await userStore.updateUser(userToEdit.value.id, userData);
     } else {
       await userStore.createUser(userData);
     }
     
-    console.log('Operación exitosa, cerrando modal...'); // Debug
     closeUserModal();
+    toast.success(editing.value ? 'Usuario actualizado' : 'Usuario creado');
     
   } catch (error) {
-    console.error('Error en handleSubmit:', error); // Debug
+    console.error('Error:', error);
     
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors;
