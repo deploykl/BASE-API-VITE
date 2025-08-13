@@ -210,9 +210,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { toast } from 'vue-sonner';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
-
 import { useUserStore } from '@/stores/user/userStore';
-
 import ModalBase from '@/components/ui/ModalBase.vue';
 import FloatInput from '@/components/widgets/FloatInput.vue';
 
@@ -358,7 +356,7 @@ const handleSubmit = async () => {
   }
 
   isSubmitting.value = true;
-  errors.value = {}; // Limpiar errores anteriores
+  errors.value = {};
 
   try {
     const { password2, ...userData } = form.value;
@@ -367,26 +365,26 @@ const handleSubmit = async () => {
       delete userData.password;
     }
 
-    let result;
+    console.log('Enviando datos...'); // Debug
+    
     if (editing.value) {
-      result = await userStore.updateUser(userToEdit.value.id, userData);
+      await userStore.updateUser(userToEdit.value.id, userData);
     } else {
-      result = await userStore.createUser(userData);
+      await userStore.createUser(userData);
     }
-
-    if (result.success) {
-      closeUserModal();
-    } else if (result.errors) {
-      // Asignar errores específicos
-      errors.value = result.errors;
-      
-      // Mostrar errores generales si existen
-      if (result.errors.non_field_errors) {
-        toast.error(result.errors.non_field_errors.join(', '));
-      }
-    }
+    
+    console.log('Operación exitosa, cerrando modal...'); // Debug
+    closeUserModal();
+    
   } catch (error) {
-    toast.error('Error inesperado: ' + error.message);
+    console.error('Error en handleSubmit:', error); // Debug
+    
+    if (error.response?.data?.errors) {
+      errors.value = error.response.data.errors;
+      toast.error('Error en el formulario');
+    } else {
+      toast.error('Error inesperado: ' + error.message);
+    }
   } finally {
     isSubmitting.value = false;
   }
