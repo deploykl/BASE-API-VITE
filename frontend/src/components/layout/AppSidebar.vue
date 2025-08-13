@@ -1,5 +1,5 @@
 <template>
-  
+
   <div v-if="isMobile && !isCollapsed" class="sidebar-overlay" @click.stop="handleOverlayClick"></div>
   <aside :class="['sidebar', { 'collapsed': isCollapsed, 'mobile-hidden': isMobile && isCollapsed }]">
     <div class="sidebar-header">
@@ -127,18 +127,18 @@ const allItems = ref([
       {
         title: 'Fichas de Monitoreo',
         icon: 'fa-chart-bar',
-        path: '/fichas',
-        requiredModule: 'Fichas'
+        path: '/dimon/tablero',
+        requiredModule: 'Sistemas'
       },
       {
         title: 'Matriz de compromiso',
         icon: 'fa-book',
-        path: '/matriz-list',
-        requiredModule: 'Matriz'
+        path: '/user/create',
+        requiredModule: 'Usuarios'
       },
     ]
   },
-    {
+  {
     title: "DIMON",
     isHeader: true,
     requiredModule: 'Sistemas'
