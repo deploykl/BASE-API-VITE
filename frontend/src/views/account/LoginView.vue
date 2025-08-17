@@ -16,6 +16,8 @@
 
           <!-- Mensaje de error mejorado -->
           <ErrorMessage />
+             <!-- Añade este div para el temporizador debajo del ErrorMessage -->
+   
           <!-- Formulario con diseño moderno -->
           <form @submit.prevent="handleSubmit" class="login-form">
             <!-- Campo Usuario con float label -->
@@ -78,6 +80,7 @@ const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const showPassword = ref(false)
+
 const router = useRouter()
 const errorStore = useErrorStore() // Usa el store
 

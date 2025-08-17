@@ -136,7 +136,8 @@ class User(AbstractUser):
         related_name="activated_users",
         verbose_name=_("Activado por"),
     )
-
+    failed_login_attempts = models.PositiveIntegerField(default=0, verbose_name="Intentos fallidos")
+    login_blocked_until = models.DateTimeField(null=True, blank=True, verbose_name="Bloqueado hasta")
     class Meta:
         verbose_name = _("Usuario")
         verbose_name_plural = _("Usuarios")

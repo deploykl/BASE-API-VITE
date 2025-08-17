@@ -11,18 +11,21 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from api.permissions import IsSuperUser, HasModuleAccess
-import datetime
 from django.http import JsonResponse
 from django.views import View
 from django.db import connection
 from redis import Redis
 from django.conf import settings
+from datetime import datetime, timedelta  # Modifica esta línea
+from django.utils import timezone
 
 User = get_user_model()
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = UserSerializer  # Añade esto
+    serializer_class = UserSerializer
+    MAX_FAILED_ATTEMPTS = 3
+    BLOCK_TIME_MINUTES = 5
 
     def post(self, request):
         username = request.data.get('username')
@@ -37,6 +40,22 @@ class LoginView(APIView):
 
         user = User.objects.filter(username=username).first()
 
+        # Verificar si el usuario está bloqueado temporalmente
+        if user and user.login_blocked_until:
+            if timezone.now() < user.login_blocked_until:
+                remaining_time = (user.login_blocked_until - timezone.now()).seconds // 60
+                return Response(
+                    {
+                        'detail': f'Cuenta bloqueada temporalmente. Intente nuevamente en {remaining_time} minutos.'
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            else:
+                # Restablecer el bloqueo si el tiempo ha expirado
+                user.login_blocked_until = None
+                user.failed_login_attempts = 0
+                user.save()
+
         # Validaciones de usuario
         if user is None:
             return Response(
@@ -45,10 +64,33 @@ class LoginView(APIView):
             )
         
         if not user.check_password(password):
+            # Incrementar el contador de intentos fallidos
+            user.failed_login_attempts += 1
+            if user.failed_login_attempts >= self.MAX_FAILED_ATTEMPTS:
+                user.login_blocked_until = timezone.now() + timedelta(minutes=self.BLOCK_TIME_MINUTES)
+                user.save()
+                return Response(
+                    {
+                        'detail': f'Demasiados intentos fallidos. Cuenta bloqueada por {self.BLOCK_TIME_MINUTES} minutos.'
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            user.save()
+            remaining_attempts = self.MAX_FAILED_ATTEMPTS - user.failed_login_attempts
             return Response(
-                {'detail': 'Contraseña incorrecta'}, 
+                {
+                    'detail': 'Contraseña incorrecta',
+                    'remaining_attempts': remaining_attempts
+                }, 
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+        # Si el login es exitoso, resetear los intentos fallidos
+        if user.failed_login_attempts > 0 or user.login_blocked_until:
+            user.failed_login_attempts = 0
+            user.login_blocked_until = None
+            user.save()
 
         if not user.is_active:
             return Response(
@@ -56,7 +98,7 @@ class LoginView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Lógica de módulos mejorada
+        # Resto de tu lógica de login...
         if user.is_superuser:
             modulos_activos = Modulo.objects.filter(is_active=True)
             modulos_asignados = Modulo.objects.all()
@@ -66,19 +108,9 @@ class LoginView(APIView):
         
         modulos_activos_list = list(modulos_activos.values_list('codename', flat=True))
         
-        ## Permitir acceso si es staff O superusuario
-        #if not user.is_staff and not user.is_superuser:
-        #    return Response(
-        #        {'detail': 'Acceso restringido a administradores'},
-        #        status=status.HTTP_403_FORBIDDEN
-        #    )
-
-        # Validación de módulos
         if not user.is_superuser:
             if modulos_asignados.exists() and not modulos_activos.exists():
                 modulos_desactivados = list(modulos_asignados.values('codename', 'description'))
-                print(f"Módulos desactivados: {modulos_desactivados}")
-                
                 return Response(
                     {
                         'detail': 'Tienes módulos asignados pero están desactivados',
@@ -92,7 +124,6 @@ class LoginView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
 
-        # Generación de token
         refresh = RefreshToken.for_user(user)
         
         user_data = {
@@ -103,7 +134,6 @@ class LoginView(APIView):
             'modulos': modulos_activos_list,
         }
 
-        print("Login exitoso")
         return Response(user_data, status=status.HTTP_200_OK)
     
 class LogoutView(APIView):
@@ -257,7 +287,7 @@ class HealthCheckView(View):
     def get(self, request):
         health_status = {
             'status': 'OK',
-            'timestamp': datetime.datetime.now().isoformat(),
+            'timestamp': datetime.now().isoformat(),
             'version': '1.0.0',
             'services': {
                 'database': False,
