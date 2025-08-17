@@ -9,6 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/bootstrap5": "^6.1.19",
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
+    "@fullcalendar/vue3": "^6.1.19",
+    "@googlemaps/js-api-loader": "^1.16.10",
     "@primeuix/themes": "^1.2.3",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
@@ -16,6 +23,7 @@
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
+    "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",

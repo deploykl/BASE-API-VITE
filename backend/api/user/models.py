@@ -8,10 +8,11 @@ import os
 from django.utils.text import slugify
 from api.validators import validate_dni, validate_celular
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth import get_user_model
 
 from api.gore.models import *
 from simple_history.models import HistoricalRecords
+from django.conf import settings
+
 
 
 def user_image_path(instance, filename):
@@ -34,7 +35,6 @@ class Modulo(models.Model):
         verbose_name = "Módulo"
         verbose_name_plural = "Módulos"
         ordering = ["codename"]
-
 
 class User(AbstractUser):
     modulos = models.ManyToManyField(Modulo, blank=True, related_name="users")
@@ -74,24 +74,7 @@ class User(AbstractUser):
         inherit=False,
         excluded_fields=["password", "last_login", "is_online"],
     )
-    # Campos del establecimiento laboral
-    # codigo = models.CharField(max_length=8, null=True, blank=True, verbose_name="Código de establecimiento")
-    # institucion = models.CharField(max_length=8, null=True, blank=True, verbose_name="Institución")
-    # establecimiento = models.CharField(max_length=200, null=True, blank=True, verbose_name="Nombre del establecimiento")
-    # departamento_es = models.CharField(max_length=100, null=True, blank=True, verbose_name="Departamento del establecimiento")
-    # provincia_es = models.CharField(max_length=100, null=True, blank=True, verbose_name="Provincia del establecimiento")
-    # distrito_es = models.CharField(max_length=100, null=True, blank=True, verbose_name="Distrito del establecimiento")
-    # disa = models.CharField(max_length=100, null=True, blank=True, verbose_name="DISA de salud")
-    # cod_disa = models.CharField(max_length=20, null=True, blank=True, verbose_name="Código DISA")
-    # red = models.CharField(max_length=100, null=True, blank=True, verbose_name="Red de salud")
-    # cod_red = models.CharField(max_length=20, null=True, blank=True, verbose_name="Código Red")
-    # cod_microred = models.CharField(max_length=20, null=True, blank=True, verbose_name="Código Microred")
-    # unidad_ejecutora = models.CharField(max_length=100, null=True, blank=True, verbose_name="Unidad Ejecutora")
-    # cod_ue = models.CharField(max_length=20, null=True, blank=True, verbose_name="Código Unidad Ejecutora")
-    # categoria = models.CharField(max_length=20, null=True, blank=True, verbose_name="Categoría del establecimiento")
-    # direccion = models.CharField(max_length=250, null=True, blank=True, verbose_name="Dirección del establecimiento")
-    # norte = models.CharField(max_length=100, null=True, blank=True, verbose_name="Dirección del establecimiento")
-    # este = models.CharField(max_length=100, null=True, blank=True, verbose_name="Dirección del establecimiento")
+    
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Fecha de creación"
     )
@@ -187,7 +170,7 @@ class UserAudit(models.Model):
         ('OTHER', 'Otro'),
     )
     
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='audit_logs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='audit_logs')
     login_date = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de login")
     ip_address = models.GenericIPAddressField(verbose_name="Dirección IP")
     device_type = models.CharField(max_length=10, choices=DEVICE_TYPES, verbose_name="Tipo de dispositivo")

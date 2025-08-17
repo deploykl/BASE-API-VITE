@@ -112,6 +112,12 @@ const allItems = ref([
     path: '/user/create',
     requiredModule: 'Usuarios'
   },
+   {
+    title: 'Salida Personal',
+    icon: 'fa-car',
+    path: '/dgos/administracion/comision',
+    requiredModule: 'Administración',
+  },
   {
     title: "Pacientes",
     isHeader: true,
@@ -129,6 +135,25 @@ const allItems = ref([
         icon: 'fa-chart-bar',
         path: '/dimon/tablero',
         requiredModule: 'Sistemas'
+      },
+      {
+        title: 'Matriz de compromiso',
+        icon: 'fa-book',
+        path: '/user/create',
+        requiredModule: 'Usuarios'
+      },
+    ]
+  },
+    {
+    title: 'DGOS',
+    icon: 'fa-user-injured',
+    requiredModule: 'Administración',
+    submenu: [
+      {
+        title: 'Fichas de Monitoreo',
+        icon: 'fa-chart-bar',
+        path: '/dimon/tablero',
+        requiredModule: 'Administración'
       },
       {
         title: 'Matriz de compromiso',

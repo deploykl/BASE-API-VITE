@@ -51,6 +51,7 @@ OWN_APPS = [
     'api.user.apps.UserConfig',  # ¡Importante el .apps.UserConfig!
     "api.gore",
     "api.dimon",
+    "api.dgos.administracion",
     
 ]
 

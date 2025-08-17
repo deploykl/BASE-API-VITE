@@ -7,6 +7,7 @@ import AdminPoi from "./AdminPoi";
 import AdminAuth from "./AdminAuth";
 import AdminGore from "./AdminGore";
 import AdminDimon from "./AdminDimon";
+import AdminDgos from "./AdminDgos";
 import { checkBackendHealth } from '@/components/services/Axios'; // Ajusta la ruta según tu estructura
 
 const routes = [
@@ -52,6 +53,7 @@ const routes = [
   ...AdminAuth,
   ...AdminGore,
   ...AdminDimon,
+  ...AdminDgos,
 ];
 
 const router = createRouter({
