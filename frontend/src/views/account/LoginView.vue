@@ -61,8 +61,8 @@
 
           <!-- Footer minimalista -->
           <div class="login-footer">
-            <span class="version">v1.0.0</span>
-            <span class="copyright">© 2023 OBS Salud</span>
+            <span class="version">{{ version }}</span>
+    <span class="copyright">© {{ new Date().getFullYear() }} {{ projectName }}</span>
           </div>
         </div>
       </div>
@@ -80,7 +80,8 @@ const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const showPassword = ref(false)
-
+const projectName = import.meta.env.VITE_PROJECT_NAME 
+const version = import.meta.env.VITE_VERSION 
 const router = useRouter()
 const errorStore = useErrorStore() // Usa el store
 

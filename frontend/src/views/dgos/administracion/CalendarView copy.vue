@@ -106,21 +106,23 @@
             <h5 class="modal-title">Ruta a {{ selectedComision?.ipress_nombre }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body p-0">
-            <div id="mapContainer" style="height: 70vh; width: 100%;"></div>
-            <div class="p-3">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Punto de Partida</label>
-                    <input v-model="originAddress" type="text" class="form-control" placeholder="Ingrese dirección de partida">
-                  </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div id="mapContainer" style="height: 500px; width: 100%; border-radius: 8px;"></div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Punto de Partida</label>
+                  <input v-model="originAddress" type="text" class="form-control" placeholder="Ingrese dirección de partida">
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Destino</label>
-                    <input :value="selectedComision?.ipress_nombre" type="text" class="form-control" readonly>
-                  </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Destino</label>
+                  <input :value="selectedComision?.ipress_nombre" type="text" class="form-control" readonly>
                 </div>
               </div>
             </div>
@@ -162,15 +164,15 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-// Coordenadas fijas de salida (DGOS - MINSA)
+// Coordenadas fijas de salida
 const FIXED_START_LOCATION = {
-  lat: -12.073662,
-  lng: -77.036906,
-  address: "DGOS - MINSA"
+  lat: -12.0736441,
+  lng: -77.0394351,
+  address: "Ubicación fija de partida"
 };
+
 const calendarRef = ref(null);
 const selectedComision = ref(null);
-const originAddress = ref(FIXED_START_LOCATION.address);
 let detailsModal = null;
 let mapModal = null;
 let map = null;
@@ -188,12 +190,6 @@ const calendarOptions = ref({
     center: 'title',
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
   },
-  // Configuración adicional para íconos
-buttonIcons: {
-  prev: 'bi-chevron-left', // Bootstrap Icons
-  next: 'bi-chevron-right',
-  today: 'bi-calendar3'
-},
   events: [],
   eventClick: handleEventClick,
   dateClick: handleDateClick,
@@ -226,10 +222,7 @@ const initMap = () => {
   const endLng = parseFloat(selectedComision.value.ipress_este);
   
   // Crear nuevo mapa centrado entre inicio y fin
-  map = L.map('mapContainer', {
-    zoomControl: true,
-    preferCanvas: true
-  }).setView([
+  map = L.map('mapContainer').setView([
     (FIXED_START_LOCATION.lat + endLat) / 2,
     (FIXED_START_LOCATION.lng + endLng) / 2
   ], 12);
@@ -240,29 +233,15 @@ const initMap = () => {
     maxZoom: 19
   }).addTo(map);
 
-  // Añadir marcador de inicio fijo con icono personalizado
+  // Añadir marcador de inicio fijo
   if (startMarker) map.removeLayer(startMarker);
-  const startIcon = L.icon({
-    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34]
-  });
-  
-startMarker = L.marker([FIXED_START_LOCATION.lat, FIXED_START_LOCATION.lng], {icon: startIcon}).addTo(map)
-  .bindPopup(`<b>Punto de partida:</b> ${FIXED_START_LOCATION.address}`)
-  .openPopup();
+  startMarker = L.marker([FIXED_START_LOCATION.lat, FIXED_START_LOCATION.lng]).addTo(map)
+    .bindPopup(`<b>Punto de partida:</b> ${FIXED_START_LOCATION.address}`)
+    .openPopup();
 
-  // Añadir marcador en el destino con icono diferente
+  // Añadir marcador en el destino
   if (endMarker) map.removeLayer(endMarker);
-  const endIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34]
-  });
-  
-  endMarker = L.marker([endLat, endLng], {icon: endIcon}).addTo(map)
+  endMarker = L.marker([endLat, endLng]).addTo(map)
     .bindPopup(`<b>Destino:</b> ${selectedComision.value.ipress_nombre}`);
 };
 
@@ -306,16 +285,16 @@ const calculateRoute = async () => {
     const distance = (routeData.routes[0].distance / 1000).toFixed(1);
     const duration = (routeData.routes[0].duration / 60).toFixed(0);
     
-L.popup()
-  .setLatLng([endLat, endLng])
-  .setContent(`
-    <b>Información de Ruta</b><br>
-    <b>Desde:</b> ${FIXED_START_LOCATION.address}<br>
-    <b>Hasta:</b> ${selectedComision.value.ipress_nombre}<br>
-    <b>Distancia:</b> ${distance} km<br>
-    <b>Tiempo estimado:</b> ${duration} minutos
-  `)
-  .openOn(map);
+    L.popup()
+      .setLatLng([endLat, endLng])
+      .setContent(`
+        <b>Información de Ruta</b><br>
+        <b>Desde:</b> ${FIXED_START_LOCATION.address}<br>
+        <b>Hasta:</b> ${selectedComision.value.ipress_nombre}<br>
+        <b>Distancia:</b> ${distance} km<br>
+        <b>Tiempo estimado:</b> ${duration} minutos
+      `)
+      .openOn(map);
 
   } catch (error) {
     console.error('Error al calcular ruta:', error);
@@ -326,33 +305,11 @@ L.popup()
 // Función para mostrar el mapa
 const showMap = () => {
   detailsModal.hide();
+  mapModal.show();
   
-  // Esperar a que el modal esté completamente visible antes de inicializar el mapa
-  const modalElement = document.getElementById('mapModal');
-  const modalInstance = new Modal(modalElement);
-  
-  modalInstance.show();
-  
-  modalElement.addEventListener('shown.bs.modal', () => {
+  nextTick(() => {
     initMap();
     calculateRoute(); // Calcula la ruta automáticamente al mostrar el mapa
-    
-    // Redimensionar el mapa para asegurar que ocupe todo el espacio
-    setTimeout(() => {
-      if (map) {
-        map.invalidateSize();
-        
-        // Ajustar el zoom para mostrar toda la ruta
-        const endLat = parseFloat(selectedComision.value.ipress_norte);
-        const endLng = parseFloat(selectedComision.value.ipress_este);
-        
-        const bounds = L.latLngBounds([
-          [FIXED_START_LOCATION.lat, FIXED_START_LOCATION.lng],
-          [endLat, endLng]
-        ]);
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    }, 100);
   });
 };
 
@@ -427,6 +384,7 @@ function getEstadoBadge(estado) {
 // Cargar comisiones al montar el componente
 onMounted(async () => {
   detailsModal = new Modal(document.getElementById('calendarDetailsModal'));
+  mapModal = new Modal(document.getElementById('mapModal'));
   
   try {
     const response = await api.get('dgos/administracion/comision/');
@@ -501,13 +459,8 @@ defineExpose({
   white-space: normal;
 }
 
-/* Estilos para el modal del mapa */
-#mapModal .modal-body {
-  padding: 0;
-}
-
 #mapContainer {
-  min-height: 70vh;
+  min-height: 500px;
   background-color: #f8f9fa;
 }
 

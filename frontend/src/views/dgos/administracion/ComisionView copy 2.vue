@@ -2,101 +2,123 @@
   <main id="main" class="main">
     <div class="pagetitle">
       <h1>Gestión de Comisiones</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><router-link to="/">Inicio</router-link></li>
-          <li class="breadcrumb-item active">Comisiones</li>
-        </ol>
-      </nav>
     </div>
 
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title">Listado de Comisiones</h5>
-                <button class="btn btn-primary" @click="showCreateModal">
-                  <i class="bi bi-plus-circle"></i> Nueva Comisión
-                </button>
-              </div>
+          <ul class="nav nav-tabs" id="comisionesTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-tab-pane"
+                type="button" role="tab" aria-controls="list-tab-pane" aria-selected="true">
+                <i class="bi bi-list-ul"></i> Listado
+              </button>
+            </li>
+          </ul>
 
-              <!-- Filtros -->
-              <div class="row mb-3">
-                <div class="col-md-3">
-                  <input v-model="filters.search" type="text" class="form-control" placeholder="Buscar...">
-                </div>
-                <div class="col-md-2">
-                  <select v-model="filters.estado" class="form-select">
-                    <option value="">Todos los estados</option>
-                    <option value="PENDIENTE">Pendientes</option>
-                    <option value="EN_CURSO">En curso</option>
-                    <option value="COMPLETADA">Completadas</option>
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <button class="btn btn-outline-secondary" @click="resetFilters">
-                    <i class="bi bi-arrow-counterclockwise"></i> Limpiar
-                  </button>
+          <div class="tab-content pt-3" id="comisionesTabContent">
+            <!-- Tab de Listado -->
+            <div class="tab-pane fade show active" id="list-tab-pane" role="tabpanel" aria-labelledby="list-tab">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title">Listado de Comisiones</h5>
+                    <button class="btn btn-primary" @click="showCreateModal">
+                      <i class="bi bi-plus-circle"></i> Nueva Comisión
+                    </button>
+                  </div>
+
+                  <!-- Filtros -->
+                  <div class="row mb-3">
+                    <div class="col-md-3">
+                      <input v-model="filters.search" type="text" class="form-control" placeholder="Buscar...">
+                    </div>
+                    <div class="col-md-2">
+                      <select v-model="filters.estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDIENTE">Pendientes</option>
+                        <option value="EN_CURSO">En curso</option>
+                        <option value="COMPLETADA">Completadas</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <button class="btn btn-outline-secondary" @click="resetFilters">
+                        <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Tabla de comisiones -->
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Vehículo</th>
+                          <th scope="col">Conductor</th>
+                          <th scope="col">Fecha Salida</th>
+                          <th scope="col">Destino</th>
+                          <th scope="col">Estado</th>
+                          <th scope="col">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody v-if="loading">
+                        <tr>
+                          <td colspan="7" class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                              <span class="visually-hidden">Cargando...</span>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tbody v-else>
+                        <tr v-for="comision in comisiones" :key="comision.id">
+                          <td>{{ comision.id }}</td>
+                          <td>{{ comision.vehiculo_info.marca }} - {{ comision.vehiculo_info.placa }}</td>
+                          <td>{{ comision.conductor_info.apellido }}, {{ comision.conductor_info.nombre }}</td>
+                          <td>{{ formatDate(comision.fecha_salida) }}</td>
+                          <td>{{ comision.ipress_nombre }}</td>
+                          <td>
+                            <span :class="`badge bg-${getEstadoBadge(comision.estado)}`">
+                              {{ comision.estado }}
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" @click="viewDetails(comision)">
+                              <i class="pi pi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning me-1" @click="editComision(comision)">
+                              <i class="pi pi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(comision)">
+                              <i class="pi pi-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
+                        <tr v-if="!comisiones || comisiones.length === 0">
+                          <td colspan="7" class="text-center">No se encontraron comisiones</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
                 </div>
               </div>
+            </div>
+            <CalendarView ref="calendarViewRef" :comisiones="comisiones" @refresh="fetchComisiones" />
 
-              <!-- Tabla de comisiones -->
-              <div class="table-responsive">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Vehículo</th>
-                      <th scope="col">Conductor</th>
-                      <th scope="col">Fecha Salida</th>
-                      <th scope="col">Destino</th>
-                      <th scope="col">Estado</th>
-                      <th scope="col">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody v-if="loading">
-                    <tr>
-                      <td colspan="7" class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                          <span class="visually-hidden">Cargando...</span>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                  <tbody v-else>
-                    <tr v-for="comision in comisiones" :key="comision.id">
-                      <td>{{ comision.id }}</td>
-                      <td>{{ comision.vehiculo_info.marca }} - {{ comision.vehiculo_info.placa }}</td>
-                      <td>{{ comision.conductor_info.apellido }}, {{ comision.conductor_info.nombre }}</td>
-                      <td>{{ formatDate(comision.fecha_salida) }}</td>
-                      <td>{{ comision.ipress_nombre }}</td>
-                      <td>
-                        <span :class="`badge bg-${getEstadoBadge(comision.estado)}`">
-                          {{ comision.estado }}
-                        </span>
-                      </td>
-                      <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="viewDetails(comision)">
-                          <i class="pi pi-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning me-1" @click="editComision(comision)">
-                          <i class="pi pi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(comision)">
-                          <i class="pi pi-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr v-if="!comisiones || comisiones.length === 0">
-                      <td colspan="7" class="text-center">No se encontraron comisiones</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <!-- Tab de Calendario -->
+            <div class="tab-pane fade" id="calendar-tab-pane" role="tabpanel" aria-labelledby="calendar-tab">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title">Calendario de Comisiones</h5>
+                    <button class="btn btn-primary" @click="showCreateModal">
+                      <i class="bi bi-plus-circle"></i> Nueva Comisión
+                    </button>
+                  </div>
+                </div>
               </div>
-
-            
             </div>
           </div>
         </div>
@@ -180,6 +202,14 @@
                   <label class="form-label">Distrito *</label>
                   <input v-model="form.ipress_distrito" type="text" class="form-control" required>
                 </div>
+                 <div class="col-md-4">
+                  <label class="form-label">Norte *</label>
+                  <input v-model="form.ipress_norte" type="text" class="form-control" required>
+                </div>
+                 <div class="col-md-4">
+                  <label class="form-label">Este *</label>
+                  <input v-model="form.ipress_este" type="text" class="form-control" required>
+                </div>
 
                 <!-- Sección Comisión -->
                 <div class="col-md-6">
@@ -248,7 +278,10 @@
                   <p><strong>Nombre:</strong> {{ selectedComision.ipress_nombre }}</p>
                   <p><strong>Ubicación:</strong> {{ selectedComision.ipress_departamento }} / {{
                     selectedComision.ipress_provincia }} / {{ selectedComision.ipress_distrito }}</p>
-                </div>
+                  <p><strong>Norte:</strong> {{ selectedComision.ipress_norte }}</p>
+                  <p><strong>Este:</strong> {{ selectedComision.ipress_este }}</p>
+
+              </div>
               </div>
 
               <div class="row mt-3">
@@ -303,10 +336,11 @@
 import { ref, onMounted, computed } from 'vue';
 import { Modal } from 'bootstrap';
 import { useToast } from 'primevue/usetoast';
-import { api } from "@/components/services/Axios"
+import { api } from "@/components/services/Axios";
+import CalendarView from '@/views/dgos/administracion/CalendarView.vue';
 
 const toast = useToast();
-
+const calendarViewRef = ref(null);
 // Datos y estados
 const comisiones = ref([]);
 const loading = ref(false);
@@ -370,7 +404,7 @@ const fetchComisiones = async () => {
     };
 
     const response = await api.get('dgos/administracion/comision/', { params });
-    
+
     // Verifica si la respuesta es un array directo o tiene estructura paginada
     if (Array.isArray(response.data)) {
       // Si es array directo (sin paginación)
@@ -650,11 +684,49 @@ select[multiple] {
   min-height: 120px;
 }
 
+/* Estilos para las pestañas */
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+  color: #495057;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0d6efd;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+  font-weight: 600;
+}
+
+.tab-content {
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 0.25rem 0.25rem;
+  padding: 1rem;
+  background: white;
+}
+
 /* Ajustes para dispositivos móviles */
 @media (max-width: 768px) {
   .pagination {
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem;
+    font-size: 0.85rem;
   }
 }
 </style>

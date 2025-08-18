@@ -34,7 +34,8 @@ class ComisionSerializer(serializers.ModelSerializer):
     conductor_info = PersonalSerializer(source='conductor', read_only=True)
     vehiculo_info = VehiculoSerializer(source='vehiculo', read_only=True)
     participantes_info = PersonalSerializer(source='participantes', many=True, read_only=True)
-    creado_por_username = serializers.CharField(source='creado_por.username', read_only=True)
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    conductor_nombre = serializers.CharField(source='conductor.nombre', read_only=True)
     
     class Meta:
         model = Comision

@@ -23,6 +23,18 @@ class PersonalViewSet(viewsets.ModelViewSet):
     ordering = ["id"]
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
+    #filterset_fields = ['es_conductor', 'activo', 'dependencia'] # se filtra asi 
+
+    def get_queryset(self):
+        queryset = Personal.objects.filter(activo=True)
+        
+        # Filtro para conductores (acepta true/false como string)
+        es_conductor_param = self.request.query_params.get('es_conductor')
+        if es_conductor_param in ['true', 'false']:
+            es_conductor_value = es_conductor_param == 'true'
+            queryset = queryset.filter(es_conductor=es_conductor_value)
+            
+        return queryset.order_by('apellido', 'nombre')
     
 # Create your views here.
 class VehiculoViewSet(viewsets.ModelViewSet):
@@ -43,4 +55,4 @@ class ComisionViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     
     def perform_create(self, serializer):
-        serializer.save(creado_por=self.request.user)
+        serializer.save(created_by=self.request.user)

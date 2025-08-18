@@ -46,7 +46,19 @@ export const formatDateTime = (dateString, options = {}) => {
     return dateString;
   }
 };
-
+// Nueva función para formatear fechas para input datetime-local
+export const formatDateTimeForInput = (dateString) => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    // Ajustar para el huso horario local
+    const offset = date.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(date - offset).toISOString().slice(0, 16);
+    return localISOTime;
+  } catch {
+    return dateString;
+  }
+};
 /**
 /**
  * Formatea un valor como moneda

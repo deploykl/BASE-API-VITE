@@ -29,6 +29,7 @@ import Sidebar from 'primevue/sidebar';
 import Textarea from 'primevue/Textarea';
 import Select  from 'primevue/Select';
 import DatePicker from 'primevue/datepicker';
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 // LIBRERÍAS
 import 'bootstrap'

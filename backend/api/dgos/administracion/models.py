@@ -83,7 +83,7 @@ class Comision(models.Model):
     hoja_salida = models.FileField(upload_to='comisiones/hojas/', null=True, blank=True)
     observaciones = models.TextField(blank=True)
     
-    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     creado_en = models.DateTimeField(auto_now_add=True)
     
     class Meta:

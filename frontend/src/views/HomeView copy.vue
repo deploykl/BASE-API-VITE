@@ -169,7 +169,7 @@
 
           <!-- Timeline -->
           <div class="position-relative my-5">
-            <div class="position-absolute top-0 start-50 translate-middle-x h-100" style="width: 4px; background-color: #0b4a7a;"></div>
+            <div class="position-absolute top-0 start-50 translate-middle-x h-100" style="width: 20px; background-color: #0b4a7a;"></div>
             
             <!-- Fases -->
             <div v-for="(phase, index) in phases" :key="phase.id" 
@@ -568,6 +568,58 @@ const getModuleDescription = (name, phase) => {
     padding-bottom: 0;
   }
 }
+* Colores de fondo de Bootstrap equivalentes */
+.bg-primary {
+  background-color: #0d6efd !important;
+}
+
+.bg-success {
+  background-color: #198754 !important;
+}
+
+.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.bg-dark {
+  background-color: #212529 !important;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+}
+
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+.bg-indigo {
+  background-color: #6610f2 !important;
+}
+
+.bg-teal {
+  background-color: #20c997 !important;
+}
+
+.bg-pink {
+  background-color: #d63384 !important;
+}
+
+.bg-orange {
+  background-color: #fd7e14 !important;
+}
+
+.bg-cyan {
+  background-color: #0dcaf0 !important;
+}
+
+.bg-brown {
+  background-color: #795548 !important; /* Color café/marrón estándar */
+}
+
+.bg-blue {
+  background-color: #0d6efd !important; /* Igual que primary en Bootstrap */
+}
 * Estilos para la imagen */
 .image-style {
   border: none !important;
@@ -595,4 +647,5 @@ const getModuleDescription = (name, phase) => {
 .img-fluid.rounded.shadow {
   box-shadow: none !important;
 }
+
 </style>
