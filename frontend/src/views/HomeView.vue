@@ -453,7 +453,6 @@ const getModuleDescription = (name, phase) => {
     padding-bottom: 0;
   }
 }
-* Colores de fondo de Bootstrap equivalentes */
 .bg-primary {
   background-color: #0d6efd !important;
 }
@@ -505,7 +504,6 @@ const getModuleDescription = (name, phase) => {
 .bg-blue {
   background-color: #0d6efd !important; /* Igual que primary en Bootstrap */
 }
-* Estilos para la imagen */
 .image-style {
   border: none !important;
   box-shadow: none !important;

@@ -103,18 +103,18 @@ const allItems = ref([
   },
   {
     title: 'Dashboard',
-    icon: 'fa-tachometer-alt',
+    icon: 'pi pi-chart-bar',
     path: '/dashboard'
   },
   {
     title: 'Usuarios',
-    icon: 'fa-users',
+    icon: 'pi pi-users',
     path: '/user/create',
     requiredModule: 'Usuarios'
   },
-   {
+  {
     title: 'Salida Personal',
-    icon: 'fa-car',
+    icon: 'pi pi-car',
     path: '/dgos/administracion/comision',
     requiredModule: 'Administración',
   },
@@ -122,42 +122,41 @@ const allItems = ref([
     title: "Pacientes",
     isHeader: true,
     requiredModule: 'Usuarios'
-
   },
   {
     title: 'Emergencia',
-    icon: 'fa-user-injured',
+    icon: 'pi pi-user',
     path: '/patients',
     requiredModule: 'Pacientes',
     submenu: [
       {
         title: 'Fichas de Monitoreo',
-        icon: 'fa-chart-bar',
+        icon: 'pi pi-chart-bar',
         path: '/dimon/tablero',
         requiredModule: 'Sistemas'
       },
       {
         title: 'Matriz de compromiso',
-        icon: 'fa-book',
+        icon: 'pi pi-book',
         path: '/user/create',
         requiredModule: 'Usuarios'
       },
     ]
   },
-    {
+  {
     title: 'DGOS',
-    icon: 'fa-user-injured',
+    icon: 'pi pi-user',
     requiredModule: 'Administración',
     submenu: [
       {
         title: 'Fichas de Monitoreo',
-        icon: 'fa-chart-bar',
+        icon: 'pi pi-chart-bar',
         path: '/dimon/tablero',
         requiredModule: 'Administración'
       },
       {
         title: 'Matriz de compromiso',
-        icon: 'fa-book',
+        icon: 'pi pi-book',
         path: '/user/create',
         requiredModule: 'Usuarios'
       },
@@ -170,7 +169,7 @@ const allItems = ref([
   },
   {
     title: 'Tableros',
-    icon: 'fa-stethoscope',
+    icon: 'pi pi-table',
     path: '/dimon/tablero',
     requiredModule: 'Sistemas'
   },
@@ -181,13 +180,13 @@ const allItems = ref([
   },
   {
     title: 'Consulta Externa',
-    icon: 'fa-stethoscope',
+    icon: 'pi pi-eye',
     path: '/dimon/consulta-externa',
     requiredModule: 'Consulta Externa'
   },
   {
     title: 'Cirugía',
-    icon: 'fa-user-doctor',
+    icon: 'pi pi-heart',
     path: '/dimon/cirugia',
     requiredModule: 'Consulta Externa'
   },
