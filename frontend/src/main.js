@@ -38,12 +38,6 @@ import 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import 'vue-sonner/style.css'
 
-import '@/assets/lib/fontawesome-v6.5.2/css/all.css'
-import '@/assets/lib/fontawesome-v6.5.2/css/sharp-light.css'
-import '@/assets/lib/fontawesome-v6.5.2/css/sharp-regular.css'
-import '@/assets/lib/fontawesome-v6.5.2/css/sharp-solid.css'
-import '@/assets/lib/fontawesome-v6.5.2/css/sharp-thin.css'
-
 import 'primeicons/primeicons.css'
 
 // PERSONALIZADO

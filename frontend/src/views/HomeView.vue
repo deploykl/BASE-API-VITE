@@ -505,7 +505,6 @@ const getModuleDescription = (name, phase) => {
 .bg-blue {
   background-color: #0d6efd !important; /* Igual que primary en Bootstrap */
 }
-* Estilos para la imagen */
 .image-style {
   border: none !important;
   box-shadow: none !important;
