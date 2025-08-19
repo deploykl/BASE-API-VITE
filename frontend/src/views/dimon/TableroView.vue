@@ -107,7 +107,7 @@
             <Button icon="pi pi-external-link" class="p-button-sm p-button-text p-button-rounded p-button-secondary"
               v-tooltip.top="'Abrir enlace'" @click.stop="openUrl(data.url)" />
             <Button icon="pi pi-copy" class="p-button-sm p-button-text p-button-rounded p-button-secondary"
-              v-tooltip.top="'Copiar enlace'" @click.stop="copyToClipboard(data.url)" />
+              v-tooltip.top="'Copiar enlace'" @click.stop="copyToClipboard(data.url, true, toast)" />
           </div>
         </div>
       </template>
@@ -125,9 +125,7 @@
       <template #body-created_by_username="{ data }">
         {{ data.created_by_username ? data.created_by_username : 'Sistema' }}
       </template>
-      <template #body-created_at="{ data }">
-        {{ formatDateTime(data.created_at) }}
-      </template>
+     
       <template #body-updated_at="{ data }">
         {{ formatDateTime(data.updated_at) }}
       </template>
@@ -168,6 +166,7 @@ import ModalBase from '@/components/ui/ModalBase.vue';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
 import { useTableroStore } from '@/stores/dimon/tableroStore';
 import FloatInput from '@/components/widgets/FloatInput.vue';
+import { formatDateTime, copyToClipboard } from '@/components/utils/format';
 import { useCustomToast } from "@/components/utils/toast";
 
 const tableroStore = useTableroStore();
@@ -181,7 +180,7 @@ const resetPassword = ref(false);
 const tableroToDelete = ref(null);
 const tableroToEdit = ref(null);
 const isDeleting = ref(false);
-const toast = useCustomToast();
+const toast = useCustomToast(); // Añade esta línea
 
 // Definimos la estructura del formulario como constante
 const FORM_STATE = {
@@ -215,10 +214,8 @@ const columns = ref([
   { field: 'update_frequency', header: 'FRECUENCIA', bodyTemplate: true, filter: false, sortable: true },
   { field: 'created_by_username', header: 'CREADO', bodyTemplate: true, filter: true },
   { field: 'last_updated', header: 'Ult. Actualización', bodyTemplate: true, filter: false },
-  { field: 'created_at', header: 'F. CREACIÓN', bodyTemplate: true, filter: false, sortable: true },
   { field: 'updated_at', header: 'F. MOD', bodyTemplate: true, filter: false, sortable: true },
   { field: 'is_active', header: 'is_active', bodyTemplate: true, filter: false, sortable: true },
-
 ]);
 
 const frequencyOptions = ref([
@@ -353,31 +350,8 @@ const openUrl = (url) => {
   window.open(url.startsWith('http') ? url : `https://${url}`, '_blank');
 };
 
-// Método para copiar al portapapeles
-const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast.showInfo('URL copiada al portapapeles', 'Copiado exitoso');
-  } catch (err) {
-    toast.showError('Error al copiar la URL');
-  }
-};
-const formatDateTime = (dateString) => {
-  if (!dateString) return '-';
-  try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-    // Resultado: 11/08/2025 10:14
-  } catch {
-    return dateString;
-  }
-};
+
+
 // En tu script setup, añade este watch:
 watch(
   () => form.value.source,

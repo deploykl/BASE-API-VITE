@@ -1,24 +1,17 @@
 import { useCustomToast } from "@/components/utils/toast";
 import { watch } from 'vue';
 
-/**
- * Copia texto al portapapeles y opcionalmente muestra un toast
- * @param {string} text - Texto a copiar
- * @param {boolean} showToast - Si muestra notificación (default: true)
- * @returns {Promise<boolean>} - True si tuvo éxito
- */
-export const copyToClipboard = async (text, showToast = true) => {
+
+export const copyToClipboard = async (text, showToast = true, toast = null) => {
   try {
     await navigator.clipboard.writeText(text);
-    if (showToast) {
-      const toast = useCustomToast();
-      toast.showInfo('Copiado al portapapeles', 'Copiado exitoso');
+    if (showToast && toast) {
+      toast.showInfo('URL copiada al portapapeles', 'Copiado exitoso');
     }
     return true;
   } catch (err) {
-    if (showToast) {
-      const toast = useCustomToast();
-      toast.showError('Error al copiar');
+    if (showToast && toast) {
+      toast.showError('Error al copiar la URL');
     }
     return false;
   }

@@ -66,9 +66,7 @@
       </template>
 
     </DataTableWrapper>
-
     <CalendarView ref="calendarViewRef" />
-
 
     <ModalBase :visible="showModal" :mode="form.id ? 'edit' : 'create'" entityName="comisión"
       :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeModal"
