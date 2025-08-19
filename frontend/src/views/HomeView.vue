@@ -453,7 +453,6 @@ const getModuleDescription = (name, phase) => {
     padding-bottom: 0;
   }
 }
-* Colores de fondo de Bootstrap equivalentes */
 .bg-primary {
   background-color: #0d6efd !important;
 }
