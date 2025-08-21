@@ -78,14 +78,18 @@ const hasModuleAccess = (moduleName, userModulos) => {
 };
 
 // Guardia global de navegación
-// Guardia global de navegación
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = localStorage.getItem('auth_token');
   const userModulos = JSON.parse(localStorage.getItem('user_modulos') || '[]');
   const isSuperuser = localStorage.getItem('is_superuser') === 'true';
 
-  // Verificar salud del backend solo para rutas no públicas
-  if (!to.meta.public && to.name !== 'maintenance') {
+  // 🔹 PRIMERO: Si la ruta es pública, NO verificar backend
+  if (to.meta.public) {
+    return next(); // Continuar inmediatamente
+  }
+
+  // 🔹 SEGUNDO: Verificar salud del backend solo para rutas NO públicas
+  if (to.name !== 'maintenance') {
     try {
       const isHealthy = await checkBackendHealth();
       if (!isHealthy) {
@@ -96,32 +100,27 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // 🔹 Primero: si la ruta requiere login y NO está autenticado
+  // 🔹 TERCERO: Lógica de autenticación y permisos
   if (to.meta.requiresAuth && !isAuthenticated) {
-    // guardamos la ruta a la que quiso ir
     localStorage.setItem('redirectAfterLogin', to.fullPath);
     return next({
       path: '/login',
-      query: { error: 'no-access' } // opcional, para mostrar mensaje en el login
+      query: { error: 'no-access' }
     });
   }
 
-  // 🔹 Si está autenticado y quiere ir al login → lo mandamos al dashboard
   if (to.name === 'login' && isAuthenticated) {
     return next('/dashboard');
   }
 
-  // 🔹 Rutas de admin → solo superusuario
   if (to.path.startsWith('/admin') && isAuthenticated && !isSuperuser) {
     return next('/unauthorized');
   }
 
-  // 🔹 Rutas de módulos (ejemplo usuarios)
   if (to.path.startsWith('/user/') && isAuthenticated && !isSuperuser && !hasModuleAccess('usuarios', userModulos)) {
     return next('/unauthorized');
   }
 
-  // Continuar
   next();
 });
 
