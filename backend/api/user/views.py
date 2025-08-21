@@ -358,3 +358,32 @@ class HealthCheckView(View):
             status_code = 503
 
         return JsonResponse(health_status, status=status_code)
+    
+class CheckBlockStatusView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        username = request.data.get('username')
+        if not username:
+            return Response({'error': 'Username is required'}, status=400)
+        
+        user = User.objects.filter(username=username).first()
+        if not user:
+            return Response({'is_blocked': False})
+        
+        # Verificar si el usuario está bloqueado temporalmente
+        if user.login_blocked_until:
+            if timezone.now() < user.login_blocked_until:
+                remaining_time = user.login_blocked_until - timezone.now()
+                remaining_minutes = remaining_time.total_seconds() // 60
+                return Response({
+                    'is_blocked': True,
+                    'remaining_minutes': remaining_minutes
+                })
+            else:
+                # Restablecer el bloqueo si el tiempo ha expirado
+                user.login_blocked_until = None
+                user.failed_login_attempts = 0
+                user.save()
+        
+        return Response({'is_blocked': False})

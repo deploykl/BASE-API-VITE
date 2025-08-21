@@ -27,11 +27,11 @@ const statusClass = computed(() => ({
 }))
 
 const iconClass = computed(() => ({
-  'fas': true,
-  'fa-server': props.isApiConnected === true && !props.isCheckingApi,
-  'fa-server-slash': props.isApiConnected === false && !props.isCheckingApi,
-  'fa-circle-notch fa-spin': props.isCheckingApi
+  'pi pi-server': props.isApiConnected === true && !props.isCheckingApi,
+  'pi pi-times-circle': props.isApiConnected === false && !props.isCheckingApi,
+  'pi pi-spin pi-spinner': props.isCheckingApi
 }))
+
 
 const statusText = computed(() => {
   if (props.isCheckingApi) return 'Verificando API...'

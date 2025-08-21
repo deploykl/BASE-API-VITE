@@ -51,11 +51,11 @@ const statusClass = computed(() => ({
 }))
 
 const iconClass = computed(() => ({
-  'fas': true,
-  'fa-wifi': props.isOnline && !props.isCheckingNetwork,
-  'fa-wifi-slash': !props.isOnline && !props.isCheckingNetwork,
-  'fa-circle-notch fa-spin': props.isCheckingNetwork  // Icono de carga cuando está verificando
-}))
+  'pi': true,
+  'pi-wifi': props.isOnline && !props.isCheckingNetwork,
+  'pi-wifi-off': !props.isOnline && !props.isCheckingNetwork,
+  'pi-spin pi-spinner': props.isCheckingNetwork // Icono de carga
+}));
 
 const statusText = computed(() => {
   if (props.isCheckingNetwork) return 'Verificando...'

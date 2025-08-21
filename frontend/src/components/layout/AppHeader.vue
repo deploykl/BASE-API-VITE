@@ -4,10 +4,10 @@
       <!-- Botones de toggle -->
       <div class="d-flex align-items-center gap-3">
         <button v-if="!isMobile" class="toggle-btn" @click="toggleSidebar">
-          <i class="fas fa-bars"></i>
+          <i class="pi pi-bars"></i>
         </button>
         <button v-if="isMobile" class="mobile-toggle-btn" @click="toggleSidebar">
-          <i class="fas fa-bars"></i>
+          <i class="pi pi-bars"></i>
         </button>
       </div>
 
@@ -32,7 +32,7 @@
                   @error="userStore.setImageError(true)">
               </div>
               <span class="user-name">{{ userStore.userData.username }}</span>
-              <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
+              <i class="pi pi-chevron-down ms-2 dropdown-arrow"></i>
             </a>
 
             <!-- Dropdown Menu -->
@@ -56,21 +56,21 @@
               <div class="dropdown-divider"></div>
 
               <router-link to="/perfil" class="dropdown-item">
-                <i class="fas fa-cog"></i> Perfil
+                <i class="pi pi-user"></i> Perfil
               </router-link>
 
               <router-link to="/change-password" class="dropdown-item">
-                <i class="fas fa-key"></i> Cambiar contraseña
+                <i class="pi pi-key"></i> Cambiar contraseña
               </router-link>
 
               <router-link to="/settings" class="dropdown-item">
-                <i class="fas fa-cog"></i> Configuración
+                <i class="pi pi-cog"></i> Configuración
               </router-link>
 
               <div class="dropdown-divider"></div>
 
               <a href="#" class="dropdown-item logout-item" @click.prevent="logout">
-                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                <i class="pi pi-sign-out"></i> Cerrar sesión
               </a>
             </div>
           </li>
@@ -79,6 +79,7 @@
     </div>
   </header>
 </template>
+
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
