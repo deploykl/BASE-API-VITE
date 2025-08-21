@@ -10,7 +10,8 @@ const AdminAuth = [
     component: LoginView,
     meta: {
       title: "Login",
-      requiresUnauth: true,
+      public: true,
+      hideLayout: true
     },
   },
   {

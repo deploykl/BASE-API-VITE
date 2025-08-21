@@ -70,34 +70,30 @@ class LoginView(APIView):
                 user.save()
 
         # Validaciones de usuario
-        dummy_user = User()
-        dummy_user.set_unusable_password()  # Asegura que check_password siempre falle
+        if user is None:
+            return Response(
+                {'detail': 'Usuario no encontrado'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
         
-        target_user = user if user else dummy_user
-        
-        if not target_user.check_password(password):
-            # Solo incrementar intentos si el usuario EXISTE
-            if user:
-                user.failed_login_attempts += 1
-                if user.failed_login_attempts >= self.MAX_FAILED_ATTEMPTS:
-                    user.login_blocked_until = timezone.now() + timedelta(minutes=self.BLOCK_TIME_MINUTES)
-                    user.save()
-                    return Response(
-                        {
-                            'detail': f'Demasiados intentos fallidos. Cuenta bloqueada por {self.BLOCK_TIME_MINUTES} minutos.'
-                        },
-                        status=status.HTTP_403_FORBIDDEN
-                    )
-                
+        if not user.check_password(password):
+            # Incrementar el contador de intentos fallidos
+            user.failed_login_attempts += 1
+            if user.failed_login_attempts >= self.MAX_FAILED_ATTEMPTS:
+                user.login_blocked_until = timezone.now() + timedelta(minutes=self.BLOCK_TIME_MINUTES)
                 user.save()
-                remaining_attempts = self.MAX_FAILED_ATTEMPTS - user.failed_login_attempts
-            else:
-                # Para usuario inexistente, mostrar intentos restantes genéricos
-                remaining_attempts = self.MAX_FAILED_ATTEMPTS
+                return Response(
+                    {
+                        'detail': f'Demasiados intentos fallidos. Cuenta bloqueada por {self.BLOCK_TIME_MINUTES} minutos.'
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
             
+            user.save()
+            remaining_attempts = self.MAX_FAILED_ATTEMPTS - user.failed_login_attempts
             return Response(
                 {
-                    'detail': 'Credenciales inválidas',
+                    'detail': 'Contraseña incorrecta',
                     'remaining_attempts': remaining_attempts
                 }, 
                 status=status.HTTP_401_UNAUTHORIZED
@@ -128,11 +124,6 @@ class LoginView(APIView):
         # Para usuarios no superusuarios
         if not user.is_superuser:
             if not modulos_asignados.exists():
-                # IMPORTANTE: Resetear los intentos fallidos ya que las credenciales son correctas
-                user.failed_login_attempts = 0
-                user.login_blocked_until = None
-                user.save()
-                
                 return Response(
                     {'detail': 'No tienes módulos asignados. Contacta al administrador.'},
                     status=status.HTTP_403_FORBIDDEN
@@ -141,11 +132,6 @@ class LoginView(APIView):
             # Verificar si todos los módulos asignados están desactivados
             modulos_desactivados = modulos_asignados.filter(is_active=False)
             if modulos_desactivados.exists() and modulos_activos.count() == 0:
-                # IMPORTANTE: Resetear los intentos fallidos
-                user.failed_login_attempts = 0
-                user.login_blocked_until = None
-                user.save()
-                
                 modulos_desactivados_list = list(modulos_desactivados.values('codename', 'description'))
                 return Response(
                     {
@@ -154,6 +140,12 @@ class LoginView(APIView):
                     },
                     status=status.HTTP_403_FORBIDDEN
                 )
+            
+            # Verificar si algunos módulos están desactivados (pero no todos)
+            if modulos_desactivados.exists():
+                modulos_desactivados_list = list(modulos_desactivados.values('codename', 'description'))
+                # En este caso, permitimos el acceso pero informamos los módulos desactivados
+                # Esto podría cambiarse según los requerimientos
 
         # Generar tokens
         refresh = RefreshToken.for_user(user)

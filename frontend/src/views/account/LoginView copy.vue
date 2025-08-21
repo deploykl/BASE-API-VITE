@@ -97,6 +97,7 @@ const handleSubmit = async () => {
   isLoading.value = true;
 
   try {
+  
     const response = await api.post('user/login/', {
       username: username.value,
       password: password.value,
@@ -117,61 +118,43 @@ const handleSubmit = async () => {
     localStorage.setItem('is_staff', is_staff ? 'true' : 'false');
     localStorage.setItem('user_modulos', JSON.stringify(modulos));
 
-    // Verificar si hay una ruta de redirección guardada
+
+ // Verificar si hay una ruta de redirección guardada
     const redirectPath = localStorage.getItem('redirectAfterLogin');
 
-    if (redirectPath) {
+if (redirectPath) {
+      // Limpiar la ruta de redirección y navegar
       localStorage.removeItem('redirectAfterLogin');
       router.push(redirectPath);
     } else {
+      // Redirigir al dashboard por defecto
       router.push('/dashboard');
     }
 
   } catch (error) {
     console.error("Error en login:", error)
     
-    // ✅ CORRECCIÓN: Manejar todos los tipos de errores correctamente
-    if (error.response?.data) {
-      // Mostrar el mensaje de error del backend directamente
-      if (error.response.data.detail) {
-        errorStore.showMessage(error.response.data.detail)
+    if (error.response?.data?.detail) {
+      console.log("Detalle del error:", error.response.data)
+      
+      // Manejo especial para módulos desactivados
+      if (error.response.data.detail.includes('desactivados')) {
         
-        // Mostrar información adicional si existe
         if (error.response.data.modulos_desactivados) {
-          console.log("Módulos desactivados:", error.response.data.modulos_desactivados)
+          console.log("Módulos desactivados detectados:", 
+            error.response.data.modulos_desactivados)
         }
-        
-        // Mostrar intentos restantes si existen
-        if (error.response.data.remaining_attempts !== undefined) {
-          console.log("Intentos restantes:", error.response.data.remaining_attempts)
-        }
-      } 
-      // Manejar errores de validación de formulario
-      else if (typeof error.response.data === 'object') {
-        const firstError = Object.values(error.response.data)[0];
-        if (Array.isArray(firstError)) {
-          errorStore.showMessage(firstError[0])
-        } else {
-          errorStore.showMessage(firstError || 'Error de validación')
-        }
+        errorStore.showMessage(error.response.data.detail)
       }
-      // Manejar otros formatos de error
-      else {
-        errorStore.showMessage(error.response.data.toString() || 'Error desconocido')
-      }
-    } 
-    // Error de conexión
-    else if (error.request) {
-      errorStore.showMessage('Error de conexión. Verifique su internet e intente nuevamente.')
-    } 
-    // Error inesperado
-    else {
-      errorStore.showMessage('Error inesperado. Por favor intente nuevamente.')
+    } else {
+      const message = 'Error al conectar con el servidor. Por favor intente nuevamente.'
+      errorStore.showMessage(message)
     }
   } finally {
     isLoading.value = false;
   }
 };
+
 </script>
 
 <style scoped>

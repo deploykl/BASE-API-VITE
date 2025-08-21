@@ -3,6 +3,7 @@ import HomeView from "../views/HomeView.vue";
 import DashBoardView from "../views/DashBoardView.vue";
 import MaintenanceView from "../views/MaintenanceView.vue";
 import NotFoundView from "../components/layout/NotFoundView.vue";
+import UnauthorizedView from "../views/UnauthorizedView.vue"; // Necesitarás crear esta vista
 import AdminPoi from "./AdminPoi";
 import AdminAuth from "./AdminAuth";
 import AdminGore from "./AdminGore";
@@ -39,6 +40,16 @@ const routes = [
       hideLayout: true
     },
   },
+   {
+    path: "/unauthorized",
+    name: "unauthorized",
+    component: UnauthorizedView, // Crear esta vista
+    meta: {
+      title: "Acceso no autorizado",
+      public: true,
+      hideLayout: true
+    },
+  },
   {
     path: "/:catchAll(.*)",
     name: "not-found",
@@ -67,11 +78,12 @@ const hasModuleAccess = (moduleName, userModulos) => {
 };
 
 // Guardia global de navegación
+// Guardia global de navegación
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = localStorage.getItem('auth_token');
   const userModulos = JSON.parse(localStorage.getItem('user_modulos') || '[]');
   const isSuperuser = localStorage.getItem('is_superuser') === 'true';
-  
+
   // Verificar salud del backend solo para rutas no públicas
   if (!to.meta.public && to.name !== 'maintenance') {
     try {
@@ -83,28 +95,33 @@ router.beforeEach(async (to, from, next) => {
       return next({ name: 'maintenance' });
     }
   }
-  
-  // Redirigir al login si la ruta requiere autenticación
+
+  // 🔹 Primero: si la ruta requiere login y NO está autenticado
   if (to.meta.requiresAuth && !isAuthenticated) {
-    return next('/login');
+    // guardamos la ruta a la que quiso ir
+    localStorage.setItem('redirectAfterLogin', to.fullPath);
+    return next({
+      path: '/login',
+      query: { error: 'no-access' } // opcional, para mostrar mensaje en el login
+    });
   }
-  
-  // Redirigir al dashboard si ya está autenticado y va al login
+
+  // 🔹 Si está autenticado y quiere ir al login → lo mandamos al dashboard
   if (to.name === 'login' && isAuthenticated) {
     return next('/dashboard');
   }
-  
-  // Protección para rutas de administración
-  if (to.path.startsWith('/admin') && !isSuperuser) {
+
+  // 🔹 Rutas de admin → solo superusuario
+  if (to.path.startsWith('/admin') && isAuthenticated && !isSuperuser) {
     return next('/unauthorized');
   }
-  
-  // Protección especial para rutas de usuarios
-  if (to.path.startsWith('/user/') && !isSuperuser && !hasModuleAccess('usuarios', userModulos)) {
+
+  // 🔹 Rutas de módulos (ejemplo usuarios)
+  if (to.path.startsWith('/user/') && isAuthenticated && !isSuperuser && !hasModuleAccess('usuarios', userModulos)) {
     return next('/unauthorized');
   }
-  
-  // Continuar con la navegación
+
+  // Continuar
   next();
 });
 
