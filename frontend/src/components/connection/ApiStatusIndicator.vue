@@ -27,7 +27,7 @@ const statusClass = computed(() => ({
 }))
 
 const iconClass = computed(() => ({
-  'pi pi-server': props.isApiConnected === true && !props.isCheckingApi,
+  'pi pi-database': props.isApiConnected === true && !props.isCheckingApi,
   'pi pi-times-circle': props.isApiConnected === false && !props.isCheckingApi,
   'pi pi-spin pi-spinner': props.isCheckingApi
 }))
