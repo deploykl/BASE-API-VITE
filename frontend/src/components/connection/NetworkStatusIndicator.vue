@@ -53,7 +53,7 @@ const statusClass = computed(() => ({
 const iconClass = computed(() => ({
   'pi': true,
   'pi-wifi': props.isOnline && !props.isCheckingNetwork,
-  'pi-wifi-off': !props.isOnline && !props.isCheckingNetwork,
+  'bi bi-wifi-off': !props.isOnline && !props.isCheckingNetwork,
   'pi-spin pi-spinner': props.isCheckingNetwork // Icono de carga
 }));
 
