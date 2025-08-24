@@ -15,7 +15,8 @@ from rest_framework.filters import OrderingFilter
 from api.permissions import IsOwnerOrReadOnly
 from .models import *
 from .serializers import *
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 User = get_user_model()
 
 class TableroViewSet(viewsets.ModelViewSet):
@@ -27,13 +28,24 @@ class TableroViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        instance = serializer.save(created_by=self.request.user)
+        self.notify_tablero_created(instance)
         
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        self.notify_tablero_updated(instance)
+        
+    def perform_destroy(self, instance):
+        tablero_id = instance.id
+        super().perform_destroy(instance)
+        self.notify_tablero_deleted(tablero_id)
+    
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):
         tablero = self.get_object()
         tablero.is_active = True
         tablero.save()
+        self.notify_tablero_status_changed(tablero)
         return Response({'status': 'tablero activated'})
 
     @action(detail=True, methods=['post'])
@@ -41,7 +53,51 @@ class TableroViewSet(viewsets.ModelViewSet):
         tablero = self.get_object()
         tablero.is_active = False
         tablero.save()
+        self.notify_tablero_status_changed(tablero)
         return Response({'status': 'tablero deactivated'})
+    
+    def notify_tablero_created(self, tablero):
+        channel_layer = get_channel_layer()
+        serializer = TableroSerializer(tablero)
+        async_to_sync(channel_layer.group_send)(
+            "tableros",
+            {
+                "type": "tablero_created",
+                "tablero_data": serializer.data
+            }
+        )
+    
+    def notify_tablero_updated(self, tablero):
+        channel_layer = get_channel_layer()
+        serializer = TableroSerializer(tablero)
+        async_to_sync(channel_layer.group_send)(
+            "tableros",
+            {
+                "type": "tablero_updated",
+                "tablero_data": serializer.data
+            }
+        )
+    
+    def notify_tablero_deleted(self, tablero_id):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "tableros",
+            {
+                "type": "tablero_deleted",
+                "tablero_id": tablero_id
+            }
+        )
+    
+    def notify_tablero_status_changed(self, tablero):
+        channel_layer = get_channel_layer()
+        serializer = TableroSerializer(tablero)
+        async_to_sync(channel_layer.group_send)(
+            "tableros",
+            {
+                "type": "tablero_status_changed",
+                "tablero_data": serializer.data
+            }
+        )
     
 # Create your views here.
 class LargeResultsSetPagination(PageNumberPagination):

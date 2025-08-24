@@ -23,6 +23,17 @@ export const useCustomToast = () => {
     });
   };
 
+  // Toast de eliminación (usando severity "error" con clase personalizada)
+  const showDelete = (message, summary = "Eliminado") => {
+    showToast({
+      severity: "error", // Usa el severity error que ya tiene estilo rojo
+      summary,
+      detail: message,
+      life: 4000,
+      class: "delete-toast", // Clase adicional para personalización
+    });
+  };
+
   // Toast de error
   const showError = (message, summary = "Error") => {
     showToast({
@@ -55,11 +66,11 @@ export const useCustomToast = () => {
   };
 
   // Toast de carga (loading)
-  const showLoading = (message) => {
+  const showLoading = (message, summary = "Cargando") => {
     return showToast({
       severity: "info",
+      summary,
       detail: message,
-      class: "custom-toast loading-toast",
       life: 0, // Persistente hasta que se cierre manualmente
     });
   };
@@ -71,11 +82,10 @@ export const useCustomToast = () => {
     }
   };
 
- 
-
   return {
     showSuccess,
     showError,
+    showDelete,
     showWarning,
     showInfo,
     showLoading,

@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick, watch } from 'vue';
+import { ref, onMounted, computed, nextTick, watch, onUnmounted } from 'vue'; // Añade onUnmounted
 
 import ModalBase from '@/components/ui/ModalBase.vue';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
@@ -289,8 +289,6 @@ const openEditModal = async (tablero) => {
   await nextTick();
   showModal.value = true;
 
-  console.log('Valor asignado a form.update_frequency:', form.value.update_frequency);
-  console.log('Opciones disponibles:', frequencyOptions.value);
 };
 
 const proceedDelete = async () => {
@@ -414,6 +412,10 @@ const isOwner = (tablero) => {
     return false;
   }
 };
+// Limpiar WebSocket cuando el componente se desmonta
+onUnmounted(() => {
+  tableroStore.cleanupWebSocket();
+});
 </script>
 
 <style scoped></style>
