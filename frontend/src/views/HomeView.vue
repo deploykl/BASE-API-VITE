@@ -199,9 +199,6 @@ const goToDashboard = () => {
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
   --border-radius: 12px;
 }
-
-
-
 .section-title:after {
   content: '';
   position: absolute;
@@ -211,13 +208,6 @@ const goToDashboard = () => {
   height: 3px;
   background: var(--gradient-primary);
   border-radius: 3px;
-}
-
-
-.module-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  
 }
 
 /* Tarjetas de módulos */
@@ -231,11 +221,14 @@ const goToDashboard = () => {
   transition: transform 0.2s, box-shadow 0.2s;
 
 }
-
-
+.module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  
+}
 
 .module-disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed !important;
 }
 
