@@ -53,7 +53,7 @@ class User(AbstractUser):
         null=True,
         blank=True,
         verbose_name="DNI",
-        validators=[validate_dni],
+        #validators=[validate_dni],
     )
     is_online = models.BooleanField(default=False, verbose_name="En línea")
     celular = models.CharField(
@@ -61,7 +61,7 @@ class User(AbstractUser):
         null=True,
         blank=True,
         verbose_name="Celular",
-        validators=[validate_celular],
+        #validators=[validate_celular],
     )
     distrito = models.CharField(
         max_length=20, null=True, blank=True, verbose_name="Distrito"

@@ -110,6 +110,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             #"dependencia_name",
             #"area_name",
         ]
+        extra_kwargs = {
+            'first_name': {'required': False},
+            'dni': {'required': False},
+            'celular': {'required': False},
+        }
     @extend_schema_field(str)
     def get_full_name(self, obj) -> str:
         return f"{obj.first_name} {obj.last_name}".strip() or "-"
@@ -121,11 +126,72 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
-        # Verificar si el email ya está en uso por otro usuario
+        """Valida el email SOLO si no está vacío"""
+        # Permitir valores vacíos/nulos
+        if value is None or value == '' or value == 'null' or value == 'undefined':
+            return value
+
+        value = str(value).strip()
+
+        # Si después de limpiar está vacío, permitirlo
+        if value == '':
+            return value
+
+        # Validar formato básico de email solo si hay contenido
+        if '@' not in value or '.' not in value:
+            raise serializers.ValidationError("Ingrese un correo electrónico válido.")
+
+        # Verificar si el email ya está en uso por otro usuario (solo si hay contenido)
         if User.objects.exclude(pk=self.instance.pk).filter(email=value).exists():
             raise serializers.ValidationError("Este correo electrónico ya está en uso")
+
         return value
 
+    def validate_dni(self, value):
+        """Valida el DNI SOLO si no está vacío"""
+        if value is None or value == '' or value == 'null' or value == 'undefined':
+            return None  # Permitir valores vacíos/nulos
+        
+        value = str(value).strip()
+        if value == '':  # Si después de limpiar está vacío
+            return None
+        
+        # Solo validar si hay contenido real
+        if not value.isdigit():
+            raise serializers.ValidationError("El DNI debe contener solo números.")
+        
+        if len(value) != 8:
+            raise serializers.ValidationError("El DNI debe tener exactamente 8 dígitos.")
+        
+        return value
+    
+    def validate_celular(self, value):
+        """Valida el celular SOLO si no está vacío"""
+        if value is None or value == '' or value == 'null' or value == 'undefined':
+            return None  # Permitir valores vacíos/nulos
+        
+        value = str(value).strip()
+        if value == '':  # Si después de limpiar está vacío
+            return None
+        
+        # Solo validar si hay contenido real
+        if not value.isdigit():
+            raise serializers.ValidationError("El celular debe contener solo números.")
+        
+        if len(value) != 9:
+            raise serializers.ValidationError("El celular debe tener exactamente 9 dígitos.")
+        
+        return value
+    
+    def validate(self, attrs):
+        """Validación adicional para campos requeridos"""
+        # Si necesitas que algunos campos sean obligatorios, agrégalo aquí
+        required_fields = ['first_name']  # Campos obligatorios
+        for field in required_fields:
+            if not attrs.get(field):
+                raise serializers.ValidationError({field: f"Este campo es obligatorio."})
+        
+        return attrs
     def update(self, instance, validated_data):
         # Manejo especial para la imagen si es necesario
         if "image" in validated_data:
