@@ -241,7 +241,7 @@ const handleSubmit = async () => {
       password: password.value,
     });
 
-    const { access, refresh, is_superuser, is_staff, modulos, modulos_desactivados, warning } = response.data;
+    const { access, refresh, user_id,is_superuser, is_staff, modulos, modulos_desactivados, warning } = response.data;
 
     if (!access) {
       console.error("Error: No se recibió token de acceso")
@@ -270,6 +270,7 @@ const handleSubmit = async () => {
     // Guardar datos
     localStorage.setItem('auth_token', access);
     if (refresh) localStorage.setItem('refreshToken', refresh);
+    localStorage.setItem('user_id', user_id); // ← GUARDAR USER_ID
     localStorage.setItem('is_superuser', is_superuser ? 'true' : 'false');
     localStorage.setItem('is_staff', is_staff ? 'true' : 'false');
     localStorage.setItem('user_modulos', JSON.stringify(modulos));

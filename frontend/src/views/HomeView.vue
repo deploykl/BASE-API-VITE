@@ -54,20 +54,31 @@
         </div>
       </div>
 
-      <!-- Footer normal (para móviles) -->
-      <footer class="footer bg-dark text-white py-3 d-lg-none">
-        <div class="container">
-          <div class="text-center mb-3">
-            <small class="text-muted">&copy; {{ currentYear }} - Desarrollado por el área de TI de la DGOS</small>
-          </div>
-          <div class="d-flex flex-wrap justify-content-center gap-2">
-            <small class="text-muted me-2">Tecnologías:</small>
-            <span class="badge bg-secondary bg-opacity-25 me-1 mb-1"><i class="fab fa-python me-1"></i>Python</span>
-            <span class="badge bg-secondary bg-opacity-25 me-1 mb-1"><i class="fab fa-js me-1"></i>Vue.js</span>
-            <span class="badge bg-secondary bg-opacity-25 mb-1"><i class="fas fa-database me-1"></i>SQL Server</span>
+<!-- Nuevo footer -->
+  <footer class="custom-footer bg-light pt-4 pb-3 mt-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <div class="d-flex flex-wrap align-items-center">
+            <span class="text-muted me-2">&copy; {{ currentYear }} - Desarrollado por</span>
+            <span class="fw-medium text-primary">área de TI de la DGOS</span>
           </div>
         </div>
-      </footer>
+        
+        <div class="col-md-6">
+          <div class="d-flex flex-wrap justify-content-md-end gap-2">
+            <small class="text-muted me-2">Tecnologías:</small>
+            <span class="tech-badge"><i class="fab fa-python me-1"></i>Python</span>
+            <span class="tech-badge"><i class="fab fa-vuejs me-1"></i>Vue.js</span>
+            <span class="tech-badge"><i class="fas fa-database me-1"></i>SQL Server</span>
+            <span class="tech-badge"><i class="fas fa-bolt me-1"></i>Vite</span>
+            <span class="tech-badge"><i class="fas fa-store me-1"></i>Pinia</span>
+            <span class="tech-badge"><i class="fas fa-network-wired me-1"></i>WebSocket</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
     </main>
   </div>
 </template>
@@ -182,23 +193,6 @@ const goToDashboard = () => {
 </script>
 
 <style scoped>
-:root {
-  --primary: #2c6fbb;
-  --primary-dark: #1e5aa0;
-  --secondary: #6c757d;
-  --success: #198754;
-  --info: #0dcaf0;
-  --warning: #ffc107;
-  --danger: #dc3545;
-  --light: #f8f9fa;
-  --dark: #212529;
-  --gradient-primary: linear-gradient(135deg, #2c6fbb 0%, #3b86d6 100%);
-  --gradient-card: linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%);
-  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
-  --border-radius: 12px;
-}
 .section-title:after {
   content: '';
   position: absolute;
@@ -209,7 +203,6 @@ const goToDashboard = () => {
   background: var(--gradient-primary);
   border-radius: 3px;
 }
-
 /* Tarjetas de módulos */
 .module-card {
   transition: all 0.3s ease;
@@ -228,7 +221,7 @@ const goToDashboard = () => {
 }
 
 .module-disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed !important;
 }
 
@@ -273,5 +266,39 @@ const goToDashboard = () => {
   z-index: 1;
   position: relative;
 }
+/* Nuevo footer styles */
+.custom-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(to right, #f8f9fa, #ffffff, #f8f9fa) !important;
+}
 
+.tech-badge {
+  padding: 0.35rem 0.65rem;
+  background-color: rgba(44, 111, 187, 0.1);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  color: #2c6fbb;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  margin-bottom: 0.4rem;
+}
+
+.tech-badge:hover {
+  background-color: rgba(44, 111, 187, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-footer .row {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .custom-footer .justify-content-md-end {
+    justify-content: center !important;
+  }
+}
 </style>

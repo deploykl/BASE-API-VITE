@@ -5,7 +5,7 @@ from rest_framework import serializers
 class TableroSerializer(serializers.ModelSerializer):
     #created_by = UserProfileSerializer(read_only=True)    #este mostraara todos los campos
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
-    #eso solo mostrara el username del usuario que creo el tablero
+    created_by_id = serializers.IntegerField(source='created_by.id', read_only=True)  # ← Añade esto
     
     class Meta:
         model = Tablero

@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsSuperUser(BasePermission):
     """
@@ -24,6 +24,23 @@ class HasModuleAccess(BasePermission):
             
         # Verificar si el usuario tiene el módulo asignado
         return request.user.modulos.filter(codename=required_module, is_active=True).exists()
+    
+class IsOwnerOrReadOnly(BasePermission):
+    """
+    Permiso personalizado para que solo el creador pueda modificar o eliminar,
+    pero los superusuarios pueden hacer todo.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Los métodos SAFE (GET, HEAD, OPTIONS) están permitidos para todos
+        if request.method in SAFE_METHODS:
+            return True
+        
+        # Los superusuarios pueden hacer cualquier operación
+        if request.user and request.user.is_superuser:
+            return True
+            
+        # Para métodos de escritura (PUT, PATCH, DELETE), solo el creador
+        return obj.created_by == request.user
     
 class JerarquiaPermissions(BasePermission):
     def has_permission(self, request, view):

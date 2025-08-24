@@ -34,8 +34,8 @@
               <div class="mb-3">
                 <Select id="update_frequency" label="Frecuencia de actualización" v-model="form.update_frequency"
                   :options="frequencyOptions" optionLabel="label" optionValue="value" icon="pi pi-calendar-clock"
-                  placeholder="Seleccione frecuencia" :errors="errors" :invalid="!!errors.update_frequency"
-                  size="small" required/>
+                  placeholder="Seleccione frecuencia" :errors="errors" :invalid="!!errors.update_frequency" size="small"
+                  required />
                 <div v-if="errors.update_frequency" class="invalid-feedback d-block">
                   {{ errors.update_frequency[0] }}
                 </div>
@@ -125,7 +125,7 @@
       <template #body-created_by_username="{ data }">
         {{ data.created_by_username ? data.created_by_username : 'Sistema' }}
       </template>
-     
+
       <template #body-updated_at="{ data }">
         {{ formatDateTime(data.updated_at) }}
       </template>
@@ -147,12 +147,20 @@
       <template #actions="{ data }">
         <div class="d-flex gap-1">
           <!-- Botón Editar -->
-          <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
-            v-tooltip.top="'Editar'" @click="openEditModal(data)" />
+          <Button v-if="isOwner(data)" icon="pi pi-pencil"
+            class="p-button-sm p-button-outlined p-button-rounded p-button-warning" v-tooltip.top="'Editar'"
+            @click="openEditModal(data)" />
 
-          <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
-            v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
+          <!-- Botón Eliminar - Solo visible para el creador -->
+          <Button v-if="isOwner(data)" icon="pi pi-times"
+            class="p-button-sm p-button-outlined p-button-rounded p-button-danger" v-tooltip.top="'Eliminar'"
+            @click="confirmDelete(data)" />
+          <!-- Opcional: Mostrar mensaje si no es el dueño -->
+          <span v-else class="text-muted small">
+            <i class="pi pi-lock"></i> Solo el creador
+          </span>
         </div>
+
       </template>
 
     </DataTableWrapper>
@@ -361,6 +369,51 @@ watch(
     }
   }
 );
+
+// En tu script setup, después de las imports
+const isOwner = (tablero) => {
+  try {
+    // Obtener el ID del usuario actual desde localStorage
+    const currentUserId = localStorage.getItem('user_id');
+
+    // Si no hay usuario logueado, no mostrar botones
+    if (!currentUserId) return false;
+
+    // Convertir a número para comparación
+    const userId = parseInt(currentUserId);
+
+    // Verificar si el usuario es superusuario (puede ver todo)
+    const isSuperuser = localStorage.getItem('is_superuser') === 'true';
+    if (isSuperuser) return true;
+
+    // Comparar con el creador del tablero
+    // Si tienes created_by_id en los datos (debes asegurarte que el backend lo envíe)
+    if (tablero.created_by_id) {
+      return tablero.created_by_id === userId;
+    }
+
+    // Si created_by es un número (puede ser el ID directo)
+    if (tablero.created_by && typeof tablero.created_by === 'number') {
+      return tablero.created_by === userId;
+    }
+
+    // Si created_by es un objeto (puede pasar en algunos casos)
+    if (tablero.created_by && typeof tablero.created_by === 'object') {
+      return tablero.created_by.id === userId;
+    }
+
+    // Como fallback, comparar por username
+    const currentUsername = localStorage.getItem('username');
+    if (currentUsername && tablero.created_by_username) {
+      return tablero.created_by_username === currentUsername;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('Error verificando propiedad:', error);
+    return false;
+  }
+};
 </script>
 
 <style scoped></style>

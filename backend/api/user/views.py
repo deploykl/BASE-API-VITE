@@ -21,19 +21,6 @@ from django.utils import timezone
 
 User = get_user_model()
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.utils import timezone
-from datetime import timedelta
-from django.contrib.auth import get_user_model
-from .models import Modulo
-from .serializers import UserSerializer
-
-User = get_user_model()
-
 class LoginView(APIView):
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
@@ -162,6 +149,7 @@ class LoginView(APIView):
             'access': str(refresh.access_token),
             'refresh': str(refresh),
             'is_superuser': user.is_superuser,
+            'user_id': user.id,  
             'is_staff': user.is_staff,
             'modulos': modulos_activos_list,
         }

@@ -12,7 +12,7 @@ from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
-
+from api.permissions import IsOwnerOrReadOnly
 from .models import *
 from .serializers import *
 
@@ -21,7 +21,7 @@ User = get_user_model()
 class TableroViewSet(viewsets.ModelViewSet):
     queryset = Tablero.objects.all()  # Añade esta línea
     serializer_class = TableroSerializer
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] 
     ordering = ["id"]
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
