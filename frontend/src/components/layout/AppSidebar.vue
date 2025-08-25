@@ -23,18 +23,18 @@
           <template v-else>
             <router-link v-if="!item.submenu" :to="item.path" class="menu-item" @click="() => toggleSubmenu(index)">
               <div class="menu-content">
-                <i :class="['fas', item.icon]"></i>
+                <i :class="['pi', item.icon]"></i>
                 <span v-if="!isCollapsed || isMobile">{{ item.title }}</span>
               </div>
             </router-link>
 
             <div v-else class="menu-item" @click="toggleSubmenu(index)">
               <div class="menu-content">
-                <i :class="['fas', item.icon]"></i>
+                <i :class="['pi', item.icon]"></i>
                 <span v-if="!isCollapsed || isMobile">{{ item.title }}</span>
               </div>
               <i v-if="item.submenu && (!isCollapsed || isMobile)"
-                :class="['fas', 'submenu-arrow', isSubmenuOpen(index) ? 'pi pi-chevron-up' : 'pi pi-chevron-down']"></i>
+                :class="['pi', 'submenu-arrow', isSubmenuOpen(index) ? 'pi pi-chevron-up' : 'pi pi-chevron-down']"></i>
             </div>
 
             <transition name="slide">
@@ -42,7 +42,7 @@
                 <li v-for="(subItem, subIndex) in item.submenu" :key="subIndex"
                   :class="{ 'active': activeSubmenu === `${index}-${subIndex}` }">
                   <router-link :to="subItem.path" class="submenu-item" @click="handleSubmenuClick(index, subIndex)">
-                    <i :class="['fas', subItem.icon]"></i>
+                    <i :class="['pi', subItem.icon]"></i>
                     <span>{{ subItem.title }}</span>
                   </router-link>
                 </li>
@@ -61,7 +61,6 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const emit = defineEmits(['toggle-sidebar']);
-const visible = ref(false);
 
 // Estado del sidebar
 const isCollapsed = ref(false)
@@ -157,7 +156,7 @@ const allItems = ref([
       {
         title: 'Matriz de compromiso',
         icon: 'pi pi-book',
-        path: '/user/create',
+        path: '/user/dfdf',
         requiredModule: 'Usuarios'
       },
     ]
@@ -277,6 +276,65 @@ const handleSubmenuClick = (menuIndex, submenuIndex) => {
     isCollapsed.value = true
   }
 }
+// Función para establecer el menú activo basado en la ruta actual
+// Función para establecer el menú activo basado en la ruta actual
+const setActiveMenuFromRoute = () => {
+  const currentPath = route.path;
+  let found = false;
+  
+  // Reiniciar estados activos
+  activeMenu.value = null;
+  activeSubmenu.value = null;
+  
+  // Buscar en todos los elementos del menú
+  filteredallItems.value.forEach((item, index) => {
+    // Si es un elemento con submenú
+    if (item.submenu && item.submenu.length > 0) {
+      item.submenu.forEach((subItem, subIndex) => {
+        // Verificar si la ruta coincide exactamente
+        if (subItem.path === currentPath) {
+          activeMenu.value = index;
+          activeSubmenu.value = `${index}-${subIndex}`;
+          if (!openSubmenus.value.includes(index)) {
+            openSubmenus.value.push(index);
+          }
+          found = true;
+        }
+      });
+    } 
+    // Si es un elemento simple
+    else if (item.path === currentPath) {
+      activeMenu.value = index;
+      activeSubmenu.value = null;
+      found = true;
+    }
+  });
+  
+  // Si no se encuentra coincidencia exacta, buscar coincidencias parciales
+  if (!found) {
+    filteredallItems.value.forEach((item, index) => {
+      if (item.submenu && item.submenu.length > 0) {
+        item.submenu.forEach((subItem, subIndex) => {
+          // Coincidencia parcial para rutas con parámetros
+          if (currentPath.startsWith(subItem.path) && subItem.path !== '/') {
+            activeMenu.value = index;
+            activeSubmenu.value = `${index}-${subIndex}`;
+            if (!openSubmenus.value.includes(index)) {
+              openSubmenus.value.push(index);
+            }
+            found = true;
+          }
+        });
+      } 
+      // Coincidencia parcial para elementos simples
+      else if (item.path && currentPath.startsWith(item.path) && item.path !== '/') {
+        activeMenu.value = index;
+        activeSubmenu.value = null;
+        found = true;
+      }
+    });
+  }
+}
 
 // Configuración responsive
 const checkScreenSize = () => {
@@ -292,24 +350,20 @@ const checkScreenSize = () => {
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
+  setActiveMenuFromRoute() // Usamos la nueva función
+})
 
-  // Marcar menú activo según la ruta actual
-  const currentPath = route.path
-  filteredallItems.value.forEach((item, index) => {
-    if (item.path === currentPath) {
-      activeMenu.value = index
-    } else if (item.submenu) {
-      item.submenu.forEach((subItem, subIndex) => {
-        if (subItem.path === currentPath) {
-          activeMenu.value = index
-          activeSubmenu.value = `${index}-${subIndex}`
-          if (!openSubmenus.value.includes(index)) {
-            openSubmenus.value.push(index)
-          }
-        }
-      })
-    }
-  })
+// Observar cambios en la ruta
+watch(() => route.path, () => {
+  setActiveMenuFromRoute()
+})
+
+// Observar cambios en los elementos filtrados (por si cambian los permisos)
+watch(filteredallItems, () => {
+  // Pequeño delay para asegurar que el DOM se haya actualizado
+  setTimeout(() => {
+    setActiveMenuFromRoute()
+  }, 100)
 })
 
 // Sincronizamos con los cambios de props
@@ -515,7 +569,15 @@ watch(() => props.isCollapsed, (newVal) => {
   transition: all 0.3s ease;
   position: relative;
 }
-
+/* Submenú activo específico */
+.submenu li.active .submenu-item {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+.submenu li.active .submenu-item::before {
+  background: white !important;
+  width: 3px;
+}
 .submenu-item::before {
   content: '';
   position: absolute;
