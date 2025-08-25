@@ -87,7 +87,7 @@ class PersonalAccessService:
             # Asignar módulos si se proporcionaron
             modulos_asignados = []
             if modulos_ids:
-                modulos = Modulo.objects.filter(id__in=modulos_ids, is_active=True)
+                modulos = Modulo.objects.filter(id__in=modulos_ids)  # Remueve , is_active=True
                 user.modulos.set(modulos)
                 modulos_asignados = list(modulos)  # Guardar para el email
 
