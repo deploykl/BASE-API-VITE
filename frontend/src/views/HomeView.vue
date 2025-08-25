@@ -1,8 +1,8 @@
 <template>
-  <div class="main-container">
+  <div class="container">
     <!-- Fondo con efecto de cristal -->
     <div class="glass-background"></div>
-    
+
     <div class="container p-2 glass-content">
       <!-- Sección de presentación -->
       <div class="row align-items-center justify-content-center mb-5">
@@ -52,7 +52,7 @@
             </router-link>
           </div>
         </div>
-        
+
         <footer class="footer pt-4 pb-3 mt-1 glass-footer">
           <div class="row align-items-center">
             <div class="col-md-6 mb-3 mb-md-0">
@@ -209,10 +209,12 @@ const goToDashboard = () => {
 </script>
 
 <style scoped>
-.container{
-  border: 1px solid red;
-  background: rgba(255,255,255,0.2);
+.container {
+  background: rgb(255, 255, 255);
+  backdrop-filter: blur(1px);
+  border-radius: 10px;
 }
+
 .section-title:after {
   content: '';
   position: absolute;
