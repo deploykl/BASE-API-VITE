@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fortawesome/fontawesome-free':
+        specifier: ^7.0.0
+        version: 7.0.0
       '@fullcalendar/bootstrap5':
         specifier: ^6.1.19
         version: 6.1.19(@fullcalendar/core@6.1.19)
@@ -269,6 +272,10 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fortawesome/fontawesome-free@7.0.0':
+    resolution: {integrity: sha512-X48nISrSOa89zu2VMljC4XaRf8NmgTwQBVHfS2Nu5G00ZwM31oOVrAtGxZF3b6wDYf9lJsf/Eq4cCSFKIkOWPQ==}
+    engines: {node: '>=6'}
 
   '@fullcalendar/bootstrap5@6.1.19':
     resolution: {integrity: sha512-YJQ/MuGZu865Mw3v9IDyvviVQVjpK3r5NW3NlsfqW8LOxNcIZLCviSgpe1x1rmBTAyFI9AyNLkG89SdEKZknrw==}
@@ -979,6 +986,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.8':
     optional: true
+
+  '@fortawesome/fontawesome-free@7.0.0': {}
 
   '@fullcalendar/bootstrap5@6.1.19(@fullcalendar/core@6.1.19)':
     dependencies:

@@ -30,6 +30,7 @@ import Textarea from 'primevue/Textarea';
 import Select  from 'primevue/Select';
 import DatePicker from 'primevue/datepicker';
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import '@fortawesome/fontawesome-free/css/all.min.css'
 
 // LIBRERÍAS
 import 'bootstrap'
