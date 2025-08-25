@@ -34,7 +34,7 @@
                 <span v-if="!isCollapsed || isMobile">{{ item.title }}</span>
               </div>
               <i v-if="item.submenu && (!isCollapsed || isMobile)"
-                :class="['fas', 'submenu-arrow', isSubmenuOpen(index) ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+                :class="['fas', 'submenu-arrow', isSubmenuOpen(index) ? 'pi pi-chevron-up' : 'pi pi-chevron-down']"></i>
             </div>
 
             <transition name="slide">
@@ -149,9 +149,9 @@ const allItems = ref([
     requiredModule: 'Administración',
     submenu: [
       {
-        title: 'Fichas de Monitoreo',
+        title: 'Personal',
         icon: 'pi pi-chart-bar',
-        path: '/dimon/tablero',
+        path: '/dgos/personal',
         requiredModule: 'Administración'
       },
       {

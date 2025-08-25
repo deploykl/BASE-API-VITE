@@ -329,3 +329,15 @@ SIMPLE_HISTORY_REVERT_DISABLED = False  # Permite revertir cambios
 # Configuración para proxy inverso
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# Configuración para correo electrónico
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'bot.reporte.dimon@gmail.com'
+EMAIL_HOST_PASSWORD = 'moeh ljtd xebl pibc'
+DEFAULT_FROM_EMAIL  = 'bot.reporte.dimon@gmail.com'  # <-- Añade el remitente
+
+FRONTEND_URL = 'http://localhost:8080'  # URL de tu frontend Vue.js en desarrollo

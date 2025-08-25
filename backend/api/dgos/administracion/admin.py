@@ -8,13 +8,104 @@ class DependenciaAdmin(admin.ModelAdmin):
     search_fields = ('nombre','codigo')
     ordering = ('codigo',)
 
+# admin.py
+from django.contrib import admin
+from django.http import JsonResponse
+from django.urls import path
+from django.utils.html import format_html
+from django.shortcuts import get_object_or_404
+from .models import Personal
+from api.services.userServices import PersonalAccessService
+
 @admin.register(Personal)
 class PersonalAdmin(admin.ModelAdmin):
-    list_display = ('dni', 'apellido', 'nombre', 'dependencia', 'es_conductor', 'activo')
-    list_filter = ('dependencia', 'es_conductor', 'activo')
-    search_fields = ('dni', 'apellido', 'nombre')
-    list_editable = ('activo',)
-    ordering = ('apellido', 'nombre')
+    list_display = [
+        'dni', 'nombre', 'apellido', 'email', 
+        'acceso_status', 'acciones_acceso'
+    ]
+    list_filter = ['acceso', 'activo', 'dependencia']
+    search_fields = ['dni', 'nombre', 'apellido', 'email']
+    readonly_fields = ['fecha_habilitacion_acceso', 'habilitado_por']
+    
+    def acceso_status(self, obj):
+        """Muestra el estado de acceso con colores"""
+        if obj.acceso:
+            return format_html(
+                '<span style="color: green; font-weight: bold;">✓ HABILITADO</span>'
+            )
+        else:
+            return format_html(
+                '<span style="color: red; font-weight: bold;">✗ DESHABILITADO</span>'
+            )
+    acceso_status.short_description = 'Estado Acceso'
+    
+    def acciones_acceso(self, obj):
+        """Botones de acciones de acceso"""
+        if obj.acceso:
+            return format_html('''
+                <button onclick="deshabilitarAcceso({})" class="button" style="background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                    Deshabilitar
+                </button>
+                <button onclick="resetearPassword({})" class="button" style="background: #17a2b8; color: white; border: none; padding: 5px 10px; cursor: pointer; margin-left: 5px;">
+                    Resetear Password
+                </button>
+            ''', obj.id, obj.id)
+        else:
+            return format_html('''
+                <button onclick="habilitarAcceso({})" class="button" style="background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                    Habilitar
+                </button>
+            ''', obj.id)
+    acciones_acceso.short_description = 'Acciones'
+    
+    def get_urls(self):
+        """Agrega URLs customizadas al admin"""
+        urls = super().get_urls()
+        custom_urls = [
+            path('<path:object_id>/habilitar-acceso/', self.admin_site.admin_view(self.habilitar_acceso_view)),
+            path('<path:object_id>/deshabilitar-acceso/', self.admin_site.admin_view(self.deshabilitar_acceso_view)),
+            path('<path:object_id>/resetear-password/', self.admin_site.admin_view(self.resetear_password_view)),
+        ]
+        return custom_urls + urls
+    
+    def habilitar_acceso_view(self, request, object_id):
+        """View para habilitar acceso desde el admin"""
+        personal = get_object_or_404(Personal, id=object_id)
+        success, message = PersonalAccessService.habilitar_acceso(personal, request.user)
+        
+        if success:
+            self.message_user(request, message)
+        else:
+            self.message_user(request, f"Error: {message}", level='error')
+        
+        return JsonResponse({'success': success, 'message': message})
+    
+    def deshabilitar_acceso_view(self, request, object_id):
+        """View para deshabilitar acceso desde el admin"""
+        personal = get_object_or_404(Personal, id=object_id)
+        success, message = PersonalAccessService.deshabilitar_acceso(personal, request.user)
+        
+        if success:
+            self.message_user(request, message)
+        else:
+            self.message_user(request, f"Error: {message}", level='error')
+        
+        return JsonResponse({'success': success, 'message': message})
+    
+    def resetear_password_view(self, request, object_id):
+        """View para resetear password desde el admin"""
+        personal = get_object_or_404(Personal, id=object_id)
+        success, message = PersonalAccessService.resetear_password(personal, request.user)
+        
+        if success:
+            self.message_user(request, message)
+        else:
+            self.message_user(request, f"Error: {message}", level='error')
+        
+        return JsonResponse({'success': success, 'message': message})
+    
+    class Media:
+        js = ('admin/js/personal_access.js',)
 
 @admin.register(Vehiculo)
 class VehiculoAdmin(admin.ModelAdmin):

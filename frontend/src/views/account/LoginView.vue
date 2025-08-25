@@ -72,7 +72,7 @@
                 placeholder=" " :disabled="isBlocked" required />
               <label for="password" class="float-label">Contraseña</label>
               <div class="password-toggle" @click="showPassword = !showPassword">
-                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
               </div>
             </div>
 

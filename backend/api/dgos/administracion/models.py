@@ -11,9 +11,41 @@ class Dependencia(models.Model):
         return f"{self.codigo} - {self.nombre}"
     
 class Personal(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        related_name="personal_profile"
+    )
+    # Campos para control de acceso
+    acceso = models.BooleanField(
+        default=False,
+        verbose_name="Tiene acceso al sistema"
+    )
+    fecha_habilitacion_acceso = models.DateTimeField(
+        null=True, 
+        blank=True,
+        verbose_name="Fecha de habilitación de acceso"
+    )
+    habilitado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="personal_habilitado",
+        verbose_name="Habilitado por"
+    )
     dni = models.CharField(max_length=8,  null=False, blank=False)
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
+        # AÑADE ESTE CAMPO NUEVO
+    email = models.EmailField(
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name="Correo electrónico"
+    )
     profesion = models.CharField(max_length=50, null=True, blank=True)
     dependencia = models.ForeignKey(Dependencia, on_delete=models.CASCADE, 
         related_name="personales")    

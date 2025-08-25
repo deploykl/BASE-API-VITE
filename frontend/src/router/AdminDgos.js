@@ -1,4 +1,5 @@
 import ComisionView from "../views/dgos/administracion/ComisionView.vue";
+import PersonalManager from "../views/dgos/administracion/PersonalManager.vue";
 
 const AdminDgos = [
   {
@@ -7,6 +8,15 @@ const AdminDgos = [
     component: ComisionView,
     meta: {
       title: "COMISIÓN",
+      requiresAuth: true,
+    },
+  },
+   {
+    path: '/dgos/personal',
+    name: "Personal",
+    component: PersonalManager,
+    meta: {
+      title: "PERSONAL",
       requiresAuth: true,
     },
   },

@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from api.user.serializers import ModuloSerializer, UserSerializer
 from .models import Dependencia, Personal, Vehiculo, Comision
 
 class DependenciaSerializer(serializers.ModelSerializer):
@@ -8,7 +10,8 @@ class DependenciaSerializer(serializers.ModelSerializer):
 
 class PersonalSerializer(serializers.ModelSerializer):
     dependencia_nombre = serializers.CharField(source='dependencia.nombre', read_only=True)
-    
+    user = UserSerializer(read_only=True)
+    modulos = serializers.SerializerMethodField() 
     class Meta:
         model = Personal
         fields = '__all__'
@@ -17,7 +20,12 @@ class PersonalSerializer(serializers.ModelSerializer):
             'nombre': {'required': True},
             'apellido': {'required': True}
         }
-        
+
+    def get_modulos(self, obj):
+        if obj.user:
+            return ModuloSerializer(obj.user.modulos.all(), many=True).data
+        return []
+           
 class VehiculoSerializer(serializers.ModelSerializer):
     estado_display = serializers.CharField(source='get_estado_display', read_only=True)
     marca_display = serializers.CharField(source='get_marca_display', read_only=True)
