@@ -336,8 +336,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'bot.reporte.dimon@gmail.com'
-EMAIL_HOST_PASSWORD = 'moeh ljtd xebl pibc'
-DEFAULT_FROM_EMAIL  = 'bot.reporte.dimon@gmail.com'  # <-- Añade el remitente
+EMAIL_HOST_USER = 'dgos.staff@gmail.com'
+EMAIL_HOST_PASSWORD = 'vzbx phii rfpm pvwr'
+DEFAULT_FROM_EMAIL  = 'dgos.staff@gmail.com'  # <-- Añade el remitente
 
 FRONTEND_URL = 'http://localhost:8080'  # URL de tu frontend Vue.js en desarrollo
