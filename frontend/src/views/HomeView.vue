@@ -1,5 +1,52 @@
 <template>
   <div class="modern-container">
+    <!-- Barra de navegación corregida -->
+    <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
+      <div class="container">
+        <router-link to="/" class="navbar-brand navbar-brand-modern">
+          <i class="bi bi-heart-pulse-fill me-2"></i>
+          DGOS Tools
+        </router-link>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="scrollToSection('modules')">Módulos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="scrollToSection('benefits')">Beneficios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="scrollToSection('features')">Características</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="scrollToSection('about')">Nosotros</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" @click="scrollToSection('contact')">Contacto</a>
+            </li>
+          </ul>
+          
+          <div class="d-flex">
+            <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-outline-primary btn-sm me-2">
+              Dashboard
+            </button>
+            <router-link v-else to="/login" class="btn btn-primary btn-sm">
+              Iniciar Sesión
+            </router-link>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Espacio para el navbar fijo -->
+    <div class="navbar-spacer"></div>
+
     <!-- Contenido principal -->
     <div class="main-content">
       <!-- Header con logo y título -->
@@ -7,7 +54,7 @@
         <div class="logo-container mb-3">
           <i class="bi bi-heart-pulse-fill logo-icon"></i>
         </div>
-        <h1 class="display-5 fw-bold text-primary mb-2">DIRECCIÓN GENERAL DE OPERACIONES EN SALUD</h1>
+        <h1 class="display-5 fw-bold text-primary mb-2">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
         <p class="text-muted mb-4">DGOS - DIMON - DIEM</p>
       </header>
 
@@ -21,8 +68,59 @@
         </div>
       </div>
 
+      <!-- Sección de beneficios -->
+      <section id="benefits" class="benefits-section mb-5">
+        <h2 class="section-title text-center mb-4">
+          <span class="title-decoration"></span>
+          <i class="bi bi-award me-2"></i>Beneficios Principales
+          <span class="title-decoration"></span>
+        </h2>
+        
+        <div class="row justify-content-center g-4">
+          <div class="col-md-6 col-lg-3">
+            <div class="benefit-card text-center p-4 rounded-4 h-100">
+              <div class="benefit-icon mb-3">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <h5>Eficiencia Mejorada</h5>
+              <p class="text-muted">Automatiza procesos administrativos y reduce tiempos de ejecución.</p>
+            </div>
+          </div>
+          
+          <div class="col-md-6 col-lg-3">
+            <div class="benefit-card text-center p-4 rounded-4 h-100">
+              <div class="benefit-icon mb-3">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <h5>Seguridad de Datos</h5>
+              <p class="text-muted">Protección avanzada para toda la información institucional.</p>
+            </div>
+          </div>
+          
+          <div class="col-md-6 col-lg-3">
+            <div class="benefit-card text-center p-4 rounded-4 h-100">
+              <div class="benefit-icon mb-3">
+                <i class="bi bi-lightning-charge"></i>
+              </div>
+              <h5>Rapidez</h5>
+              <p class="text-muted">Acceso rápido a la información y reportes en tiempo real.</p>
+            </div>
+          </div>
+          
+          <div class="col-md-6 col-lg-3">
+            <div class="benefit-card text-center p-4 rounded-4 h-100">
+              <div class="benefit-icon mb-3">
+                <i class="bi bi-bar-chart"></i>
+              </div>
+              <h5>Toma de Decisiones</h5>
+              <p class="text-muted">Dashboards intuitivos para una mejor visualización de datos.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Módulos principales -->
-      <section class="modules-section mb-5">
+      <section id="modules" class="modules-section mb-5">
         <h2 class="section-title text-center mb-4">
           <span class="title-decoration"></span>
           <i class="pi pi-th-large me-2"></i>Módulos Principales
@@ -46,6 +144,101 @@
               </div>
               <h6 class="fw-bold mb-2">{{ module.title }}</h6>
               <p class="small text-muted mb-0">{{ module.description }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección de características -->
+      <section id="features" class="features-section mb-5">
+        <h2 class="section-title text-center mb-4">
+          <span class="title-decoration"></span>
+          <i class="bi bi-stars me-2"></i>Características Destacadas
+          <span class="title-decoration"></span>
+        </h2>
+        
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <div class="feature-item d-flex mb-4">
+              <div class="feature-icon me-4">
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div>
+                <h5>Interfaz Intuitiva</h5>
+                <p class="text-muted mb-0">Diseño moderno y fácil de usar que requiere mínima capacitación.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item d-flex mb-4">
+              <div class="feature-icon me-4">
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div>
+                <h5>Integración Total</h5>
+                <p class="text-muted mb-0">Todos los módulos conectados entre sí para un flujo de trabajo unificado.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item d-flex mb-4">
+              <div class="feature-icon me-4">
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div>
+                <h5>Acceso Móvil</h5>
+                <p class="text-muted mb-0">Disponible desde cualquier dispositivo con conexión a internet.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6 text-center">
+            <div class="feature-visual p-4 rounded-4">
+              <i class="bi bi-laptop"></i>
+              <div class="mt-3">
+                <h5>Plataforma Unificada</h5>
+                <p class="text-muted">Todas las herramientas en un solo lugar</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección Nosotros -->
+      <section id="about" class="about-section mb-5">
+        <h2 class="section-title text-center mb-4">
+          <span class="title-decoration"></span>
+          <i class="bi bi-people me-2"></i>Nosotros
+          <span class="title-decoration"></span>
+        </h2>
+        
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <p class="lead">
+              Somos el área de Tecnologías de la Información de la DGOS, dedicados a desarrollar 
+              soluciones innovadoras que mejoren la gestión administrativa y optimicen los procesos 
+              institucionales.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección Contacto -->
+      <section id="contact" class="contact-section mb-5">
+        <h2 class="section-title text-center mb-4">
+          <span class="title-decoration"></span>
+          <i class="bi bi-envelope me-2"></i>Contacto
+          <span class="title-decoration"></span>
+        </h2>
+        
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="contact-card p-4 rounded-4 text-center">
+              <i class="bi bi-headset contact-icon mb-3"></i>
+              <h5>Soporte Técnico</h5>
+              <p class="text-muted">Estamos aquí para ayudarte con cualquier consulta o problema técnico.</p>
+              <p class="mb-0">
+                <i class="bi bi-envelope me-2"></i>
+                <a href="mailto:soporte@dgos.gob.pe">soporte@dgos.gob.pe</a>
+              </p>
             </div>
           </div>
         </div>
@@ -90,13 +283,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import pythonIcon from '@/assets/svg/python.svg'
-import vueIcon from '@/assets/svg/vuejs.svg'
-import sqlServerIcon from '@/assets/svg/sql_server.svg'
-import viteIcon from '@/assets/svg/vite.svg'
-import piniaIcon from '@/assets/svg/pinia.svg'
-import websocketIcon from '@/assets/svg/websocket.svg'
-
 
 const router = useRouter();
 const isAuthenticated = computed(() => {
@@ -106,15 +292,15 @@ const isAuthenticated = computed(() => {
 
 const currentYear = ref(new Date().getFullYear());
 
-// Array de tecnologías para el footer
-const technologies = [
-  { name: 'Python', icon: pythonIcon },
-  { name: 'Vuejs3', icon: vueIcon },
-  { name: 'Sql Server', icon: sqlServerIcon },
-  { name: 'Vite', icon: viteIcon },
-  { name: 'Pinia', icon: piniaIcon },
-  { name: 'WebSocket', icon: websocketIcon }
-]
+// Array de tecnologías para el footer (sin imports para evitar errores)
+const technologies = ref([
+  { name: 'Python', icon: '/src/assets/svg/python.svg' },
+  { name: 'Vuejs3', icon: '/src/assets/svg/vuejs.svg' },
+  { name: 'Sql Server', icon: '/src/assets/svg/sql_server.svg' },
+  { name: 'Vite', icon: '/src/assets/svg/vite.svg' },
+  { name: 'Pinia', icon: '/src/assets/svg/pinia.svg' },
+  { name: 'WebSocket', icon: '/src/assets/svg/websocket.svg' }
+]);
 
 // Array de módulos para renderizar dinámicamente
 const modules = ref([
@@ -192,17 +378,19 @@ const modules = ref([
   }
 ]);
 
+// Función para scroll suave a secciones
+const scrollToSection = (sectionId) => {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 // Función para redirigir a un módulo específico
 const redirectToModule = (path) => {
-  console.log('Intentando redirigir a:', path);
-  console.log('Usuario autenticado:', isAuthenticated.value);
-  console.log('Token en localStorage:', localStorage.getItem('auth_token'));
-
   if (isAuthenticated.value) {
-    console.log('Redirigiendo directamente a:', path);
     router.push(path);
   } else {
-    console.log('Guardando ruta para después del login:', path);
     localStorage.setItem('redirectAfterLogin', path);
     router.push('/login');
   }
@@ -226,9 +414,58 @@ onMounted(() => {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  padding: 2rem 1rem;
+  padding: 0;
   backdrop-filter: blur(1px);
-  border-radius: 10px;
+}
+
+/* Espaciador para navbar fijo */
+.navbar-spacer {
+  height: 76px; /* Ajusta según la altura de tu navbar */
+}
+
+/* Navbar styles corregidos */
+.navbar-modern {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+}
+
+.navbar-brand-modern {
+  font-weight: 700;
+  color: var(--bs-primary) !important;
+  font-size: 1.5rem;
+}
+
+.navbar-brand-modern i {
+  color: var(--bs-primary);
+}
+
+.navbar-modern .nav-link {
+  font-weight: 500;
+  color: #495057 !important;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.navbar-modern .nav-link:hover {
+  color: var(--bs-primary) !important;
+}
+
+.navbar-modern .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--bs-primary);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.navbar-modern .nav-link:hover::after {
+  width: 80%;
 }
 
 .main-content {
@@ -236,6 +473,7 @@ onMounted(() => {
   z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 /* Header styles */
@@ -295,6 +533,81 @@ onMounted(() => {
   height: 3px;
   background: linear-gradient(to right, transparent, var(--bs-primary), transparent);
   margin: 0 15px;
+}
+
+/* Benefit cards */
+.benefit-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(31, 38, 135, 0.15);
+}
+
+.benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--bs-primary) 0%, #0a58ca 100%);
+  color: white;
+  font-size: 1.5rem;
+}
+
+/* Feature section */
+.feature-item {
+  padding: 1rem;
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba(13, 110, 253, 0.1);
+  color: var(--bs-primary);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.feature-visual {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+  border: 1px solid rgba(13, 110, 253, 0.1);
+}
+
+.feature-visual i {
+  font-size: 4rem;
+  color: var(--bs-primary);
+}
+
+/* About section */
+.about-section {
+  padding: 2rem 0;
+}
+
+.contact-section {
+  padding: 2rem 0;
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+}
+
+.contact-icon {
+  font-size: 3rem;
+  color: var(--bs-primary);
 }
 
 /* Tarjetas de módulos modernas */
@@ -417,7 +730,11 @@ onMounted(() => {
 /* Responsive */
 @media (max-width: 768px) {
   .modern-container {
-    padding: 1rem 0.5rem;
+    padding: 0;
+  }
+
+  .navbar-spacer {
+    height: 66px;
   }
 
   .header-section h1 {
@@ -435,6 +752,10 @@ onMounted(() => {
 
   .tech-badge-modern {
     margin-bottom: 0.5rem;
+  }
+  
+  .navbar-brand-modern {
+    font-size: 1.2rem;
   }
 }
 </style>
