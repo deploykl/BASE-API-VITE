@@ -21,6 +21,39 @@
         </div>
       </div>
 
+      <!-- Sección de Beneficios -->
+      <section class="benefits-section mb-5">
+        <div class="row text-center">
+          <div class="col-md-4 mb-4">
+            <div class="benefit-card p-4 rounded-4 h-100">
+              <div class="benefit-icon-container mb-3">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <h5>Seguridad Garantizada</h5>
+              <p class="mb-0">Protección de datos sensibles con los más altos estándares de seguridad.</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="benefit-card p-4 rounded-4 h-100">
+              <div class="benefit-icon-container mb-3">
+                <i class="bi bi-lightning-charge"></i>
+              </div>
+              <h5>Rápida Implementación</h5>
+              <p class="mb-0">Sistema intuitivo con curva de aprendizaje mínima para todos los usuarios.</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="benefit-card p-4 rounded-4 h-100">
+              <div class="benefit-icon-container mb-3">
+                <i class="bi bi-graph-up"></i>
+              </div>
+              <h5>Gestión Eficiente</h5>
+              <p class="mb-0">Optimización de procesos y recursos para una mejor administración.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Módulos principales -->
       <section class="modules-section mb-5">
         <h2 class="section-title text-center mb-4">
@@ -46,6 +79,56 @@
               </div>
               <h6 class="fw-bold mb-2">{{ module.title }}</h6>
               <p class="small text-muted mb-0">{{ module.description }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección de Características -->
+      <section class="features-section mb-5">
+        <h2 class="section-title text-center mb-4">
+          <span class="title-decoration"></span>
+          <i class="bi bi-stars me-2"></i>Características Principales
+          <span class="title-decoration"></span>
+        </h2>
+        
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="feature-item d-flex mb-4">
+              <div class="feature-icon-container me-4">
+                <i class="bi bi-cloud-check"></i>
+              </div>
+              <div>
+                <h5>Acceso en Tiempo Real</h5>
+                <p class="mb-0">Información actualizada al instante desde cualquier dispositivo.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item d-flex mb-4">
+              <div class="feature-icon-container me-4">
+                <i class="bi bi-bar-chart"></i>
+              </div>
+              <div>
+                <h5>Reportes y Estadísticas</h5>
+                <p class="mb-0">Generación de reportes detallados y análisis de datos.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item d-flex">
+              <div class="feature-icon-container me-4">
+                <i class="bi bi-people"></i>
+              </div>
+              <div>
+                <h5>Gestión de Usuarios</h5>
+                <p class="mb-0">Control de accesos y permisos personalizados por roles.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 text-center">
+            <div class="feature-visual p-4 rounded-4">
+              <i class="bi bi-laptop feature-main-icon"></i>
+              <p class="mt-3">Interfaz moderna y responsive para una experiencia de usuario optimizada</p>
             </div>
           </div>
         </div>
@@ -96,7 +179,6 @@ import sqlServerIcon from '@/assets/svg/sql_server.svg'
 import viteIcon from '@/assets/svg/vite.svg'
 import piniaIcon from '@/assets/svg/pinia.svg'
 import websocketIcon from '@/assets/svg/websocket.svg'
-
 
 const router = useRouter();
 const isAuthenticated = computed(() => {
@@ -297,6 +379,79 @@ onMounted(() => {
   margin: 0 15px;
 }
 
+/* Beneficios */
+.benefits-section {
+  padding: 2rem 0;
+}
+
+.benefit-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(31, 38, 135, 0.2);
+}
+
+.benefit-icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--bs-primary) 0%, #0a58ca 100%);
+  color: white;
+  font-size: 1.5rem;
+}
+
+/* Características */
+.features-section {
+  padding: 2rem 0;
+}
+
+.feature-item {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateX(5px);
+}
+
+.feature-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--bs-primary) 0%, #0a58ca 100%);
+  color: white;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.feature-visual {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+}
+
+.feature-main-icon {
+  font-size: 4rem;
+  color: var(--bs-primary);
+}
+
 /* Tarjetas de módulos modernas */
 .module-card-modern {
   background: rgba(255, 255, 255, 0.8);
@@ -435,6 +590,16 @@ onMounted(() => {
 
   .tech-badge-modern {
     margin-bottom: 0.5rem;
+  }
+  
+  .feature-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .feature-icon-container {
+    margin-right: 0;
+    margin-bottom: 1rem;
   }
 }
 </style>
