@@ -50,14 +50,14 @@ class ConsultaExterna(models.Model):
     )
     especialidad = models.CharField(max_length=100)
     creado_por = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="consultas_creadas"
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name="consultas_creadas"
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return (
-            f"Consulta {self.id} - {self.documento} - {self.fecha_hora_atencion.date()}"
+            f"Consulta {self.id} - {self.fecha_hora_atencion.date()}"
         )
 
     def clean(self):
