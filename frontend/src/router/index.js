@@ -28,6 +28,7 @@ const routes = [
     meta: {
       title: "DASHBOARD",
       requiresAuth: true,
+      requiredModule: null, // ← Añade esta propiedad
     },
   },
   {
@@ -72,12 +73,26 @@ const router = createRouter({
   routes,
 });
 
-// Función para verificar módulos de usuario (case-insensitive)
-const hasModuleAccess = (moduleName, userModulos) => {
-  return userModulos.some(m => m.toLowerCase() === moduleName.toLowerCase());
+// Función mejorada para verificar módulos (case-insensitive y con soporte para múltiples)
+const hasModuleAccess = (moduleNames, userModulos) => {
+  if (!moduleNames) return true;
+  
+  // Si es string, convertirlo a array
+  const modulesToCheck = typeof moduleNames === 'string' 
+    ? moduleNames.split(',').map(m => m.trim().toLowerCase())
+    : Array.isArray(moduleNames) 
+      ? moduleNames.map(m => m.toLowerCase())
+      : [];
+  
+  if (modulesToCheck.length === 0) return true;
+  
+  const userModules = userModulos.map(m => m.toLowerCase());
+  
+  // Verifica si al menos uno de los módulos existe en los módulos del usuario
+  return modulesToCheck.some(module => userModules.includes(module));
 };
 
-// Guardia global de navegación
+// Guardia global de navegación mejorada
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = localStorage.getItem('auth_token');
   const userModulos = JSON.parse(localStorage.getItem('user_modulos') || '[]');
@@ -85,7 +100,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 🔹 PRIMERO: Si la ruta es pública, NO verificar backend
   if (to.meta.public) {
-    return next(); // Continuar inmediatamente
+    return next();
   }
 
   // 🔹 SEGUNDO: Verificar salud del backend solo para rutas NO públicas
@@ -100,7 +115,7 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // 🔹 TERCERO: Lógica de autenticación y permisos
+  // 🔹 TERCERO: Lógica de autenticación
   if (to.meta.requiresAuth && !isAuthenticated) {
     localStorage.setItem('redirectAfterLogin', to.fullPath);
     return next({
@@ -113,12 +128,33 @@ router.beforeEach(async (to, from, next) => {
     return next('/dashboard');
   }
 
-  if (to.path.startsWith('/admin') && isAuthenticated && !isSuperuser) {
-    return next('/unauthorized');
-  }
-
-  if (to.path.startsWith('/user/') && isAuthenticated && !isSuperuser && !hasModuleAccess('usuarios', userModulos)) {
-    return next('/unauthorized');
+  // 🔹 CUARTO: Verificación de permisos por módulos (solo para rutas que requieren auth)
+  if (to.meta.requiresAuth && isAuthenticated) {
+    // 1. Si es superusuario, permite acceso a todo
+    if (isSuperuser) {
+      console.log('Acceso concedido: usuario superuser');
+      return next();
+    }
+    
+    // 2. Verificar si la ruta requiere módulos específicos
+    if (to.meta.requiredModule !== undefined) { // Cambiado de to.meta.requiredModule a esta verificación
+      const hasAccess = hasModuleAccess(to.meta.requiredModule, userModulos);
+      
+      if (!hasAccess) {
+        console.warn(`Acceso denegado a ${to.path}. Módulos requeridos: ${to.meta.requiredModule}. Usuario tiene: ${userModulos.join(', ') || 'ninguno'}`);
+        return next('/unauthorized');
+      }
+      
+      console.log('Acceso concedido: usuario tiene los módulos requeridos');
+    } else {
+      console.log('Acceso concedido: ruta no requiere módulos específicos');
+    }
+    
+    // 3. Verificación adicional para rutas administrativas (opcional)
+    if (to.path.startsWith('/admin') && !isSuperuser) {
+      console.warn('Acceso denegado: ruta admin requiere superuser');
+      return next('/unauthorized');
+    }
   }
 
   next();

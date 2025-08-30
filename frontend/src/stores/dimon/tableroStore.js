@@ -121,7 +121,7 @@ export const useTableroStore = defineStore("tableroStore", () => {
 
     try {
       const response = await api.post("dimon/tablero/", tableroData);
-      tableros.value.unshift(response.data);
+      //tableros.value.unshift(response.data);
       return response.data;
     } catch (err) {
       error.value = err;

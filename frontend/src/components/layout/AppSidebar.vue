@@ -164,13 +164,19 @@ const allItems = ref([
   {
     title: "DIMON",
     isHeader: true,
-    requiredModule: 'Sistemas'
+    requiredModule: 'Sistemas, Monitor'
   },
   {
-    title: 'Tableros',
+    title: 'Tableros Admin',
     icon: 'pi pi-table',
     path: '/dimon/tablero',
     requiredModule: 'Sistemas'
+  },
+   {
+    title: 'Tableros Monitor',
+    icon: 'pi pi-table',
+    path: '/dimon/tablero/list',
+    requiredModule: 'Monitor, Sistemas'
   },
   {
     title: "Reportes",
@@ -191,15 +197,24 @@ const allItems = ref([
   },
 ]);
 // Verificar si el usuario tiene acceso a un módulo específico
-const hasModuleAccess = (moduleName) => {
-  if (!moduleName) return true; // Si no requiere módulo, siempre visible
+// Verificar si el usuario tiene acceso a uno o varios módulos
+const hasModuleAccess = (moduleNames) => {
+  if (!moduleNames) return true; // Si no requiere módulo, siempre visible
   if (isSuperuser.value) return true;
-
+  
+  // Si es string, convertirlo a array
+  const modulesToCheck = typeof moduleNames === 'string' 
+    ? moduleNames.split(',').map(m => m.trim().toLowerCase())
+    : Array.isArray(moduleNames) 
+      ? moduleNames.map(m => m.toLowerCase())
+      : [];
+  
+  if (modulesToCheck.length === 0) return true;
+  
   const userModules = userModulos.value.map(m => m.toLowerCase());
-  const moduleToCheck = moduleName.toLowerCase();
-
-  // Verifica si el módulo existe en los módulos del usuario
-  return userModules.includes(moduleToCheck);
+  
+  // Verifica si al menos uno de los módulos existe en los módulos del usuario
+  return modulesToCheck.some(module => userModules.includes(module));
 }
 
 const filteredallItems = computed(() => {
@@ -382,7 +397,6 @@ watch(() => props.isCollapsed, (newVal) => {
   background: linear-gradient(135deg, #364257 0%, #2a3548 100%);
   color: white;
   transition: all 0.3s ease;
-  z-index: 1001;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-x: hidden;
   display: flex;

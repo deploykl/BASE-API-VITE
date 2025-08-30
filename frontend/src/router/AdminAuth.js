@@ -30,6 +30,8 @@ const AdminAuth = [
     meta: {
       title: "Create User",
       requiresAuth: true,
+      requiredModule: "Usuarios", // ← Añade esta propiedad
+
     },
   },
    {
