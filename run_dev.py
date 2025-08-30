@@ -1,54 +1,11 @@
-import os
-import sys
-import subprocess
-
-def main():
-    # Configura las rutas según tu estructura de proyecto
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    
-    # Intenta detectar automáticamente las rutas
-    backend_path = os.path.join(base_path, "backend")
-    frontend_path = os.path.join(base_path, "frontend")
-    
-    # Si no existen en la ubicación por defecto, pregunta al usuario
-    if not os.path.exists(backend_path):
-        backend_path = input("Ingresa la ruta completa del backend: ")
-    
-    if not os.path.exists(frontend_path):
-        frontend_path = input("Ingresa la ruta completa del frontend: ")
-    
-    # Verificar que las rutas existen
-    if not os.path.exists(backend_path):
-        print(f"Error: La ruta del backend no existe: {backend_path}")
-        return
-    
-    if not os.path.exists(frontend_path):
-        print(f"Error: La ruta del frontend no existe: {frontend_path}")
-        return
-    
-    print(f"Backend path: {backend_path}")
-    print(f"Frontend path: {frontend_path}")
-    
-    # Definir los comandos a ejecutar
-    backend_cmd = f'uvicorn config.asgi:application --reload --interface asgi3'
-    frontend_cmd = f'pnpm run dev'
-    
-    # Ejecutar en terminales separados (solución para Windows)
-    try:
-        # Abrir backend en nueva ventana de terminal
-        subprocess.Popen(f'start cmd /k "cd {backend_path} && {backend_cmd}"', shell=True)
-        
-        # Esperar un momento para que el primer terminal se abra
-        import time
-        time.sleep(2)
-        
-        # Abrir frontend en nueva ventana de terminal
-        subprocess.Popen(f'start cmd /k "cd {frontend_path} && {frontend_cmd}"', shell=True)
-        
-        print("Ambos servidores están iniciando en terminales separados...")
-        
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
+<div class='tableauPlaceholder' id='viz1756527350802' style='position: relative'><noscript><a href='#'><img alt='INICIO ' 
+src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;TA&#47;TABLERODIMONDGOS&#47;INICIO&#47;1_rss.png' 
+style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+<param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='TABLERODIMONDGOS&#47;INICIO' /><param name='tabs' value='no' />
+<param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;TA&#47;TABLERODIMONDGOS&#47;INICIO&#47;1.png' /> 
+<param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' />
+<param name='language' value='es-ES' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1756527350802');                    
+var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='1600px';vizElement.style.height='927px';                    var scriptElement = document.createElement('script');                    
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    
+vizElement.parentNode.insertBefore(scriptElement, vizElement);                
+</script>

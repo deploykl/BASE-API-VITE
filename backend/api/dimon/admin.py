@@ -16,7 +16,7 @@ class TableroAdmin(admin.ModelAdmin):
     # Campos a mostrar en el formulario de edición
     fieldsets = (
         ('Información Básica', {
-            'fields': ('name', 'url', 'description')
+            'fields': ('name', 'url', 'codigo_embed','description')
         }),
         ('Configuración Técnica', {
             'fields': ('source', 'last_updated', 'update_frequency')
@@ -31,7 +31,7 @@ class TableroAdmin(admin.ModelAdmin):
         if not obj:  # Si es creación
             return (
                 ('Información Básica', {
-                    'fields': ('name', 'url', 'description')
+                    'fields': ('name', 'url', 'codigo_embed','description')
                 }),
                 ('Configuración Técnica', {
                     'fields': ('source', 'last_updated', 'update_frequency')

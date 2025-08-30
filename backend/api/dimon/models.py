@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 class Tablero(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
     url = models.URLField(max_length=500, verbose_name="URL del Tablero")
+    codigo_embed = models.TextField()  
     description = models.TextField(blank=True, null=True, verbose_name="Descripción")
     source = models.CharField(max_length=255, verbose_name="Fuente de datos")
     last_updated = models.DateTimeField(verbose_name="Última actualización")
@@ -50,7 +51,7 @@ class ConsultaExterna(models.Model):
     )
     especialidad = models.CharField(max_length=100)
     creado_por = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name="consultas_creadas"
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="consultas_creadas"
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
