@@ -5,7 +5,7 @@
       <div class="container">
         <router-link to="/" class="navbar-brand navbar-brand-modern">
           <i class="bi bi-heart-pulse-fill me-2"></i>
-          DGOS Tools
+          HGA
         </router-link>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
@@ -16,19 +16,19 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="#" @click="scrollToSection('modules')">Módulos</a>
+              <button  class="nav-link" href="#" @click="scrollToSection('modules')">Módulos</button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#" @click="scrollToSection('benefits')">Beneficios</a>
+              <button  class="nav-link" href="#" @click="scrollToSection('benefits')">Beneficios</button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#" @click="scrollToSection('features')">Características</a>
+              <button  class="nav-link" href="#" @click="scrollToSection('features')">Características</button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#" @click="scrollToSection('about')">Nosotros</a>
+              <button  class="nav-link" href="#" @click="scrollToSection('about')">Nosotros</button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#" @click="scrollToSection('contact')">Contacto</a>
+              <button  class="nav-link" href="#" @click="scrollToSection('contact')">Contacto</button>
             </li>
           </ul>
           
@@ -632,7 +632,7 @@ onMounted(() => {
 }
 
 .module-disabled {
-  opacity: 0.6;
+  opacity: 0.6 !important;
   cursor: not-allowed;
 }
 
