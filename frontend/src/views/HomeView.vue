@@ -7,31 +7,31 @@
           <i class="bi bi-heart-pulse-fill me-2"></i>
           HGA
         </router-link>
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+          aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        
+
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <button  class="nav-link" href="#" @click="scrollToSection('modules')">Módulos</button>
+              <button class="nav-link" href="#" @click="scrollToSection('modules')">Módulos</button>
             </li>
             <li class="nav-item">
-              <button  class="nav-link" href="#" @click="scrollToSection('benefits')">Beneficios</button>
+              <button class="nav-link" href="#" @click="scrollToSection('benefits')">Beneficios</button>
             </li>
             <li class="nav-item">
-              <button  class="nav-link" href="#" @click="scrollToSection('features')">Características</button>
+              <button class="nav-link" href="#" @click="scrollToSection('features')">Características</button>
             </li>
             <li class="nav-item">
-              <button  class="nav-link" href="#" @click="scrollToSection('about')">Nosotros</button>
+              <button class="nav-link" href="#" @click="scrollToSection('about')">Nosotros</button>
             </li>
             <li class="nav-item">
-              <button  class="nav-link" href="#" @click="scrollToSection('contact')">Contacto</button>
+              <button class="nav-link" href="#" @click="scrollToSection('contact')">Contacto</button>
             </li>
           </ul>
-          
+
           <div class="d-flex">
             <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-outline-primary btn-sm me-2">
               Admin
@@ -51,13 +51,13 @@
     <div class="main-content">
       <!-- Header con logo y título -->
       <header class="header-section text-center">
-        
+
         <h1 class="display-5 fw-bold text-primary mb-2">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
         <p class="text-muted mb-4">DGOS - DIMON - DIEM</p>
       </header>
 
       <!-- Alert de novedad -->
-      <div class="alert alert-primary alert-modern d-flex align-items-center mb-5" role="alert">
+      <div class="alert-modern d-flex align-items-center mb-5" role="alert">
         <div class="alert-icon-container me-3">
           <i class="bi bi-megaphone-fill"></i>
         </div>
@@ -73,7 +73,7 @@
           <i class="bi bi-award me-2"></i>Beneficios Principales
           <span class="title-decoration"></span>
         </h2>
-        
+
         <div class="row justify-content-center g-4">
           <div class="col-md-6 col-lg-3">
             <div class="benefit-card text-center p-4 rounded-4 h-100">
@@ -84,7 +84,7 @@
               <p class="text-muted">Automatiza procesos administrativos y reduce tiempos de ejecución.</p>
             </div>
           </div>
-          
+
           <div class="col-md-6 col-lg-3">
             <div class="benefit-card text-center p-4 rounded-4 h-100">
               <div class="benefit-icon mb-3">
@@ -94,7 +94,7 @@
               <p class="text-muted">Protección avanzada para toda la información institucional.</p>
             </div>
           </div>
-          
+
           <div class="col-md-6 col-lg-3">
             <div class="benefit-card text-center p-4 rounded-4 h-100">
               <div class="benefit-icon mb-3">
@@ -104,7 +104,7 @@
               <p class="text-muted">Acceso rápido a la información y reportes en tiempo real.</p>
             </div>
           </div>
-          
+
           <div class="col-md-6 col-lg-3">
             <div class="benefit-card text-center p-4 rounded-4 h-100">
               <div class="benefit-icon mb-3">
@@ -126,7 +126,7 @@
         </h2>
 
         <div class="row justify-content-center g-4">
-          <div v-for="module in modules" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3">
+          <div v-for="module in modules" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
             <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
               :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
               @click="module.enabled ? redirectToModule(module.path) : null">
@@ -154,7 +154,7 @@
           <i class="bi bi-stars me-2"></i>Características Destacadas
           <span class="title-decoration"></span>
         </h2>
-        
+
         <div class="row align-items-center">
           <div class="col-lg-6">
             <div class="feature-item d-flex mb-4">
@@ -166,7 +166,7 @@
                 <p class="text-muted mb-0">Diseño moderno y fácil de usar que requiere mínima capacitación.</p>
               </div>
             </div>
-            
+
             <div class="feature-item d-flex mb-4">
               <div class="feature-icon me-4">
                 <i class="bi bi-check2-circle"></i>
@@ -176,7 +176,7 @@
                 <p class="text-muted mb-0">Todos los módulos conectados entre sí para un flujo de trabajo unificado.</p>
               </div>
             </div>
-            
+
             <div class="feature-item d-flex mb-4">
               <div class="feature-icon me-4">
                 <i class="bi bi-check2-circle"></i>
@@ -187,7 +187,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="col-lg-6 text-center">
             <div class="feature-visual p-4 rounded-4">
               <i class="bi bi-laptop"></i>
@@ -207,12 +207,12 @@
           <i class="bi bi-people me-2"></i>Nosotros
           <span class="title-decoration"></span>
         </h2>
-        
+
         <div class="row justify-content-center">
           <div class="col-lg-8 text-center">
             <p class="lead">
-              Somos el área de Tecnologías de la Información de la DGOS, dedicados a desarrollar 
-              soluciones innovadoras que mejoren la gestión administrativa y optimicen los procesos 
+              Somos el área de Tecnologías de la Información de la DGOS, dedicados a desarrollar
+              soluciones innovadoras que mejoren la gestión administrativa y optimicen los procesos
               institucionales.
             </p>
           </div>
@@ -226,7 +226,7 @@
           <i class="bi bi-envelope me-2"></i>Contacto
           <span class="title-decoration"></span>
         </h2>
-        
+
         <div class="row justify-content-center">
           <div class="col-lg-6">
             <div class="contact-card p-4 rounded-4 text-center">
@@ -235,45 +235,43 @@
               <p class="text-muted">Estamos aquí para ayudarte con cualquier consulta o problema técnico.</p>
               <p class="mb-0">
                 <i class="bi bi-envelope me-2"></i>
-                <a href="mailto:soporte@dgos.gob.pe">soporte@dgos.gob.pe</a>
+                <a href="mailto:soporte@dgos.gob.pe">dgos.staff@minsa.gob.pe</a>
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Botón de acceso -->
-      <div class="access-section text-center mb-5">
-        <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-primary btn-modern px-5 py-3">
-          <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
-        </button>
-        <router-link v-else to="/login" class="btn btn-primary btn-modern px-5 py-3">
-          <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Sistema
-        </router-link>
-      </div>
-
       <!-- Footer -->
-      <footer class="footer-modern text-center py-4 mt-5">
+      <footer class="footer-modern py-4 bg-light">
         <div class="container">
           <div class="row align-items-center">
-            <div class="col-lg-6 mb-3 mb-lg-0">
+
+            <!-- Texto centrado en móviles, alineado a la izquierda en pantallas grandes -->
+            <div class="col-lg-5 text-center text-lg-start mb-lg-0">
               <p class="mb-0">
                 <span class="text-muted">&copy; {{ currentYear }} - Desarrollado por</span>
                 <span class="fw-medium text-primary ms-1">área de TI de la DGOS</span>
               </p>
             </div>
-            <div class="col-lg-6">
-              <div class="d-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-2">
-                <small class="text-muted me-2">Tecnologías:</small>
-                <span v-for="(tech, index) in technologies" :key="index" class="tech-badge-modern">
-                  <img :src="tech.icon" :alt="tech.name" class="tech-icon" />
+
+            <!-- Tecnologías: centrado en móviles, alineado a la derecha en pantallas grandes -->
+            <div class="col-lg-7 text-center text-lg-end">
+              <div
+                class="d-inline-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-2">
+                <small class="text-muted">Tecnologías:</small>
+                <span v-for="(tech, index) in technologies" :key="index"
+                  class="tech-badge-modern d-flex align-items-center">
+                  <img :src="tech.icon" :alt="tech.name" class="tech-icon me-1" />
                   {{ tech.name }}
                 </span>
               </div>
             </div>
+
           </div>
         </div>
       </footer>
+
     </div>
   </div>
 </template>
@@ -418,7 +416,8 @@ onMounted(() => {
 
 /* Espaciador para navbar fijo */
 .navbar-spacer {
-  height: 76px; /* Ajusta según la altura de tu navbar */
+  height: 76px;
+  /* Ajusta según la altura de tu navbar */
 }
 
 /* Navbar styles corregidos */
@@ -497,12 +496,37 @@ onMounted(() => {
 
 /* Alert moderno */
 .alert-modern {
+  font-size: 1rem;
   border: none;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
   padding: 1rem 1.5rem;
+  align-items: center;
+  display: flex;
+  margin: 0 auto 30px auto;
+  /* Centrado horizontal con margen automático */
+  width: 60%;
+  /* Ancho definido para que el margen automático funcione */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.alert-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(31, 38, 135, 0.15);
+}
+
+.mod-perso {
+  transition: transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+}
+
+.mod-perso:hover {
+  transform: translateY(-5px);
 }
 
 .alert-icon-container {
@@ -618,6 +642,8 @@ onMounted(() => {
   cursor: pointer;
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
 }
 
 .module-card-modern:hover {
@@ -680,11 +706,14 @@ onMounted(() => {
 /* Footer moderno */
 .footer-modern {
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 24px 24px 0 0;
+  backdrop-filter: blur(1px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
   box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
 }
+
 
 .tech-badge-modern {
   padding: 0.4rem 0.8rem;
@@ -751,7 +780,7 @@ onMounted(() => {
   .tech-badge-modern {
     margin-bottom: 0.5rem;
   }
-  
+
   .navbar-brand-modern {
     font-size: 1.2rem;
   }

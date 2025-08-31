@@ -1,6 +1,6 @@
 import ConsultaExternaView from "../views/dimon/ConsultaExternaView.vue";
 import TableroListView from "../views/dimon/tablero/TableroListView.vue";
-import TableroView from "../views/dimon/TableroView.vue";
+import TableroView from "../views/dimon/tablero/TableroAdminView.vue";
 import LoginView from "../views/gore/LoginView.vue";
 
 const AdminDimon = [
