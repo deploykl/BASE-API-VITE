@@ -16,7 +16,7 @@ class UserAdmin(BaseUserAdmin):
     # Define los fieldsets para incluir el campo modulos
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Información personal', {'fields': ('first_name', 'last_name', 'email', 'image', 'genero', 'dni', 'celular', 'departamento', 'distrito')}),
+        ('Información personal', {'fields': ('first_name', 'last_name', 'email', 'image', 'genero', 'dni', 'celular')}),
         ('Permisos', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'modulos'),  # Añade modulos aquí
         }),

@@ -73,6 +73,17 @@ class Cargo(models.Model):
     def __str__(self):
         return self.nombre 
     
+class Regimen(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Cargo")
+
+    class Meta:
+        verbose_name = "Regimen"
+        verbose_name_plural = "Regimen"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre 
+    
 class GrupoOcupacional(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Grupo Ocupacional")
 
@@ -250,7 +261,13 @@ class Personal(models.Model):
         blank=True,
         verbose_name="Estado laboral"
     )
-    
+    regimen = models.ForeignKey(
+        Regimen, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Regimen"
+    )    
     generica = models.ForeignKey(
         Generica, 
         on_delete=models.SET_NULL, 
@@ -258,7 +275,6 @@ class Personal(models.Model):
         blank=True,
         verbose_name="Genérica"
     )
-    
  
     # Estado y características
     activo = models.BooleanField(default=True)

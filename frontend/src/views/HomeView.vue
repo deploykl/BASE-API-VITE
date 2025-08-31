@@ -52,7 +52,7 @@
       <!-- Header con logo y título -->
       <header class="header-section text-center">
 
-        <h1 class="display-5 fw-bold text-primary mb-2">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
+        <h1 class="display-5 fw-bold text-primary">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
         <p class="text-muted mb-4">DGOS - DIMON - DIEM</p>
       </header>
 
@@ -66,6 +66,35 @@
         </div>
       </div>
 
+      <!-- Módulos principales -->
+      <section id="modules" class="modules-section mb-5">
+        <h2 class="section-title text-center mb-4">
+          <span class="title-decoration"></span>
+          <i class="pi pi-th-large me-2"></i>Módulos Principales
+          <span class="title-decoration"></span>
+        </h2>
+
+        <div class="row justify-content-center g-4">
+          <div v-for="module in modules" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
+            <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
+              :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
+              @click="module.enabled ? redirectToModule(module.path) : null">
+
+              <!-- Badge para módulos deshabilitados -->
+              <div v-if="!module.enabled"
+                class="position-absolute top-0 start-50 translate-middle px-3 py-1 badge bg-warning coming-soon-badge">
+                Próximamente
+              </div>
+
+              <div class="module-icon-container-modern mb-3" :style="{ '--icon-color': module.color }">
+                <i :class="module.icon" class="module-icon-modern"></i>
+              </div>
+              <h6 class="fw-bold mb-2">{{ module.title }}</h6>
+              <p class="small text-muted mb-0">{{ module.description }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
       <!-- Sección de beneficios -->
       <section id="benefits" class="benefits-section mb-5">
         <h2 class="section-title text-center mb-4">
@@ -116,37 +145,6 @@
           </div>
         </div>
       </section>
-
-      <!-- Módulos principales -->
-      <section id="modules" class="modules-section mb-5">
-        <h2 class="section-title text-center mb-4">
-          <span class="title-decoration"></span>
-          <i class="pi pi-th-large me-2"></i>Módulos Principales
-          <span class="title-decoration"></span>
-        </h2>
-
-        <div class="row justify-content-center g-4">
-          <div v-for="module in modules" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
-            <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
-              :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
-              @click="module.enabled ? redirectToModule(module.path) : null">
-
-              <!-- Badge para módulos deshabilitados -->
-              <div v-if="!module.enabled"
-                class="position-absolute top-0 start-50 translate-middle px-3 py-1 badge bg-warning coming-soon-badge">
-                Próximamente
-              </div>
-
-              <div class="module-icon-container-modern mb-3" :style="{ '--icon-color': module.color }">
-                <i :class="module.icon" class="module-icon-modern"></i>
-              </div>
-              <h6 class="fw-bold mb-2">{{ module.title }}</h6>
-              <p class="small text-muted mb-0">{{ module.description }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Sección de características -->
       <section id="features" class="features-section mb-5">
         <h2 class="section-title text-center mb-4">
@@ -201,7 +199,7 @@
       </section>
 
       <!-- Sección Nosotros -->
-      <section id="about" class="about-section mb-5">
+      <section id="about" class="about-section mb-4">
         <h2 class="section-title text-center mb-4">
           <span class="title-decoration"></span>
           <i class="bi bi-people me-2"></i>Nosotros
@@ -227,7 +225,7 @@
           <span class="title-decoration"></span>
         </h2>
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center mod-perso">
           <div class="col-lg-6">
             <div class="contact-card p-4 rounded-4 text-center">
               <i class="bi bi-headset contact-icon mb-3"></i>
@@ -243,7 +241,7 @@
       </section>
 
       <!-- Footer -->
-      <footer class="footer-modern py-4 bg-light">
+      <footer class="footer-modern py-4 bg-light mod-perso">
         <div class="container">
           <div class="row align-items-center">
 
@@ -471,11 +469,6 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
-}
-
-/* Header styles */
-.header-section {
-  padding-top: 2rem;
 }
 
 .logo-container {
