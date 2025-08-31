@@ -63,12 +63,6 @@ class User(AbstractUser):
         verbose_name="Celular",
         #validators=[validate_celular],
     )
-    distrito = models.CharField(
-        max_length=20, null=True, blank=True, verbose_name="Distrito"
-    )
-    departamento = models.CharField(
-        max_length=20, null=True, blank=True, verbose_name="Departamento"
-    )
     history = HistoricalRecords(
         table_name="user_historicaluser",
         inherit=False,

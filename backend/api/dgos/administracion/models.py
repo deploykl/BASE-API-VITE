@@ -46,6 +46,13 @@ class Personal(models.Model):
         blank=True,
         verbose_name="Correo electrónico"
     )
+    celular = models.CharField(
+        max_length=9,
+        null=True,
+        blank=True,
+        verbose_name="Celular",
+        #validators=[validate_celular],
+    )
     profesion = models.CharField(max_length=50, null=True, blank=True)
     dependencia = models.ForeignKey(Dependencia, on_delete=models.CASCADE, 
         related_name="personales")    

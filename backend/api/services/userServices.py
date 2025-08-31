@@ -72,6 +72,8 @@ class PersonalAccessService:
                 user = personal.user
                 user.username = username  # Actualizar username si cambió el email
                 user.email = personal.email
+                user.dni = personal.dni  # ← Pasar DNI del personal al usuario
+                user.celular = personal.celular 
                 user.is_active = True
             else:
                 user = User.objects.create_user(
@@ -79,6 +81,8 @@ class PersonalAccessService:
                     email=personal.email,
                     first_name=personal.nombre,
                     last_name=personal.apellido,
+                    dni=personal.dni,  # ← Pasar DNI del personal al usuario
+                    celular=personal.celular,  
                     password=temp_password,
                     is_active=True
                 )
