@@ -3,6 +3,28 @@ from django.conf import settings
 
 from .Choices import MARCA_CHOICES, ESTADO_CHOICES
 
+class Anexo(models.Model):
+    number = models.IntegerField(unique=True, verbose_name="Número")  # Asegura que el nombre sea único
+
+    class Meta:
+        verbose_name = "Anexo"
+        verbose_name_plural = "Anexos"
+        ordering = ["number"]
+
+    def __str__(self):
+        return str(self.number)  # Convertir el número a cadena
+    
+class Condition(models.Model):
+    nombre = models.CharField(max_length=255, unique=True, verbose_name="Nombre")  # Asegura que el nombre sea único
+
+    class Meta:
+        verbose_name = "Condition"
+        verbose_name_plural = "Conditions"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+    
 class Dependencia(models.Model):
     nombre = models.CharField(max_length=100)
     codigo = models.CharField(max_length=10, unique=True, null=False, blank=False)
@@ -10,6 +32,72 @@ class Dependencia(models.Model):
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
     
+class Area(models.Model):
+    dependencia = models.ForeignKey(Dependencia, on_delete=models.CASCADE, related_name="areas")  # Relación uno a muchos
+    nombre = models.CharField(max_length=255, verbose_name="Nombre",unique=True )
+    class Meta:
+        verbose_name = "Area"
+        verbose_name_plural = "Areas"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+    
+class Profesion(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Profesión")
+
+    class Meta:
+        verbose_name = "Profesion"
+        verbose_name_plural = "Profesiones"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre  
+    
+class Cargo(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Cargo")
+
+    class Meta:
+        verbose_name = "Cargo"
+        verbose_name_plural = "Cargos"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre 
+    
+class GrupoOcupacional(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Grupo Ocupacional")
+
+    class Meta:
+        verbose_name = "GrupoOcupacional"
+        verbose_name_plural = "GrupoOcupacionales"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre 
+class Estado(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="nombre")
+
+    class Meta:
+        verbose_name = "Estado"
+        verbose_name_plural = "Estados"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.descripcion   
+    
+class Generica(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="nombre")
+    detalle = models.CharField(max_length=255, verbose_name="Detalle")
+
+    class Meta:
+        verbose_name = "Generica"
+        verbose_name_plural = "Genericas"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre   
+             
 class Personal(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, 
@@ -88,9 +176,75 @@ class Personal(models.Model):
     n_contrato = models.CharField(max_length=50, null=True, blank=True)
     posicion = models.CharField(max_length=100, null=True, blank=True)
     salario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Salario")
-    dependencia = models.ForeignKey(Dependencia, on_delete=models.CASCADE, 
-        related_name="personales")    
+    # Información laboral - RELACIONES AÑADIDAS
+    anexo = models.ForeignKey(
+        Anexo, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Anexo"
+    )       
+    condicion = models.ForeignKey(
+        Condition, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="condición"
+    )
+    dependencia = models.ForeignKey(
+        Dependencia, 
+        on_delete=models.SET_NULL,  # Cambiado a SET_NULL para no perder datos
+        null=True, 
+        blank=True,
+        related_name="personales",
+        verbose_name="Dependencia"
+    )    
+    area = models.ForeignKey(
+        Area, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name="personales",
+        verbose_name="Área"
+    )
+    profesion = models.ForeignKey(
+        Profesion, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Profesión"
+    )    
+    cargo = models.ForeignKey(
+        Cargo, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Cargo"
+    )
+    grupo_ocupacional = models.ForeignKey(
+        GrupoOcupacional, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Grupo Ocupacional"
+    )
+    estado = models.ForeignKey(
+        Estado, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Estado laboral"
+    )
     
+    generica = models.ForeignKey(
+        Generica, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Genérica"
+    )
+    
+ 
     # Estado y características
     activo = models.BooleanField(default=True)
     es_conductor = models.BooleanField(default=False)
