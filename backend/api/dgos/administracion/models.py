@@ -24,7 +24,16 @@ class Condition(models.Model):
 
     def __str__(self):
         return self.nombre
-    
+class Nivel(models.Model):
+    name = models.CharField(max_length=255, unique=True, verbose_name="Nombre")  # Asegura que el nombre sea único
+
+    class Meta:
+        verbose_name = "Nivel"
+        verbose_name_plural = "Nivels"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name    
 class Dependencia(models.Model):
     nombre = models.CharField(max_length=100)
     codigo = models.CharField(max_length=10, unique=True, null=False, blank=False)
@@ -190,6 +199,13 @@ class Personal(models.Model):
         null=True, 
         blank=True,
         verbose_name="condición"
+    )
+    nivel = models.ForeignKey(
+        Nivel, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Nivel"
     )
     dependencia = models.ForeignKey(
         Dependencia, 
