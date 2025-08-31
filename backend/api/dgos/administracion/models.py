@@ -19,10 +19,7 @@ class Personal(models.Model):
         related_name="personal_profile"
     )
     # Campos para control de acceso
-    acceso = models.BooleanField(
-        default=False,
-        verbose_name="Tiene acceso al sistema"
-    )
+    acceso = models.BooleanField(default=False,verbose_name="acceso al sistema")
     fecha_habilitacion_acceso = models.DateTimeField(
         null=True, 
         blank=True,
@@ -36,29 +33,68 @@ class Personal(models.Model):
         related_name="personal_habilitado",
         verbose_name="Habilitado por"
     )
+    # Datos personales
     dni = models.CharField(max_length=8,  null=False, blank=False)
-    nombre = models.CharField(max_length=50)
-    apellido = models.CharField(max_length=50)
-        # AÑADE ESTE CAMPO NUEVO
+    ruc = models.CharField(max_length=11, null=True, blank=True, verbose_name="RUC")  # Cambiado a null=True
+    nombre = models.CharField(max_length=50, verbose_name="Nombres")
+    apellido = models.CharField(max_length=50, verbose_name="Apellidos")
+    sexo = models.CharField(max_length=1, verbose_name="Sexo")        # AÑADE ESTE CAMPO NUEVO
+    fecha_nac = models.DateField(verbose_name="Fecha de nacimiento", null=True, blank=True)
+    distrito = models.CharField(max_length=100, null=True, blank=True)
+    direccion = models.CharField(max_length=250, null=True, blank=True)
+    cont_emergencia = models.CharField(max_length=250, null=True, blank=True)
+    cel_emergencia = models.CharField(
+        max_length=9,
+        null=True,
+        blank=True,
+        verbose_name="Celuklar de emergencia",
+        #validators=[validate_celular],
+    )
+    padre_madre = models.CharField(max_length=10, null=True, blank=True)
+    n_hijos = models.CharField(
+        max_length=2,
+        null=True,
+        blank=True,
+    )
+        
+    # Información de contacto
     email = models.EmailField(
         unique=True,
         null=True,
         blank=True,
-        verbose_name="Correo electrónico"
+        verbose_name="Correo institucional"
+    )
+    email_per = models.EmailField(
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name="Correo personal"
     )
     celular = models.CharField(
         max_length=9,
         null=True,
         blank=True,
         verbose_name="Celular",
-        #validators=[validate_celular],
     )
-    profesion = models.CharField(max_length=50, null=True, blank=True)
+    telefono = models.CharField(
+        max_length=10,  # Aumentado a 10 para incluir código de área
+        null=True,
+        blank=True,
+        verbose_name="Teléfono fijo",
+    )
+    # Información laboral   
+    fecha_inicio = models.DateField(verbose_name="Fecha inicio", null=True, blank=True)
+    fecha_fin = models.DateField(verbose_name="Fecha fin", null=True, blank=True)
+    n_contrato = models.CharField(max_length=50, null=True, blank=True)
+    posicion = models.CharField(max_length=100, null=True, blank=True)
+    salario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Salario")
     dependencia = models.ForeignKey(Dependencia, on_delete=models.CASCADE, 
         related_name="personales")    
+    
+    # Estado y características
     activo = models.BooleanField(default=True)
     es_conductor = models.BooleanField(default=False)
-
+    
     class Meta:
         verbose_name_plural = "Personal"
         ordering = ['apellido', 'nombre']

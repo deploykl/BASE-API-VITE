@@ -78,7 +78,7 @@ class PersonalAccessService:
             else:
                 user = User.objects.create_user(
                     username=username,
-                    email=personal.email,
+                    email=personal.email_ins,
                     first_name=personal.nombre,
                     last_name=personal.apellido,
                     dni=personal.dni,  # ← Pasar DNI del personal al usuario
