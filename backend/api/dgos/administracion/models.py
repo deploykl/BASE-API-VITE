@@ -5,7 +5,6 @@ from .Choices import MARCA_CHOICES, ESTADO_CHOICES
 
 class Anexo(models.Model):
     number = models.IntegerField(unique=True, verbose_name="Número")  # Asegura que el nombre sea único
-
     class Meta:
         verbose_name = "Anexo"
         verbose_name_plural = "Anexos"
