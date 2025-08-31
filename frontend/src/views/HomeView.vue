@@ -34,7 +34,7 @@
           
           <div class="d-flex">
             <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-outline-primary btn-sm me-2">
-              Dashboard
+              Admin
             </button>
             <router-link v-else to="/login" class="btn btn-primary btn-sm">
               Iniciar Sesión
@@ -51,9 +51,7 @@
     <div class="main-content">
       <!-- Header con logo y título -->
       <header class="header-section text-center">
-        <div class="logo-container mb-3">
-          <i class="bi bi-heart-pulse-fill logo-icon"></i>
-        </div>
+        
         <h1 class="display-5 fw-bold text-primary mb-2">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
         <p class="text-muted mb-4">DGOS - DIMON - DIEM</p>
       </header>
