@@ -33,7 +33,7 @@ class PersonalViewSet(viewsets.ModelViewSet):
     #filterset_fields = ['es_conductor', 'activo', 'dependencia'] # se filtra asi 
 
     def get_queryset(self):
-        queryset = Personal.objects.filter(activo=True)
+        queryset = Personal.objects.all()  # ← MUESTRA TODOS
         
         # Filtro para conductores (acepta true/false como string)
         es_conductor_param = self.request.query_params.get('es_conductor')

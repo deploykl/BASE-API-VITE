@@ -103,7 +103,7 @@ class Estado(models.Model):
         ordering = ["nombre"]
 
     def __str__(self):
-        return self.descripcion   
+        return self.nombre   
     
 class Generica(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="nombre")
@@ -151,7 +151,7 @@ class Personal(models.Model):
     direccion = models.CharField(max_length=250, null=True, blank=True)
     cont_emergencia = models.CharField(max_length=250, null=True, blank=True)
     cel_emergencia = models.CharField(
-        max_length=9,
+        max_length=50,
         null=True,
         blank=True,
         verbose_name="Celuklar de emergencia",
@@ -193,7 +193,6 @@ class Personal(models.Model):
     fecha_inicio = models.DateField(verbose_name="Fecha inicio", null=True, blank=True)
     fecha_fin = models.DateField(verbose_name="Fecha fin", null=True, blank=True)
     n_contrato = models.CharField(max_length=50, null=True, blank=True)
-    posicion = models.CharField(max_length=100, null=True, blank=True)
     salario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Salario")
     # Información laboral - RELACIONES AÑADIDAS
     anexo = models.ForeignKey(
@@ -281,6 +280,7 @@ class Personal(models.Model):
     es_conductor = models.BooleanField(default=False)
     
     class Meta:
+        verbose_name = "Personal"
         verbose_name_plural = "Personal"
         ordering = ['apellido', 'nombre']
 
