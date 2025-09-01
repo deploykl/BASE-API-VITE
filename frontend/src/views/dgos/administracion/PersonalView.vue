@@ -1,5 +1,130 @@
 <template>
     <div class="personal-manager">
+
+        <!-- Listado de usuarios -->
+        <DataTableWrapper :data="personalStore.personal" :columns="columns" :loading="personalStore.loading"
+            :actions="true" :showCreateButton="true" title="GESTIÓN DE PERSONAL" createButtonLabel="Nuevo Personal"
+            createButtonIcon="pi pi-user" :expandable="true" @create="openCreateModal">
+            <!-- sortField="is_active" :sortOrder="-1" para poner estado activo -->
+
+            <template #body-dni="{ data }">
+                {{ data.dni || '-' }}
+            </template>
+            <template #body-ruc="{ data }">
+                {{ data.ruc || '-' }}
+            </template>
+            <template #body-full_name="{ data }">
+                {{ data.full_name || '-' }}
+            </template>
+            <template #body-sexo="{ data }">
+                <div class="sexo-container">
+                    <span v-if="!data.sexo">-</span>
+                    <div v-else class="sexo-content">
+                        <i v-if="data.sexo === 'M'" class="pi pi-mars" style="color: #007bff;font-size: 0.7rem;margin-right: 5px;" title="Masculino"></i>
+                        <i v-else-if="data.sexo === 'F'" class="pi pi-venus" style="color: #e83e8c;font-size: 0.7rem;margin-right: 5px;"
+                            title="Femenino"></i>
+                        <span class="sexo-text">{{ data.sexo }}</span>
+                    </div>
+                </div>
+            </template>
+            <template #body-fecha_nac="{ data }">
+                <div>
+                    {{ data.fecha_nac || '-' }}
+                    <span v-if="data.edad" style="font-size:0.7rem;color: #666; margin-left: 5px;">
+                        ({{ data.edad }} años)
+                    </span>
+                </div>
+            </template>
+            <template #body-celular="{ data }">
+                <div class="celular-container">
+                    <a v-if="data.celular" :href="`https://wa.me/51${data.celular}`" target="_blank"
+                        class="whatsapp-link" title="Enviar mensaje por WhatsApp">
+                        <i class="pi pi-whatsapp" style="color: #25D366; margin-right: 5px;"></i>
+                    </a>
+                    <span class="numero">{{ data.celular || '-' }}</span>
+                </div>
+            </template>
+            <template #body-email="{ data }">
+                {{ data.email }}
+            </template>
+            <template #body-dependencia_nombre="{ data }">
+                {{ data.dependencia_nombre || '-' }}
+            </template>
+            <template #body-area_nombre="{ data }">
+                {{ data.area_nombre || '-' }}
+            </template>
+            <template #body-source="{ data }">
+                {{ data.source }}
+            </template>
+
+            <template #body-update_frequency="{ data }">
+                {{ data.update_frequency }}
+            </template>
+            <!-- Template para created_by -->
+            <template #body-created_by_username="{ data }">
+                {{ data.created_by_username ? data.created_by_username : 'Sistema' }}
+            </template>
+
+            <template #body-updated_at="{ data }">
+                {{ formatDateTime(data.updated_at) }}
+            </template>
+            <template #body-last_updated="{ data }">
+                {{ formatDateTime(data.last_updated) }}
+            </template>
+            <!-- Template para is_active -->
+            <template #body-is_active="{ data }">
+                <div class="d-flex flex-column align-items-center">
+                    <ToggleSwitch v-model="data.is_active"
+                        @change="personalStore.togglepersonaltatus(data.id, data.is_active)" class="mb-1" />
+                    <span class="badge custom-badge" :class="data.is_active ? 'bg-success' : 'bg-danger'">
+                        {{ data.is_active ? 'Activo' : 'Inactivo' }}
+                    </span>
+                </div>
+            </template>
+
+
+            <template #actions="{ data }">
+                <div class="d-flex gap-1">
+                    <!-- Botón Editar -->
+                    <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
+                        v-tooltip.top="'Editar'" @click="openEditModal(data)" />
+
+                    <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
+                        v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
+                </div>
+            </template>
+
+
+            <!-- Template de expansión personalizado -->
+            <template #expansion="{ data }">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nombre completo:</strong> {{ data.full_name || '-' }}</p>
+                        <p><strong>Email:</strong> {{ data.email }}</p>
+                        <p><strong>DNI:</strong> {{ data.dni || '-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Celular:</strong> {{ data.celular || '-' }}</p>
+                        <p><strong>Creado por:</strong> {{ data.created_by?.username || 'Sistema' }}</p>
+                        <p><strong>Estado:</strong>
+                            <Tag :value="data.is_active ? 'Activo' : 'Inactivo'"
+                                :severity="data.is_active ? 'success' : 'danger'" />
+                        </p>
+                        <p><strong>is_superuser:</strong> {{ data.is_superuser || '-' }}</p>
+
+                    </div>
+                </div>
+
+                <div class="mt-3" v-if="data.groups?.length">
+                    <h6>Grupos asignados:</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <Tag v-for="group in data.groups" :key="group.id" :value="group.name" severity="info" />
+                    </div>
+                </div>
+            </template>
+
+        </DataTableWrapper>
+
         <div class="header">
             <h2>Gestión de Personal</h2>
             <button @click="fetchPersonal" class="btn btn-primary">
@@ -90,7 +215,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modulosModalLabel">
-                            {{ modalMode === 'habilitar' ? 'Habilitar acceso' : 'Editar módulos' }} 
+                            {{ modalMode === 'habilitar' ? 'Habilitar acceso' : 'Editar módulos' }}
                             para {{ selectedPerson?.nombre }} {{ selectedPerson?.apellido }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -99,13 +224,8 @@
                         <div class="modulos-selection">
                             <h6>Seleccionar módulos:</h6>
                             <div v-for="modulo in modulos" :key="modulo.id" class="form-check">
-                                <input 
-                                    class="form-check-input" 
-                                    type="checkbox" 
-                                    :id="'modulo-' + modulo.id" 
-                                    :value="modulo.id" 
-                                    v-model="selectedModulos"
-                                >
+                                <input class="form-check-input" type="checkbox" :id="'modulo-' + modulo.id"
+                                    :value="modulo.id" v-model="selectedModulos">
                                 <label class="form-check-label" :for="'modulo-' + modulo.id">
                                     {{ modulo.name || modulo.codename }} - {{ modulo.description }}
                                 </label>
@@ -114,13 +234,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button 
-                            type="button" 
-                            class="btn btn-primary" 
-                            @click="confirmarAccionModulos" 
-                            :disabled="loading || selectedModulos.length === 0"
-                        >
-                            <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <button type="button" class="btn btn-primary" @click="confirmarAccionModulos"
+                            :disabled="loading || selectedModulos.length === 0">
+                            <span v-if="loading" class="spinner-border spinner-border-sm" role="status"
+                                aria-hidden="true"></span>
                             {{ modalMode === 'habilitar' ? 'Habilitar' : 'Actualizar' }}
                         </button>
                     </div>
@@ -155,9 +272,173 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
+import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
+import { usePersonalStore } from '@/stores/dgos/personalStore';
+import FloatInput from '@/components/widgets/FloatInput.vue';
+
 import { useRouter } from 'vue-router'
 import { api } from "@/components/services/Axios"
 import { Modal, Toast } from 'bootstrap'
+
+const personalStore = usePersonalStore();
+const errors = ref({});
+const showModal = ref(false);
+const showDeleteModal = ref(false);
+const editing = ref(false);
+const isSubmitting = ref(false);
+const selectedDependencia = ref(null);
+
+// Definimos la estructura del formulario como constante
+const FORM_STATE = {
+    dni: '',
+    ruc: '',
+    nombre: '',
+    apellido: '',
+    email: '',
+    dependencia: '',
+    area: '',
+    fecha_nac: '',
+    fecha_inicio: '',
+    salario: '',
+    sexo: '',
+};
+// Usamos la estructura para el formulario reactivo
+const form = ref({ ...FORM_STATE });
+
+const columns = ref([
+    { field: 'dni', header: 'DNI', bodyTemplate: true, filter: false },
+    { field: 'ruc', header: 'RUC', bodyTemplate: true, filter: false },
+    { field: 'full_name', header: 'NOMBRE COMPLETO', sortable: true, bodyTemplate: true, filter: false },
+    { field: 'sexo', header: 'SEXO', sortable: true, bodyTemplate: true, filter: false },
+    { field: 'fecha_nac', header: 'F.NACIMIENTO', sortable: true, bodyTemplate: true, filter: false },
+    { field: 'celular', header: 'CELULAR', sortable: false, bodyTemplate: true, filter: false },
+    { field: 'email', header: 'EMAIL', sortable: false, bodyTemplate: true, filter: false },
+    {
+        field: 'dependencia_nombre', header: 'DEPENDENCIA', sortable: true, bodyTemplate: true, filter: true, filterOptions: computed(() =>
+            personalStore.personal.map(u => u.dependencia_nombre).filter((v, i, a) => a.indexOf(v) === i)
+        )
+    },
+    {
+        field: 'area_nombre', header: 'AREA', sortable: true, bodyTemplate: true, filter: true, filterOptions: computed(() =>
+            personalStore.personal.map(u => u.area_nombre).filter((v, i, a) => a.indexOf(v) === i)
+        )
+    },
+]);
+
+// Métodos
+const resetForm = () => {
+    form.value = { ...FORM_STATE };
+    resetPassword.value = false;
+    errors.value = {};
+};
+
+const openCreateModal = () => {
+    resetForm();
+    editing.value = false;
+    showModal.value = true;
+};
+const closeModal = () => {
+    showModal.value = false;
+    resetForm();
+};
+
+const confirmDelete = (user) => {
+    tableroToDelete.value = user;
+    showDeleteModal.value = true;
+};
+const closeDeleteModal = () => {
+    try {
+        showDeleteModal.value = false;
+        // Pequeño delay para la animación antes de resetear
+        setTimeout(() => {
+            tableroToDelete.value = null;
+        }, 300);
+    } catch (error) {
+        console.error("Error al cerrar modal:", error);
+    }
+};
+const openEditModal = async (tablero) => {
+    editing.value = true;
+    tableroToEdit.value = tablero;
+
+    // Resetear formulario manteniendo la reactividad
+    Object.assign(form.value, FORM_STATE);
+
+    // Asignar valores del tablero, normalizando la frecuencia
+    const normalizedFrequency = frequencyOptions.value.find(
+        opt => opt.value.toLowerCase() === tablero.update_frequency?.toLowerCase()
+    )?.value || tablero.update_frequency;
+
+    form.value = {
+        ...form.value,
+        ...tablero,
+        update_frequency: normalizedFrequency, // Usar el valor normalizado
+        last_updated: tablero.last_updated ? new Date(tablero.last_updated) : null
+    };
+
+    // Esperar a que el modal y los componentes estén renderizados
+    await nextTick();
+    showModal.value = true;
+
+};
+
+// Inicialización
+onMounted(async () => {
+    try {
+        personalStore.loading = true;
+        await personalStore.ListPersonal();
+    } catch (error) {
+    } finally {
+        personalStore.loading = false;
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const router = useRouter()
 
@@ -257,7 +538,7 @@ const openModalHabilitar = (person) => {
     selectedPerson.value = person
     selectedModulos.value = []
     modalMode.value = 'habilitar'
-    
+
     nextTick(() => {
         const modalElement = document.getElementById('modulosModal')
         const modal = new Modal(modalElement)
@@ -268,14 +549,14 @@ const openModalHabilitar = (person) => {
 const openModalEditarModulos = (person) => {
     selectedPerson.value = person
     modalMode.value = 'editar'
-    
+
     // Pre-seleccionar los módulos actuales del usuario
     if (person.user && person.user.modulos) {
         selectedModulos.value = person.user.modulos.map(modulo => modulo.id)
     } else {
         selectedModulos.value = []
     }
-    
+
     nextTick(() => {
         const modalElement = document.getElementById('modulosModal')
         const modal = new Modal(modalElement)
@@ -302,11 +583,11 @@ const confirmarAccionModulos = async () => {
                 { modulos: selectedModulos.value }
             )
         }
-        
+
         if (response.data.success) {
             showMessage(response.data.message, 'success')
             await fetchPersonal() // Recargar datos
-            
+
             // Cerrar el modal
             const modalElement = document.getElementById('modulosModal')
             const modal = Modal.getInstance(modalElement)

@@ -1,5 +1,5 @@
 import ComisionView from "../views/dgos/administracion/ComisionView.vue";
-import PersonalManager from "../views/dgos/administracion/PersonalManager.vue";
+import PersonalView from "../views/dgos/administracion/PersonalView.vue";
 
 const AdminDgos = [
   {
@@ -14,7 +14,7 @@ const AdminDgos = [
   {
     path: "/dgos/personal",
     name: "Personal",
-    component: PersonalManager,
+    component: PersonalView,
     meta: {
       title: "PERSONAL",
       requiresAuth: true,

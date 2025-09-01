@@ -1,6 +1,7 @@
 from rest_framework import serializers
-
+from drf_spectacular.utils import extend_schema_field
 from api.user.serializers import ModuloSerializer, UserSerializer
+from datetime import date
 from .models import Dependencia, Personal, Vehiculo, Comision
 
 class DependenciaSerializer(serializers.ModelSerializer):
@@ -10,8 +11,11 @@ class DependenciaSerializer(serializers.ModelSerializer):
 
 class PersonalSerializer(serializers.ModelSerializer):
     dependencia_nombre = serializers.CharField(source='dependencia.nombre', read_only=True)
+    area_nombre = serializers.CharField(source='area.nombre', read_only=True)
     user = UserSerializer(read_only=True)
     modulos = serializers.SerializerMethodField() 
+    full_name = serializers.SerializerMethodField()  # ← AÑADE ESTE CAMPO
+    edad = serializers.SerializerMethodField()  # ← Nuevo campo para la edad
     class Meta:
         model = Personal
         fields = '__all__'
@@ -20,12 +24,30 @@ class PersonalSerializer(serializers.ModelSerializer):
             'nombre': {'required': True},
             'apellido': {'required': True}
         }
-
+        
+    @extend_schema_field(str)
+    def get_full_name(self, obj) -> str:
+        return f"{obj.nombre} {obj.apellido}".strip() or "-"
+    
     def get_modulos(self, obj):
         if obj.user:
             return ModuloSerializer(obj.user.modulos.all(), many=True).data
         return []
-           
+    
+    @extend_schema_field(int)
+    def get_edad(self, obj) -> int:
+        """Calcula la edad a partir de la fecha de nacimiento"""
+        if not obj.fecha_nac:
+            return None
+        
+        today = date.today()
+        age = today.year - obj.fecha_nac.year
+        
+        # Verificar si ya pasó el cumpleaños este año
+        if (today.month, today.day) < (obj.fecha_nac.month, obj.fecha_nac.day):
+            age -= 1
+            
+        return age           
 class VehiculoSerializer(serializers.ModelSerializer):
     estado_display = serializers.CharField(source='get_estado_display', read_only=True)
     marca_display = serializers.CharField(source='get_marca_display', read_only=True)
