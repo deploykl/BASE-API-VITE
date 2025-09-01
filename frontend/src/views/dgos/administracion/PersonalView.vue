@@ -212,9 +212,9 @@
             <template #actions="{ data }">
                 <div class="d-flex flex-wrap align-items-center justify-content-center gap-1">
                     <!-- Botón Habilitar/Editar Módulos (solo para superusuarios) -->
-                    <Button v-if="isSuperuser && !data.acceso && data.email" icon="pi pi-check"
-                        class="p-button-sm p-button-outlined p-button-rounded p-button-success"
-                        v-tooltip.top="'Habilitar acceso'" @click="openModalHabilitar(data)" />
+                    <Button v-if="isSuperuser && !data.acceso && data.email" icon="pi pi-key"
+                        class="p-button-sm p-button-rounded p-button-primary" v-tooltip.top="'Habilitar acceso'"
+                        @click="openModalHabilitar(data)" />
 
                     <Button v-if="isSuperuser && data.acceso" icon="pi pi-cog"
                         class="p-button-sm p-button-outlined p-button-rounded p-button-secondary"
@@ -260,7 +260,7 @@
                                         <div class="field mb-1">
                                             <label class="text-600 small fw-medium">Fecha Inicio</label>
                                             <p class="m-0 text-900 fw-medium">{{ data.fecha_inicio || '-' }}</p>
-    <small class="m-0 text-500 fw-medium time-with-underline">
+                                            <small class="m-0 text-500 fw-medium time-with-underline">
                                                 ({{ calculateTimeWorked(data.fecha_inicio) }})
                                             </small>
 
@@ -307,7 +307,8 @@
                                         </div>
                                         <div class="field mb-1">
                                             <label class="text-600 small fw-medium">Grupo Ocupacional</label>
-                                            <p class="m-0 text-900 fw-medium">{{ data.grupoo_cupacional_nombre || '-' }}</p>
+                                            <p class="m-0 text-900 fw-medium">{{ data.grupoo_cupacional_nombre || '-' }}
+                                            </p>
                                         </div>
                                         <div class="field mb-1">
                                             <label class="text-600 small fw-medium">Genérica</label>
@@ -387,18 +388,18 @@
                                     <label class="text-600 small fw-medium">Creado por</label>
                                     <p class="m-0 text-900 fw-medium">{{ data.created_by_username || '-' }}</p>
                                 </div>
-                                <div class="field mb-1">
-                                    <label class="text-600 small fw-medium">Habilitado por</label>
-                                    <p class="m-0 text-900 fw-medium">{{ data.habilitado_por || '-' }}</p>
-                                </div>
-                                <div class="field mb-1">
-                                    <label class="text-600 small fw-medium">Acceso</label>
-                                    <p class="m-0 text-900 fw-medium">{{ data.fecha_habilitacion_acceso || '-' }}</p>
-                                </div>
-                                <div class="field mb-1">
-                                    <label class="text-600 small fw-medium">Creado por</label>
-                                    <p class="m-0 text-900 fw-medium">{{ data.created_by_username || '-' }}</p>
-                                </div>
+                                <!-- Campos que solo verá el superusuario -->
+                                <template v-if="isSuperuser">
+                                    <div class="field mb-1">
+                                        <label class="text-600 small fw-medium">Habilitado por</label>
+                                        <p class="m-0 text-900 fw-medium">{{ data.habilitado_por || '-' }}</p>
+                                    </div>
+                                    <div class="field mb-1">
+                                        <label class="text-600 small fw-medium">Acceso</label>
+                                        <p class="m-0 text-900 fw-medium">{{ data.fecha_habilitacion_acceso || '-' }}
+                                        </p>
+                                    </div>
+                                </template>
 
                             </div>
                         </div>
@@ -813,6 +814,7 @@ onMounted(async () => {
         margin-bottom: 0;
     }
 }
+
 .time-with-underline {
     font-size: 0.7rem;
     border-bottom: 1.5px solid #3B82F6;
@@ -822,7 +824,8 @@ onMounted(async () => {
 }
 
 .time-with-underline:hover {
-    border-bottom: 2px solid #2563EB; /* Azul más oscuro al pasar el mouse */
+    border-bottom: 2px solid #2563EB;
+    /* Azul más oscuro al pasar el mouse */
     color: #2563EB !important;
 }
 </style>
