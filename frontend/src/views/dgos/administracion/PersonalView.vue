@@ -14,7 +14,11 @@
                                 <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card"
                                     :errors="errors" :invalid="!!errors.dni" size="small" />
                             </div>
-
+                            <!-- RUC -->
+                            <div class="mb-3">
+                                <FloatInput id="ruc" label="RUC" v-model="form.ruc" icon="pi pi-id-card"
+                                    :errors="errors" :invalid="!!errors.ruc" size="small" />
+                            </div>
                             <!-- Nombre -->
                             <div class="mb-3">
                                 <FloatInput id="nombre" label="Nombre" v-model="form.nombre" icon="pi pi-user"
@@ -30,12 +34,17 @@
 
                             <!-- Dependencia -->
                             <div class="mb-3">
-                                <FloatInput id="dependencia" label="Dependencia" v-model="form.dependencia"
-                                    icon="pi pi-building" :invalid="!!errors.dependencia" :errors="errors"
-                                    size="small" />
+                                <label for="dependencia" class="form-label">Dependencia</label>
+                                <Dropdown id="dependencia" v-model="form.dependencia" :options="dependenciasOptions"
+                                    optionLabel="nombre" optionValue="id" placeholder="Seleccionar dependencia"
+                                    :class="{ 'p-invalid': !!errors.dependencia }" class="w-100" :filter="true"
+                                    filterPlaceholder="Buscar dependencia..." />
+                                <small v-if="errors.dependencia" class="p-error">
+                                    {{ errors.dependencia[0] }}
+                                </small>
                             </div>
+                            <!-- Dependencia -->
                         </div>
-
                         <!-- Columna Derecha -->
                         <div class="col-md-6">
                             <!-- Apellido -->
@@ -50,11 +59,31 @@
                                     :invalid="!!errors.celular" :errors="errors" size="small" />
                             </div>
 
-                            <!-- Área -->
-                            <div class="mb-3">
-                                <FloatInput id="area" label="Área" v-model="form.area" icon="pi pi-briefcase"
-                                    :invalid="!!errors.area" :errors="errors" size="small" />
-                            </div>
+                            
+<!-- Área (dependiente de la dependencia) -->
+    <!-- Área (dependiente de la dependencia) - MANTÉN ESTE -->
+    <div class="mb-3">
+        <label for="area" class="form-label">Área</label>
+        <Dropdown 
+            id="area"
+            v-model="form.area" 
+            :options="areasOptions"
+            optionLabel="nombre" 
+            optionValue="id"
+            placeholder="Seleccionar área"
+            :disabled="!form.dependencia"
+            :class="{ 'p-invalid': !!errors.area }"
+            class="w-100"
+            :filter="true"
+            filterPlaceholder="Buscar área..."
+        />
+        <small v-if="errors.area" class="p-error">
+            {{ errors.area[0] }}
+        </small>
+        <small v-if="!form.dependencia" class="text-muted">
+            Primero seleccione una dependencia
+        </small>
+    </div>
 
                             <!-- Fecha de nacimiento -->
                             <div class="mb-3">
@@ -426,7 +455,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
 import { usePersonalStore } from '@/stores/dgos/personalStore';
 import FloatInput from '@/components/widgets/FloatInput.vue';
@@ -456,6 +485,8 @@ const selectedModulos = ref([]);
 const modalMode = ref('habilitar');
 const message = ref('');
 const messageType = ref('info');
+const dependenciasOptions = ref([]);
+const areasOptions = ref([]);
 
 // Computed para opciones de filtro
 const dependenciaOptions = computed(() => {
@@ -559,21 +590,46 @@ const closeDeleteModal = () => {
 };
 
 const openEditModal = async (personal) => {
-    editing.value = true;
-    personalToEdit.value = personal;
+  editing.value = true;
+  personalToEdit.value = personal;
 
-    // Resetear formulario manteniendo la reactividad
-    Object.assign(form.value, FORM_STATE);
+  // Resetear formulario
+  Object.assign(form.value, FORM_STATE);
 
-    // Llenar el formulario con los datos del personal
-    form.value = {
-        ...form.value,
-        ...personal,
-    };
+  // Llenar el formulario con los datos del personal
+  form.value = {
+    ...form.value,
+    ...personal,
+  };
 
-    showModal.value = true;
+  // Obtener el ID de la dependencia (puede ser un objeto o un ID)
+  const dependenciaId = personal.dependencia?.id || personal.dependencia;
+  
+  if (dependenciaId) {
+    try {
+      console.log('Cargando áreas para dependencia ID:', dependenciaId);
+      const areasData = await personalStore.ListAreasByDependencia(dependenciaId);
+      console.log('Áreas cargadas:', areasData);
+      areasOptions.value = areasData;
+      
+      // Usar nextTick para esperar a que el dropdown se actualice
+      nextTick(() => {
+        const areaId = personal.area?.id || personal.area;
+        if (areaId && areasData.some(area => area.id === areaId)) {
+          console.log('Estableciendo área después de nextTick:', areaId);
+          form.value.area = areaId;
+        }
+      });
+    } catch (error) {
+      console.error('Error loading areas for edit:', error);
+      areasOptions.value = [];
+    }
+  } else {
+    areasOptions.value = [];
+  }
+
+  showModal.value = true;
 };
-
 const proceedDelete = async () => {
     isDeleting.value = true;
     try {
@@ -683,10 +739,40 @@ onMounted(async () => {
     try {
         await personalStore.ListPersonal();
         await personalStore.ListModulos();
+
+        // Cargar dependencias
+        const dependenciasData = await personalStore.ListDependencias();
+        dependenciasOptions.value = dependenciasData;
     } catch (error) {
         console.error('Error loading data:', error);
     }
 });
+// Watcher para cuando cambie la dependencia seleccionada
+watch(() => form.value.dependencia, async (newDependencia) => {
+  // Obtener el ID (puede ser un objeto o un ID directo)
+  const dependenciaId = newDependencia?.id || newDependencia;
+  
+  console.log('Dependencia cambiada:', dependenciaId);
+  
+  if (dependenciaId) {
+    try {
+      // Cargar áreas filtradas por dependencia
+      const areasData = await personalStore.ListAreasByDependencia(dependenciaId);
+      console.log('Áreas cargadas para dependencia:', areasData);
+      areasOptions.value = areasData;
+    } catch (error) {
+      console.error('Error loading areas:', error);
+      areasOptions.value = [];
+    }
+  } else {
+    console.log('No hay dependencia seleccionada, limpiando áreas');
+    areasOptions.value = [];
+  }
+
+  // Resetear el área seleccionada cuando cambia la dependencia
+  form.value.area = '';
+});
+
 </script>
 
 <style scoped>

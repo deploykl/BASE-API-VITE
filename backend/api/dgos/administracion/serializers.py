@@ -2,13 +2,17 @@ from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from api.user.serializers import ModuloSerializer, UserSerializer
 from datetime import date
-from .models import Dependencia, Personal, Vehiculo, Comision
+from .models import Dependencia, Personal, Vehiculo, Comision, Area
 
 class DependenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependencia
         fields = '__all__'
-
+class AreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Area
+        fields = '__all__'
+        
 class PersonalSerializer(serializers.ModelSerializer):
     dependencia_nombre = serializers.CharField(source='dependencia.nombre', read_only=True)
     area_nombre = serializers.CharField(source='area.nombre', read_only=True)

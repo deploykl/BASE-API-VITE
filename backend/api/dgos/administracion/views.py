@@ -22,6 +22,15 @@ class DependenciaViewSet(viewsets.ModelViewSet):
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     
+class AreaViewSet(viewsets.ModelViewSet):
+    queryset = Area.objects.all() 
+    serializer_class = AreaSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    filterset_fields = ['dependencia']  # ← AÑADE ESTA LÍNEA
+
 # Create your views here.
 class PersonalViewSet(viewsets.ModelViewSet):
     queryset = Personal.objects.all()  # Añade esta línea
