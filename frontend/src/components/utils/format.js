@@ -1,7 +1,3 @@
-import { useCustomToast } from "@/components/utils/toast";
-import { watch } from 'vue';
-
-
 export const copyToClipboard = async (text, showToast = true, toast = null) => {
   try {
     await navigator.clipboard.writeText(text);
@@ -74,4 +70,48 @@ export const formatCurrency = (value, currency = 'PEN') => {
 export const parseCurrency = (value) => {
   const numberValue = parseFloat(value.replace(/[^0-9.-]+/g, ""));
   return isNaN(numberValue) ? 0 : numberValue;
+};
+
+export const calculateTimeWorked = (startDate) => {
+  if (!startDate) return '-';
+  
+  try {
+    const start = new Date(startDate);
+    const now = new Date();
+    
+    if (start > now) return 'Fecha futura';
+    
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+    let days = now.getDate() - start.getDate();
+    
+    // Ajustar meses negativos
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    // Ajustar días negativos
+    if (days < 0) {
+      months--;
+      // Obtener los días del mes anterior
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 0);
+      days += lastMonth.getDate();
+      
+      // Si meses se volvió negativo
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+    }
+    
+    let result = '';
+    if (years > 0) result += `${years} año${years !== 1 ? 's' : ''} `;
+    if (months > 0) result += `${months} mes${months !== 1 ? 'es' : ''} `;
+    if (days > 0 || result === '') result += `${days} día${days !== 1 ? 's' : ''}`;
+    
+    return result.trim();
+  } catch (error) {
+    return '-';
+  }
 };

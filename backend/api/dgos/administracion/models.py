@@ -140,6 +140,11 @@ class Personal(models.Model):
         related_name="personal_habilitado",
         verbose_name="Habilitado por"
     )
+    created_by = models.ForeignKey(
+    settings.AUTH_USER_MODEL, 
+    on_delete=models.PROTECT,
+    verbose_name="Creado por"
+)
     # Datos personales
     dni = models.CharField(max_length=8,  null=False, blank=False)
     ruc = models.CharField(max_length=11, null=True, blank=True, verbose_name="RUC")  # Cambiado a null=True

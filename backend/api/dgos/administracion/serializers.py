@@ -12,10 +12,22 @@ class DependenciaSerializer(serializers.ModelSerializer):
 class PersonalSerializer(serializers.ModelSerializer):
     dependencia_nombre = serializers.CharField(source='dependencia.nombre', read_only=True)
     area_nombre = serializers.CharField(source='area.nombre', read_only=True)
+    anexo_number = serializers.CharField(source='anexo.number', read_only=True)
+    condicion_nombre = serializers.CharField(source='condicion.nombre', read_only=True)
+    nivel_name = serializers.CharField(source='nivel.name', read_only=True)
+    profesion_nombre = serializers.CharField(source='profesion.nombre', read_only=True)
+    cargo_nombre = serializers.CharField(source='cargo.nombre', read_only=True)
+    regimen_nombre = serializers.CharField(source='regimen.nombre', read_only=True)
+    grupoo_cupacional_nombre = serializers.CharField(source='grupo_ocupacional.nombre', read_only=True)
+    estado_nombre = serializers.CharField(source='estado.nombre', read_only=True)
+    generica_nombre = serializers.CharField(source='generica.nombre', read_only=True)
+
     user = UserSerializer(read_only=True)
     modulos = serializers.SerializerMethodField() 
     full_name = serializers.SerializerMethodField()  # ← AÑADE ESTE CAMPO
     edad = serializers.SerializerMethodField()  # ← Nuevo campo para la edad
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    
     class Meta:
         model = Personal
         fields = '__all__'
@@ -24,7 +36,7 @@ class PersonalSerializer(serializers.ModelSerializer):
             'nombre': {'required': True},
             'apellido': {'required': True}
         }
-        
+    read_only_fields = ['created_by']
     @extend_schema_field(str)
     def get_full_name(self, obj) -> str:
         return f"{obj.nombre} {obj.apellido}".strip() or "-"

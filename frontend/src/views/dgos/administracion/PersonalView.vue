@@ -4,7 +4,6 @@
         <ModalBase :visible="showModal" :mode="editing ? 'edit' : 'create'" entityName="personal"
             :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeModal"
             @confirm="handleSubmit">
-
             <template #content>
                 <form @submit.prevent="handleSubmit" class="needs-validation" novalidate>
                     <div class="row g-3">
@@ -240,100 +239,172 @@
                 </div>
             </template>
 
-<template #expansion="{ data }">
-  <div class="expansion-content p-4">
-    <div class="row">
-      <!-- Columna 1: Información personal -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div class="expansion-card p-3 h-100">
-          <div class="d-flex align-items-center mb-3">
-            <i class="pi pi-user text-primary me-2" style="font-size: 1.35rem;"></i>
-            <h6 class="m-0 text-900 fw-semibold">Información Personal</h6>
-          </div>
-          <div class="field mb-3">
-            <label class="text-600 small fw-medium">Nombre completo</label>
-            <p class="m-0 text-900 fw-medium">{{ data.full_name || '-' }}</p>
-          </div>
-          <div class="field mb-3">
-            <label class="text-600 small fw-medium">Email</label>
-            <p class="m-0 text-900 fw-medium">{{ data.email }}</p>
-          </div>
-          <div class="field">
-            <label class="text-600 small fw-medium">DNI</label>
-            <p class="m-0 text-900 fw-medium">{{ data.dni || '-' }}</p>
-          </div>
-        </div>
-      </div>
+            <template #expansion="{ data }">
+                <div class="expansion-content p-4">
+                    <div class="row">
+                        <!-- Columna 1:  Información Laboral -->
+                        <div class="col-5">
+                            <div class="expansion-card p-3 h-100">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="pi pi-user text-primary me-2" style="font-size: 1.35rem;"></i>
+                                    <h6 class="m-0 text-900 fw-semibold">Información Laboral</h6>
+                                </div>
 
-      <!-- Columna 2: Contacto y estado -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div class="expansion-card p-3 h-100">
-          <div class="d-flex align-items-center mb-3">
-            <i class="pi pi-phone text-primary me-2" style="font-size: 1.35rem;"></i>
-            <h6 class="m-0 text-900 fw-semibold">Contacto</h6>
-          </div>
-          <div class="field mb-3">
-            <label class="text-600 small fw-medium">Celular</label>
-            <div class="d-flex align-items-center">
-              <a v-if="data.celular" :href="`https://wa.me/51${data.celular}`" target="_blank"
-                class="me-2 text-success">
-                <i class="pi pi-whatsapp"></i>
-              </a>
-              <p class="m-0 text-900 fw-medium">{{ data.celular || '-' }}</p>
-            </div>
-          </div>
-          <div class="field">
-            <label class="text-600 small fw-medium">Estado</label>
-            <Tag :value="data.is_active ? 'Activo' : 'Inactivo'"
-                 :severity="data.is_active ? 'success' : 'danger'" 
-                 class="custom-tag" />
-          </div>
-        </div>
-      </div>
+                                <div class="row">
+                                    <!-- Columna 1: Información básica del contrato -->
+                                    <div class="col-12 col-md-4">
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">N° Contrato</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.n_contrato || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Fecha Inicio</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.fecha_inicio || '-' }}</p>
+    <small class="m-0 text-500 fw-medium time-with-underline">
+                                                ({{ calculateTimeWorked(data.fecha_inicio) }})
+                                            </small>
 
-      <!-- Columna 3: Información del sistema -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div class="expansion-card p-3 h-100">
-          <div class="d-flex align-items-center mb-3">
-            <i class="pi pi-cog text-primary me-2" style="font-size: 1.35rem;"></i>
-            <h6 class="m-0 text-900 fw-semibold">Sistema</h6>
-          </div>
-          <div class="field mb-3">
-            <label class="text-600 small fw-medium">Creado por</label>
-            <p class="m-0 text-900 fw-medium">{{ data.created_by?.username || 'Sistema' }}</p>
-          </div>
-          <div class="field">
-            <label class="text-600 small fw-medium">Superusuario</label>
-            <Tag :value="data.is_superuser ? 'Sí' : 'No'" 
-                 :severity="data.is_superuser ? 'warning' : 'secondary'"
-                 class="custom-tag" />
-          </div>
-        </div>
-      </div>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Fecha Fin</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.fecha_fin || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Salario</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.salario || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Anexo</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.anexo || '-' }}</p>
+                                        </div>
+                                    </div>
 
-      <!-- Columna 4: Grupos -->
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div class="expansion-card p-3 h-100">
-          <div class="d-flex align-items-center mb-3">
-            <i class="pi pi-users text-primary me-2" style="font-size: 1.35rem;"></i>
-            <h6 class="m-0 text-900 fw-semibold">Grupos</h6>
-          </div>
-          <div v-if="data.groups?.length" class="field">
-            <label class="text-600 small fw-medium mb-2">Grupos asignados</label>
-            <div class="d-flex flex-wrap gap-1">
-              <Chip v-for="group in data.groups" :key="group.id" 
-                    :label="group.name" 
-                    class="custom-chip" />
-            </div>
-          </div>
-          <div v-else class="field">
-            <p class="text-600 small m-0">No tiene grupos asignados</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+                                    <!-- Columna 2: Información de puesto y categoría -->
+                                    <div class="col-12 col-md-4">
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Cargo</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.cargo_nombre || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Condición</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.condicion_nombre || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Estado</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.estado_nombre || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Régimen</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.regimen_nombre || '-' }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Columna 3: Información de clasificación laboral -->
+                                    <div class="col-12 col-md-4">
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Nivel</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.nivel_name || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Grupo Ocupacional</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.grupoo_cupacional_nombre || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Genérica</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.generica_nombre || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Profesión</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.profesion_nombre || '-' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna 2: Información del sistema -->
+                        <div class="col-12 col-md-5 col-lg-5">
+                            <div class="expansion-card p-3 h-100">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="pi pi-cog text-primary me-2" style="font-size: 1.35rem;"></i>
+                                    <h6 class="m-0 text-900 fw-semibold">Información adicional</h6>
+                                </div>
+                                <div class="row">
+                                    <!-- Dirección ocupa toda la primera fila -->
+                                    <div class="col-12">
+                                        <div class="field mb-3">
+                                            <label class="text-600 small fw-medium">Dirección</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.direccion || '-' }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Campos restantes en 2 columnas -->
+                                    <div class="col-12 col-md-6">
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Distrito</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.distrito || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Telefono</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.telefono || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Es Padre / Madre</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.padre_madre || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">N° Hijos</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.n_hijos || '-' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Email Personal</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.email_per || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">Contacto Emergencia</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.cont_emergencia || '-' }}</p>
+                                        </div>
+                                        <div class="field mb-1">
+                                            <label class="text-600 small fw-medium">N° Celular</label>
+                                            <p class="m-0 text-900 fw-medium">{{ data.cel_emergencia || '-' }}</p>
+                                        </div>
+                                        <!-- Eliminé los campos duplicados de N° Hijos -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna 3: Grupos -->
+                        <div class="col-12 col-md-2 col-lg-2">
+                            <div class="expansion-card p-3 h-100">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="pi pi-users text-primary me-2" style="font-size: 1.35rem;"></i>
+                                    <h6 class="m-0 text-900 fw-semibold">Otros</h6>
+                                </div>
+                                <div class="field mb-1">
+                                    <label class="text-600 small fw-medium">Creado por</label>
+                                    <p class="m-0 text-900 fw-medium">{{ data.created_by_username || '-' }}</p>
+                                </div>
+                                <div class="field mb-1">
+                                    <label class="text-600 small fw-medium">Habilitado por</label>
+                                    <p class="m-0 text-900 fw-medium">{{ data.habilitado_por || '-' }}</p>
+                                </div>
+                                <div class="field mb-1">
+                                    <label class="text-600 small fw-medium">Acceso</label>
+                                    <p class="m-0 text-900 fw-medium">{{ data.fecha_habilitacion_acceso || '-' }}</p>
+                                </div>
+                                <div class="field mb-1">
+                                    <label class="text-600 small fw-medium">Creado por</label>
+                                    <p class="m-0 text-900 fw-medium">{{ data.created_by_username || '-' }}</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </DataTableWrapper>
 
         <!-- Toast para mensajes de estado -->
@@ -363,6 +434,7 @@ import DatePicker from 'primevue/datepicker';
 import { useRouter } from 'vue-router'
 import { api } from "@/components/services/Axios"
 import { useToast } from 'primevue/usetoast';
+import { calculateTimeWorked, formatCurrency } from "@/components/utils/format";
 
 const personalStore = usePersonalStore();
 const toast = useToast();
@@ -644,100 +716,113 @@ onMounted(async () => {
     border-radius: 5px;
     padding: 10px;
 }
+
 .expansion-content {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
 }
 
 .expansion-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
-  height: 100%;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .expansion-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #3B82F6, #6366F1);
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3B82F6, #6366F1);
 }
 
 .expansion-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .custom-tag {
-  border-radius: 20px;
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.85rem;
+    border-radius: 20px;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
 }
 
 .custom-chip {
-  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
-  color: white;
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 0.85rem;
-  padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+    color: white;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .field {
-  margin-bottom: 1.2rem;
-  padding: 0.5rem 0;
+    margin-bottom: 1.2rem;
+    padding: 0.5rem 0;
 }
 
 .field:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .text-xl {
-  font-size: 1.35rem;
+    font-size: 1.35rem;
 }
 
 .font-semibold {
-  font-weight: 600;
-  color: #1f2937;
+    font-weight: 600;
+    color: #1f2937;
 }
 
 .h-full {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .expansion-card .field label {
-  display: block;
-  margin-bottom: 0.35rem;
-  color: #6b7280;
-  font-weight: 500;
-  font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .expansion-card .field p {
-  color: #374151;
-  font-weight: 500;
-  font-size: 0.95rem;
-  line-height: 1.4;
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .expansion-card {
-    margin-bottom: 1rem;
-  }
-  
-  .expansion-card:last-child {
-    margin-bottom: 0;
-  }
+    .expansion-card {
+        margin-bottom: 1rem;
+    }
+
+    .expansion-card:last-child {
+        margin-bottom: 0;
+    }
+}
+.time-with-underline {
+    font-size: 0.7rem;
+    border-bottom: 1.5px solid #3B82F6;
+    padding-bottom: 1px;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.time-with-underline:hover {
+    border-bottom: 2px solid #2563EB; /* Azul más oscuro al pasar el mouse */
+    color: #2563EB !important;
 }
 </style>
