@@ -33,8 +33,16 @@
           v-for="tablero in filteredTableros" 
           :key="tablero.id" 
           class="tablero-card"
-          @click="openTablero(tablero)"
+          :class="{ 'disabled': !tablero.is_active }"
+          @click="!tablero.is_active ? null : openTablero(tablero)"
         >
+          <!-- Indicador de estado desactivado -->
+          <div v-if="!tablero.is_active" class="disabled-overlay">
+            <div class="disabled-label">
+              <i class="fas fa-ban"></i> Desactivado
+            </div>
+          </div>
+          
           <div class="tablero-icon">
             <i :class="getTableroIcon(tablero)"></i>
           </div>
@@ -123,6 +131,9 @@ const filteredTableros = computed(() => {
 
 // Abrir tablero
 const openTablero = (tablero) => {
+  // No abrir si está desactivado
+  if (!tablero.is_active) return;
+  
   if (isTableau(tablero)) {
     // Tableau se abre en nueva pestaña
     window.open(tablero.url, '_blank', 'noopener,noreferrer');
@@ -284,9 +295,39 @@ onUnmounted(() => {
   position: relative;
 }
 
-.tablero-card:hover {
+.tablero-card:hover:not(.disabled) {
   transform: translateY(-4px);
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tablero-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.disabled-label {
+  background-color: #e53e3e;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tablero-icon {
@@ -300,6 +341,10 @@ onUnmounted(() => {
   color: #4299e1;
 }
 
+.tablero-card.disabled .tablero-icon i {
+  color: #a0aec0;
+}
+
 .tablero-info {
   flex: 1;
 }
@@ -310,11 +355,19 @@ onUnmounted(() => {
   font-size: 16px;
 }
 
+.tablero-card.disabled .tablero-info h3 {
+  color: #a0aec0;
+}
+
 .tablero-info p {
   margin: 0 0 12px 0;
   color: #718096;
   font-size: 14px;
   line-height: 1.4;
+}
+
+.tablero-card.disabled .tablero-info p {
+  color: #cbd5e0;
 }
 
 .tablero-meta {

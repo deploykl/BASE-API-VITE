@@ -34,9 +34,10 @@
         <slot name="header"></slot>
         <div class="bottom-center flex flex-wrap justify-end gap-1">
           <template v-if="expandable">
-          <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
-          <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-1" />
-                 </template>
+            <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
+            <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll"
+              class="p-button-text p-button-sm me-1" />
+          </template>
 
           <!-- Botón de Exportación CSV -->
           <!--<Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-1" severity="success"
@@ -44,8 +45,8 @@
           <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-1"
             severity="danger" />
           <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-1" severity="info" />
-          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV2" class="p-button-sm" severity="success" />
-
+          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV2" class="p-button-sm me-1" severity="success" />
+<Button icon="pi pi-print" label="Imprimir" @click="printTable" class="p-button-sm" severity="secondary" />
         </div>
       </template>
 
@@ -83,11 +84,16 @@
         <template #filter="{ filterModel, filterCallback }" v-if="col.filter !== false">
           <template v-if="col.dataType === 'boolean'">
             <Dropdown v-model="filterModel.value" :options="booleanOptions" optionLabel="label" optionValue="value"
-              placeholder="Seleccionar" @change="filterCallback()" class="w-full" />
+              placeholder="Seleccionar"
+              @change="() => { filterCallback(); handleFilterChange(col.field, filterModel.value); }" class="w-full" />
           </template>
           <template v-else-if="col.filterOptions">
             <Dropdown v-model="filterModel.value" :options="col.filterOptions" :placeholder="`Seleccionar`"
-              @change="filterCallback()" class="w-full" />
+              @change="() => { filterCallback(); handleFilterChange(col.field, filterModel.value); }" class="w-full" />
+          </template>
+          <template v-else>
+            <InputText v-model="filterModel.value" type="text" @input="filterCallback" class="w-full"
+              placeholder="Buscar..." @change="handleFilterChange(col.field, filterModel.value)" />
           </template>
         </template>
       </Column>
@@ -170,7 +176,10 @@ const emit = defineEmits([
   'filter-change',
   'column-filter',
   'row-expand',
-  'row-collapse'
+  'row-collapse',
+  'column-filter-change', // Nueva emisión para cambios de filtro por columna
+  'filter-change', // Agrega esta emisión
+
 ]);
 
 const STORAGE_KEY = 'tableFilters';
@@ -188,6 +197,15 @@ const filters = ref({
     return acc;
   }, {})
 });
+// Agrega este método para manejar cambios de filtro
+const handleFilterChange = (field, value) => {
+  emit('column-filter-change', { field, value });
+
+  // Si es el campo de dependencia, también actualiza el filtro global
+  if (field === 'dependencia_nombre') {
+    emit('filter-change', { field: 'dependencia', value });
+  }
+};
 // Agrega estas nuevas propiedades
 const expandedRows = ref([]);
 const searchTerm = ref('');
@@ -701,7 +719,93 @@ const exportCSV2 = () => {
 
   exportingCSV.value = false;
 };
-
+const printTable = () => {
+  // Crear un contenedor temporal para la impresión
+  const printContainer = document.createElement('div');
+  printContainer.style.position = 'absolute';
+  printContainer.style.left = '-9999px';
+  printContainer.style.top = '-9999px';
+  
+  // Clonar la tabla
+  const tableElement = dt.value?.$el || document.querySelector('.p-datatable');
+  if (!tableElement) return;
+  
+  const tableClone = tableElement.cloneNode(true);
+  
+  // Remover elementos no deseados para impresión
+  const elementsToRemove = tableClone.querySelectorAll(`
+    .p-paginator, 
+    .p-column-filter-menu, 
+    .p-row-toggler,
+    .header-actions-container,
+    .bottom-center,
+    .p-button,
+    [aria-label="Acciones"],
+    th[aria-label="Acciones"],
+    td[aria-label="Acciones"]
+  `);
+  
+  elementsToRemove.forEach(element => element.remove());
+  
+  // Crear el contenido HTML para imprimir
+  const title = props.title || 'Reporte';
+  const date = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
+  
+  printContainer.innerHTML = `
+    <div style="font-family: Arial, sans-serif; max-width: 100%;">
+      <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+        <h1 style="margin: 0; font-size: 18px; font-weight: bold;">${title}</h1>
+        <div style="font-size: 12px; color: #666;">
+          Generado el: ${date} a las ${time}
+        </div>
+      </div>
+      ${tableClone.outerHTML}
+      <div style="margin-top: 20px; text-align: center; font-size: 10px; color: #666;">
+        © ${new Date().getFullYear()} - Sistema de Gestión
+      </div>
+    </div>
+  `;
+  
+  // Agregar estilos específicos para impresión
+  const style = document.createElement('style');
+  style.innerHTML = `
+    @media print {
+      body { margin: 0; padding: 15px; }
+      table { width: 100% !important; border-collapse: collapse; font-size: 12px; }
+      th, td { border: 1px solid #ddd !important; padding: 6px !important; text-align: left; }
+      th { background-color: #f5f5f5 !important; font-weight: bold; color: #000 !important; }
+      .p-datatable .p-datatable-thead > tr > th {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+        font-weight: bold;
+      }
+      .p-datatable .p-datatable-tbody > tr > td {
+        border: 1px solid #ddd !important;
+      }
+      .header-cell { 
+        background: #f5f5f5 !important; 
+        color: #000 !important; 
+        font-weight: bold; 
+      }
+      .body-cell { 
+        border: 1px solid #ddd !important; 
+      }
+    }
+  `;
+  
+  document.head.appendChild(style);
+  document.body.appendChild(printContainer);
+  
+  // Disparar la impresión
+  window.print();
+  
+  // Limpiar después de imprimir
+  setTimeout(() => {
+    document.body.removeChild(printContainer);
+    document.head.removeChild(style);
+  }, 100);
+};
 
 </script>
 

@@ -18,6 +18,8 @@ const AdminDgos = [
     meta: {
       title: "PERSONAL",
       requiresAuth: true,
+      requiredModule: "Personal" // ← Añade esta propiedad
+
     },
   },
 ];

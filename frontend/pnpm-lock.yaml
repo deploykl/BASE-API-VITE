@@ -71,6 +71,9 @@ importers:
       primevue:
         specifier: ^4.3.7
         version: 4.3.7(vue@3.5.18)
+      print-js:
+        specifier: ^1.6.0
+        version: 1.6.0
       sweetalert2:
         specifier: ^11.22.2
         version: 11.22.2
@@ -764,6 +767,9 @@ packages:
   primevue@4.3.7:
     resolution: {integrity: sha512-yyknh2kFjSGwRyxqmUUWy/pY4FK1vxoonGH3eQdtd8k/sGl5JpSQ2f0tXpR79lV6dcGf3FZPL1B5JNR11zJfmg==}
     engines: {node: '>=12.11.0'}
+
+  print-js@1.6.0:
+    resolution: {integrity: sha512-BfnOIzSKbqGRtO4o0rnj/K3681BSd2QUrsIZy/+WdCIugjIswjmx3lDEZpXB2ruGf9d4b3YNINri81+J0FsBWg==}
 
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
@@ -1470,6 +1476,8 @@ snapshots:
       '@primevue/icons': 4.3.7(vue@3.5.18)
     transitivePeerDependencies:
       - vue
+
+  print-js@1.6.0: {}
 
   proxy-from-env@1.1.0: {}
 

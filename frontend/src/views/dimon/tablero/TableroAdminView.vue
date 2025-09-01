@@ -152,7 +152,7 @@
             @click="openEditModal(data)" />
 
           <!-- Botón Eliminar - Solo visible para el creador -->
-          <Button v-if="isOwner(data)" icon="pi pi-times"
+          <Button v-if="isOwner(data)" icon="pi pi-trash"
             class="p-button-sm p-button-outlined p-button-rounded p-button-danger" v-tooltip.top="'Eliminar'"
             @click="confirmDelete(data)" />
           <!-- Opcional: Mostrar mensaje si no es el dueño -->

@@ -168,7 +168,7 @@
           <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
             v-tooltip.top="'Editar'" @click="openEditModal(data)" />
 
-          <Button icon="pi pi-times" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
+          <Button icon="pi pi-trash" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
             v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
         </div>
       </template>
@@ -273,8 +273,19 @@ const columns = ref([
     ],
     filterMatchMode: 'equals'
   },
-  { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true, filter: true },
-  { field: 'roles', header: 'Roles', bodyTemplate: true, filter: true },
+  { field: 'is_staff', 
+  header: 'Staff', 
+  sortable: true, 
+  bodyTemplate: true, 
+  filter: true ,
+  dataType: 'boolean',
+    filterOptions: [
+      { label: 'Staff', value: true },
+      { label: 'Normal', value: false }
+    ],
+    filterMatchMode: 'equals'
+  },
+  { field: 'roles', header: 'Roles', bodyTemplate: true, filter: false },
   {
     field: 'created_by', header: 'Creado por', bodyTemplate: true, filter: true, filterType: 'select',
     filterOptions: computed(() =>

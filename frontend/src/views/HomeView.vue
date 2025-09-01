@@ -304,7 +304,7 @@ const modules = ref([
     description: 'Gestión de usuarios',
     icon: 'pi pi-users',
     color: '#6f42c1',
-    path: '/user/create',
+    path: '/dgos/personal',
     enabled: true
   },
   {

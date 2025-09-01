@@ -27,6 +27,7 @@ class TableroViewSet(viewsets.ModelViewSet):
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
 
+
     def perform_create(self, serializer):
         instance = serializer.save(created_by=self.request.user)
         self.notify_tablero_created(instance)

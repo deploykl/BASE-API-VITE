@@ -106,6 +106,17 @@ const allItems = ref([
     path: '/dashboard'
   },
   {
+    title: "DGOS",
+    isHeader: true,
+    requiredModule: 'Personal'
+  },
+  {
+    title: 'Personal',
+    icon: 'pi pi-chart-bar',
+    path: '/dgos/personal',
+    requiredModule: 'Personal'
+  },
+  {
     title: 'Usuarios',
     icon: 'pi pi-users',
     path: '/user/create',
@@ -153,12 +164,6 @@ const allItems = ref([
         path: '/dgos/personal',
         requiredModule: 'Administración'
       },
-      {
-        title: 'Matriz de compromiso',
-        icon: 'pi pi-book',
-        path: '/user/dfdf',
-        requiredModule: 'Usuarios'
-      },
     ]
   },
   {
@@ -172,7 +177,7 @@ const allItems = ref([
     path: '/dimon/tablero',
     requiredModule: 'Sistemas'
   },
-   {
+  {
     title: 'Tableros Monitor',
     icon: 'pi pi-table',
     path: '/dimon/tablero/list',
@@ -201,18 +206,18 @@ const allItems = ref([
 const hasModuleAccess = (moduleNames) => {
   if (!moduleNames) return true; // Si no requiere módulo, siempre visible
   if (isSuperuser.value) return true;
-  
+
   // Si es string, convertirlo a array
-  const modulesToCheck = typeof moduleNames === 'string' 
+  const modulesToCheck = typeof moduleNames === 'string'
     ? moduleNames.split(',').map(m => m.trim().toLowerCase())
-    : Array.isArray(moduleNames) 
+    : Array.isArray(moduleNames)
       ? moduleNames.map(m => m.toLowerCase())
       : [];
-  
+
   if (modulesToCheck.length === 0) return true;
-  
+
   const userModules = userModulos.value.map(m => m.toLowerCase());
-  
+
   // Verifica si al menos uno de los módulos existe en los módulos del usuario
   return modulesToCheck.some(module => userModules.includes(module));
 }
@@ -296,11 +301,11 @@ const handleSubmenuClick = (menuIndex, submenuIndex) => {
 const setActiveMenuFromRoute = () => {
   const currentPath = route.path;
   let found = false;
-  
+
   // Reiniciar estados activos
   activeMenu.value = null;
   activeSubmenu.value = null;
-  
+
   // Buscar en todos los elementos del menú
   filteredallItems.value.forEach((item, index) => {
     // Si es un elemento con submenú
@@ -316,7 +321,7 @@ const setActiveMenuFromRoute = () => {
           found = true;
         }
       });
-    } 
+    }
     // Si es un elemento simple
     else if (item.path === currentPath) {
       activeMenu.value = index;
@@ -324,7 +329,7 @@ const setActiveMenuFromRoute = () => {
       found = true;
     }
   });
-  
+
   // Si no se encuentra coincidencia exacta, buscar coincidencias parciales
   if (!found) {
     filteredallItems.value.forEach((item, index) => {
@@ -340,7 +345,7 @@ const setActiveMenuFromRoute = () => {
             found = true;
           }
         });
-      } 
+      }
       // Coincidencia parcial para elementos simples
       else if (item.path && currentPath.startsWith(item.path) && item.path !== '/') {
         activeMenu.value = index;
@@ -583,15 +588,18 @@ watch(() => props.isCollapsed, (newVal) => {
   transition: all 0.3s ease;
   position: relative;
 }
+
 /* Submenú activo específico */
 .submenu li.active .submenu-item {
   color: white !important;
   background: rgba(255, 255, 255, 0.15) !important;
 }
+
 .submenu li.active .submenu-item::before {
   background: white !important;
   width: 3px;
 }
+
 .submenu-item::before {
   content: '';
   position: absolute;

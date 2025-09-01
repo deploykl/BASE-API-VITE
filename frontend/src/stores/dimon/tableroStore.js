@@ -115,6 +115,7 @@ export const useTableroStore = defineStore("tableroStore", () => {
     }
   };
 
+
   // Crear un nuevo tablero
   const CreateTablero = async (tableroData) => {
     loading.value = true;
