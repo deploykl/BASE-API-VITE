@@ -96,6 +96,6 @@ const handleClose = () => {
 
 <style scoped>
 .dialog-content {
-  padding: 1.5rem 0;
+  padding: 1.2rem 1.2rem 0 1.2rem !important;
 }
 </style>

@@ -1,25 +1,33 @@
 <template>
     <div class="container-fluid">
         <!-- Modal para crear/editar personal -->
-<ModalBase :visible="showModal" :mode="editing ? 'edit' : 'create'" entityName="personal"
+        <ModalBase :visible="showModal" :mode="editing ? 'edit' : 'create'" entityName="personal"
             :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeModal"
             @confirm="handleSubmit">
             <template #content>
                 <form @submit.prevent="handleSubmit" class="needs-validation" novalidate>
                     <!-- Pestañas para organizar la información -->
-                    <div class="mb-4">
+                    <div class="mb-5">
                         <ul class="nav nav-tabs" id="personalTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab" aria-controls="basic" aria-selected="true">Información Básica</button>
+                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab"
+                                    data-bs-target="#basic" type="button" role="tab" aria-controls="basic"
+                                    aria-selected="true">Información Básica</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="contract-tab" data-bs-toggle="tab" data-bs-target="#contract" type="button" role="tab" aria-controls="contract" aria-selected="false">Datos Laborales</button>
+                                <button class="nav-link" id="contract-tab" data-bs-toggle="tab"
+                                    data-bs-target="#contract" type="button" role="tab" aria-controls="contract"
+                                    aria-selected="false">Datos Laborales</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="emergency-tab" data-bs-toggle="tab" data-bs-target="#emergency" type="button" role="tab" aria-controls="emergency" aria-selected="false">Emergencia</button>
+                                <button class="nav-link" id="emergency-tab" data-bs-toggle="tab"
+                                    data-bs-target="#emergency" type="button" role="tab" aria-controls="emergency"
+                                    aria-selected="false">Emergencia</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" type="button" role="tab" aria-controls="access" aria-selected="false">Acceso</button>
+                                <button class="nav-link" id="access-tab" data-bs-toggle="tab" data-bs-target="#access"
+                                    type="button" role="tab" aria-controls="access"
+                                    aria-selected="false">Acceso</button>
                             </li>
                         </ul>
                     </div>
@@ -28,112 +36,60 @@
                         <!-- Pestaña de Información Básica -->
                         <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
                             <div class="row g-3">
-                                <!-- Columna Izquierda -->
-                                <div class="col-md-6">
-                                    <!-- DNI -->
-                                    <div class="mb-3">
-                                        <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card"
-                                            :errors="errors" :invalid="!!errors.dni" size="small" />
-                                    </div>
-                                    <!-- RUC -->
-                                    <div class="mb-3">
-                                        <FloatInput id="ruc" label="RUC" v-model="form.ruc" icon="pi pi-id-card"
-                                            :errors="errors" :invalid="!!errors.ruc" size="small" />
-                                    </div>
+                                <!-- Columna 1 -->
+                                <div class="col-md-3">
+
                                     <!-- Nombre -->
                                     <div class="mb-3">
-                                        <FloatInput id="nombre" label="Nombre" v-model="form.nombre" icon="pi pi-user"
+                                        <FloatInput id="nombre" label="Nombres" v-model="form.nombre" icon="pi pi-user"
                                             :errors="errors" :invalid="!!errors.nombre" size="small" required />
                                     </div>
-
                                     <!-- Email -->
                                     <div class="mb-3">
-                                        <FloatInput id="email" label="Email" v-model="form.email" type="email"
-                                            icon="pi pi-envelope" :invalid="!!errors.email" :errors="errors" size="small"
-                                            required />
+                                        <FloatInput id="email" label="Email Institucional" v-model="form.email"
+                                            type="email institucional" icon="pi pi-envelope" :invalid="!!errors.email"
+                                            :errors="errors" size="small" />
                                     </div>
 
-                                    <!-- Dependencia -->
-                                    <div class="mb-3">
-                                        <label for="dependencia" class="form-label">Dependencia</label>
-                                        <Dropdown id="dependencia" v-model="form.dependencia" :options="dependenciasOptions"
-                                            optionLabel="nombre" optionValue="id" placeholder="Seleccionar dependencia"
-                                            :class="{ 'p-invalid': !!errors.dependencia }" class="w-100" :filter="true"
-                                            filterPlaceholder="Buscar dependencia..." />
-                                        <small v-if="errors.dependencia" class="p-error">
-                                            {{ errors.dependencia[0] }}
-                                        </small>
-                                    </div>
-                                    
                                     <!-- Fecha de nacimiento -->
                                     <div class="mb-3">
-                                        <label for="fecha_nac" class="form-label">Fecha de Nacimiento</label>
-                                        <DatePicker v-model="form.fecha_nac" id="fecha_nac" dateFormat="dd/mm/yy"
-                                            :showIcon="true" class="w-100" :class="{ 'is-invalid': !!errors.fecha_nac }" />
+                                        <FloatLabel>
+                                            <label for="fecha_nac" class="form-label" style="font-size: 0.8rem;">
+                                                <i class="pi pi-calendar me-2"></i>
+                                                Fecha de Nacimiento
+                                            </label>
+                                            <DatePicker v-model="form.fecha_nac" id="fecha_nac" dateFormat="dd/mm/yy"
+                                                :showIcon="false" class="w-100" size="small"
+                                                :class="{ 'is-invalid': !!errors.fecha_nac }" inputId="fecha_nac"
+                                                :showClear="true" />
+                                        </FloatLabel>
+
                                         <div v-if="errors.fecha_nac" class="invalid-feedback d-block">
                                             {{ errors.fecha_nac[0] }}
                                         </div>
                                     </div>
-                                    
-                                    <!-- Número de hijos -->
-                                    <div class="mb-3">
-                                        <FloatInput id="n_hijos" label="Número de Hijos" v-model="form.n_hijos" 
-                                            type="number" icon="pi pi-users" :invalid="!!errors.n_hijos" 
-                                            :errors="errors" size="small" />
-                                    </div>
                                 </div>
-                                
-                                <!-- Columna Derecha -->
-                                <div class="col-md-6">
+                                <!-- Columna 2 -->
+                                <div class="col-md-3">
                                     <!-- Apellido -->
                                     <div class="mb-3">
-                                        <FloatInput id="apellido" label="Apellido" v-model="form.apellido" icon="pi pi-user"
-                                            :invalid="!!errors.apellido" :errors="errors" size="small" required />
+                                        <FloatInput id="apellido" label="Apellidos" v-model="form.apellido"
+                                            icon="pi pi-user" :invalid="!!errors.apellido" :errors="errors" size="small"
+                                            required />
                                     </div>
 
-                                    <!-- Celular -->
+                                    <!-- Email personal -->
                                     <div class="mb-3">
-                                        <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone"
-                                            :invalid="!!errors.celular" :errors="errors" size="small" />
+                                        <FloatInput id="email_per" label="Email Personal" v-model="form.email_per"
+                                            type="email" icon="pi pi-envelope" :invalid="!!errors.email_per"
+                                            :errors="errors" size="small" />
                                     </div>
-                                    
-                                    <!-- Teléfono -->
-                                    <div class="mb-3">
-                                        <FloatInput id="telefono" label="Teléfono" v-model="form.telefono" icon="pi pi-phone"
-                                            :invalid="!!errors.telefono" :errors="errors" size="small" />
-                                    </div>
-                                    
-                                    <!-- Anexo -->
-                                    <div class="mb-3">
-                                        <FloatInput id="anexo" label="Anexo" v-model="form.anexo" icon="pi pi-hashtag"
-                                            :invalid="!!errors.anexo" :errors="errors" size="small" />
-                                    </div>
-                                    
-                                    <!-- Área (dependiente de la dependencia) -->
-                                    <div class="mb-3">
-                                        <label for="area" class="form-label">Área</label>
-                                        <Dropdown id="area" v-model="form.area" :options="areasOptions" optionLabel="nombre"
-                                            optionValue="id" placeholder="Seleccionar área"
-                                            :disabled="!form.dependencia || personalStore.loading"
-                                            :class="{ 'p-invalid': !!errors.area }" class="w-100" :filter="true"
-                                            filterPlaceholder="Buscar área..." :loading="personalStore.loading" />
-                                        <small v-if="errors.area" class="p-error">
-                                            {{ errors.area[0] }}
-                                        </small>
-                                        <small v-if="!form.dependencia" class="text-muted">
-                                            Primero seleccione una dependencia
-                                        </small>
-                                        <small v-if="personalStore.loading" class="text-info">
-                                            <i class="pi pi-spinner pi-spin"></i> Cargando áreas...
-                                        </small>
-                                    </div>
-                                    
                                     <!-- Sexo -->
-                                    <div class="mb-3">
-                                        <label for="sexo" class="form-label">Sexo</label>
-                                        <Dropdown id="sexo" v-model="form.sexo" :options="sexoOptions" optionLabel="label"
-                                            optionValue="value" placeholder="Seleccionar sexo"
-                                            :class="{ 'p-invalid': !!errors.sexo }" class="w-100">
+                                    <div class="mb-5">
+                                        <Dropdown id="sexo" v-model="form.sexo" :options="sexoOptions"
+                                            optionLabel="label" optionValue="value" placeholder="Seleccionar sexo"
+                                            :class="{ 'p-invalid': !!errors.sexo }" class="w-100" size="small"
+                                            :showClear="true">
                                             <template #option="slotProps">
                                                 <div class="flex align-items-center">
                                                     <i :class="slotProps.option.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
@@ -145,7 +101,8 @@
                                                 <div v-if="slotProps.value" class="flex align-items-center">
                                                     <i :class="slotProps.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
                                                         style="font-size: 1rem; margin-right: 8px;"></i>
-                                                    <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino' }}</span>
+                                                    <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino'
+                                                    }}</span>
                                                 </div>
                                                 <span v-else>
                                                     {{ slotProps.placeholder }}
@@ -156,141 +113,212 @@
                                             {{ errors.sexo[0] }}
                                         </small>
                                     </div>
-                                    
+                                   
+
+                                </div>
+                                <!-- Columna 3 -->
+                                <div class="col-md-3">
+                                    <!-- DNI -->
+                                    <div class="mb-3">
+                                        <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card"
+                                            :errors="errors" :invalid="!!errors.dni" size="small" required />
+                                    </div>
+
+                                    <!-- Celular -->
+                                    <div class="mb-1">
+                                        <FloatInput id="celular" label="Celular" v-model="form.celular"
+                                            icon="pi pi-phone" :invalid="!!errors.celular" :errors="errors"
+                                            size="small" />
+                                    </div>
+
+                                     <!-- Es Padre / Madre -->
+                                    <div class="mb-2">
+                                        <Dropdown id="padre_madre" v-model="form.padre_madre" :options="opcionesSiNo"
+                                            optionLabel="label" optionValue="value" placeholder="Es Padre / Madre"
+                                            :class="{ 'p-invalid': !!errors.padre_madre }" class="w-100" size="small"
+                                            :showClear="true">
+                                        </Dropdown>
+                                        <small v-if="errors.padre_madre" class="p-error">
+                                            {{ errors.padre_madre[0] }}
+                                        </small>
+                                    </div>
+
+                                </div>
+                                <!-- Columna 4 -->
+                                <div class="col-md-3">
+
+                                    <!-- RUC -->
+                                    <div class="mb-3">
+                                        <FloatInput id="ruc" label="RUC" v-model="form.ruc" icon="pi pi-id-card"
+                                            :errors="errors" :invalid="!!errors.ruc" size="small" required />
+                                    </div>
+                                    <!-- Teléfono -->
+                                    <div class="mb-1">
+                                        <FloatInput id="telefono" label="Teléfono" v-model="form.telefono"
+                                            icon="pi pi-phone" :invalid="!!errors.telefono" :errors="errors"
+                                            size="small" />
+                                    </div>
+
+                                    <!-- Número de hijos -->
+                                    <div class="mb-3">
+                                        <FloatInput id="n_hijos" label="Número de Hijos" v-model="form.n_hijos"
+                                            type="number" icon="pi pi-users" :invalid="!!errors.n_hijos"
+                                            :errors="errors" size="small" />
+                                    </div>
+
                                     <!-- Dirección -->
                                     <div class="mb-3">
                                         <label for="direccion" class="form-label">Dirección</label>
-                                        <Textarea id="direccion" v-model="form.direccion" rows="2" 
-                                            :class="{ 'p-invalid': !!errors.direccion }" class="w-100" 
+                                        <Textarea id="direccion" v-model="form.direccion" rows="2"
+                                            :class="{ 'p-invalid': !!errors.direccion }" class="w-100"
                                             placeholder="Ingrese la dirección completa" />
                                         <small v-if="errors.direccion" class="p-error">
                                             {{ errors.direccion[0] }}
                                         </small>
                                     </div>
-                                    
+
                                     <!-- Distrito -->
                                     <div class="mb-3">
-                                        <FloatInput id="distrito" label="Distrito" v-model="form.distrito" 
-                                            icon="pi pi-map-marker" :invalid="!!errors.distrito" 
-                                            :errors="errors" size="small" />
+                                        <FloatInput id="distrito" label="Distrito" v-model="form.distrito"
+                                            icon="pi pi-map-marker" :invalid="!!errors.distrito" :errors="errors"
+                                            size="small" />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Pestaña de Datos Laborales -->
                         <div class="tab-pane fade" id="contract" role="tabpanel" aria-labelledby="contract-tab">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- Número de contrato -->
                                     <div class="mb-3">
-                                        <FloatInput id="n_contrato" label="Número de Contrato" v-model="form.n_contrato" 
-                                            icon="pi pi-file" :invalid="!!errors.n_contrato" 
-                                            :errors="errors" size="small" />
+                                        <FloatInput id="n_contrato" label="Número de Contrato" v-model="form.n_contrato"
+                                            icon="pi pi-file" :invalid="!!errors.n_contrato" :errors="errors"
+                                            size="small" />
                                     </div>
-                                    
+
                                     <!-- Fecha de inicio -->
                                     <div class="mb-3">
                                         <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
                                         <DatePicker v-model="form.fecha_inicio" id="fecha_inicio" dateFormat="dd/mm/yy"
-                                            :showIcon="true" class="w-100" :class="{ 'is-invalid': !!errors.fecha_inicio }" />
+                                            :showIcon="true" class="w-100"
+                                            :class="{ 'is-invalid': !!errors.fecha_inicio }" />
                                         <div v-if="errors.fecha_inicio" class="invalid-feedback d-block">
                                             {{ errors.fecha_inicio[0] }}
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Fecha de fin -->
                                     <div class="mb-3">
                                         <label for="fecha_fin" class="form-label">Fecha de Fin</label>
                                         <DatePicker v-model="form.fecha_fin" id="fecha_fin" dateFormat="dd/mm/yy"
-                                            :showIcon="true" class="w-100" :class="{ 'is-invalid': !!errors.fecha_fin }" />
+                                            :showIcon="true" class="w-100"
+                                            :class="{ 'is-invalid': !!errors.fecha_fin }" />
                                         <div v-if="errors.fecha_fin" class="invalid-feedback d-block">
                                             {{ errors.fecha_fin[0] }}
                                         </div>
                                     </div>
-                                    
-                                    <!-- Cargo -->
+
+                                    <!-- cargo -->
                                     <div class="mb-3">
-                                        <FloatInput id="cargo" label="Cargo" v-model="form.cargo" 
-                                            icon="pi pi-briefcase" :invalid="!!errors.cargo" 
-                                            :errors="errors" size="small" />
+                                        <label for="cargo" class="form-label">Cargo</label>
+                                        <Dropdown id="cargo" v-model="form.cargo" :options="cargoOptions"
+                                            optionLabel="nombre" optionValue="id" placeholder="Seleccionar cargo"
+                                            :class="{ 'p-invalid': !!errors.cargo }" class="w-100" :filter="true"
+                                            filterPlaceholder="Buscar cargo..." :showClear="true" />
+                                        <!-- ← Agrega estas props -->
+                                        <small v-if="errors.cargo" class="p-error">
+                                            {{ errors.cargo[0] }}
+                                        </small>
                                     </div>
-                                    
                                     <!-- Condición -->
                                     <div class="mb-3">
-                                        <FloatInput id="condicion" label="Condición" v-model="form.condicion" 
-                                            icon="pi pi-info-circle" :invalid="!!errors.condicion" 
-                                            :errors="errors" size="small" />
+                                        <label for="condicion" class="form-label">Condición</label>
+                                        <Dropdown id="condicion" v-model="form.condicion" :options="condicionOptions"
+                                            optionLabel="nombre" optionValue="id" placeholder="Seleccionar condicion"
+                                            :class="{ 'p-invalid': !!errors.condicion }" class="w-100"
+                                            :showClear="true" />
+                                        <small v-if="errors.condicion" class="p-error">
+                                            {{ errors.condicion[0] }}
+                                        </small>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-6">
                                     <!-- salario -->
                                     <div class="mb-3">
-                                        <FloatInput 
-                                            id="salario" 
-                                            label="Salario" 
-                                            v-model="form.salario" 
-                                            icon="pi pi-money"
-                                            :invalid="!!errors.salario" 
-                                            :errors="errors" 
-                                            size="small"
-                                            type="text"  
-                                            @input="formatSalario"
-                                            currency="PEN"
-                                        />
+                                        <FloatInput id="salario" label="Salario" v-model="form.salario"
+                                            icon="pi pi-money" :invalid="!!errors.salario" :errors="errors" size="small"
+                                            type="text" @input="formatSalario" currency="PEN" />
                                     </div>
-                                    
+
                                     <!-- Estado -->
                                     <div class="mb-3">
                                         <label for="estado" class="form-label">Estado</label>
-                                        <Dropdown id="estado" v-model="form.estado" :options="estadoOptions" 
-                                            optionLabel="label" optionValue="value" placeholder="Seleccionar estado"
-                                            :class="{ 'p-invalid': !!errors.estado }" class="w-100" />
+                                        <Dropdown id="estado" v-model="form.estado" :options="estadoOptions"
+                                            optionLabel="nombre" optionValue="id" placeholder="Seleccionar estado"
+                                            :class="{ 'p-invalid': !!errors.estado }" class="w-100" :showClear="true" />
                                         <small v-if="errors.estado" class="p-error">
                                             {{ errors.estado[0] }}
                                         </small>
                                     </div>
-                                    
+
                                     <!-- Genérica -->
                                     <div class="mb-3">
-                                        <FloatInput id="generica" label="Genérica" v-model="form.generica" 
-                                            icon="pi pi-tag" :invalid="!!errors.generica" 
-                                            :errors="errors" size="small" />
+                                        <div class="mb-3">
+                                            <label for="generica" class="form-label">Genérica</label>
+                                            <Dropdown id="generica" v-model="form.generica" :options="genericaOptions"
+                                                optionLabel="nombre" optionValue="id" placeholder="Seleccionar genérica"
+                                                :class="{ 'p-invalid': !!errors.generica }" class="w-100"
+                                                :showClear="true" />
+                                            <small v-if="errors.generica" class="p-error">
+                                                {{ errors.generica[0] }}
+                                            </small>
+                                        </div>
                                     </div>
-                                    
+
                                     <!-- Grupo Ocupacional -->
                                     <div class="mb-3">
                                         <label for="grupo_ocupacional" class="form-label">Grupo Ocupacional</label>
-                                        <Dropdown id="grupo_ocupacional" v-model="form.grupo_ocupacional" 
-                                            :options="grupoOcupacionalOptions" optionLabel="label" optionValue="value" 
+                                        <Dropdown id="grupo_ocupacional" v-model="form.grupo_ocupacional"
+                                            :options="grupoOcupacionalOptions" optionLabel="nombre" optionValue="id"
                                             placeholder="Seleccionar grupo ocupacional"
-                                            :class="{ 'p-invalid': !!errors.grupo_ocupacional }" class="w-100" />
+                                            :class="{ 'p-invalid': !!errors.grupo_ocupacional }" class="w-100"
+                                            :showClear="true" />
                                         <small v-if="errors.grupo_ocupacional" class="p-error">
                                             {{ errors.grupo_ocupacional[0] }}
                                         </small>
                                     </div>
-                                    
+
                                     <!-- Profesión -->
                                     <div class="mb-3">
-                                        <FloatInput id="profesion" label="Profesión" v-model="form.profesion" 
-                                            icon="pi pi-graduation-cap" :invalid="!!errors.profesion" 
-                                            :errors="errors" size="small" />
+                                        <label for="profesion" class="form-label">Profesión</label>
+                                        <Dropdown id="profesion" v-model="form.profesion" :options="profesionOptions"
+                                            optionLabel="nombre" optionValue="id" placeholder="Seleccionar profesión"
+                                            :class="{ 'p-invalid': !!errors.profesion }" class="w-100" :filter="true"
+                                            filterPlaceholder="Buscar profesion..." :showClear="true" />
+                                        <small v-if="errors.profesion" class="p-error">
+                                            {{ errors.profesion[0] }}
+                                        </small>
                                     </div>
-                                    
                                     <!-- Nivel -->
                                     <div class="mb-3">
-                                        <FloatInput id="nivel" label="Nivel" v-model="form.nivel" 
-                                            icon="pi pi-sort-numeric-up" :invalid="!!errors.nivel" 
-                                            :errors="errors" size="small" />
+                                        <label for="nivel" class="form-label">Nivel</label>
+                                        <Dropdown id="nivel" v-model="form.nivel" :options="nivelOptions"
+                                            optionLabel="name" optionValue="id" placeholder="Seleccionar nivel"
+                                            :class="{ 'p-invalid': !!errors.nivel }" class="w-100" :showClear="true" />
+                                        <small v-if="errors.nivel" class="p-error">
+                                            {{ errors.nivel[0] }}
+                                        </small>
                                     </div>
-                                    
                                     <!-- Régimen -->
                                     <div class="mb-3">
                                         <label for="regimen" class="form-label">Régimen</label>
-                                        <Dropdown id="regimen" v-model="form.regimen" :options="regimenOptions" 
-                                            optionLabel="label" optionValue="value" placeholder="Seleccionar régimen"
-                                            :class="{ 'p-invalid': !!errors.regimen }" class="w-100" />
+                                        <Dropdown id="regimen" v-model="form.regimen" :options="regimenOptions"
+                                            optionLabel="nombre" optionValue="id" placeholder="Seleccionar régimen"
+                                            :class="{ 'p-invalid': !!errors.regimen }" class="w-100"
+                                            :showClear="true" />
                                         <small v-if="errors.regimen" class="p-error">
                                             {{ errors.regimen[0] }}
                                         </small>
@@ -298,86 +326,46 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Pestaña de Datos de Emergencia -->
                         <div class="tab-pane fade" id="emergency" role="tabpanel" aria-labelledby="emergency-tab">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- Contacto de emergencia -->
                                     <div class="mb-3">
-                                        <FloatInput id="cont_emergencia" label="Contacto de Emergencia" 
-                                            v-model="form.cont_emergencia" icon="pi pi-user" 
+                                        <FloatInput id="cont_emergencia" label="Contacto de Emergencia"
+                                            v-model="form.cont_emergencia" icon="pi pi-user"
                                             :invalid="!!errors.cont_emergencia" :errors="errors" size="small" />
                                     </div>
-                                    
-                                    <!-- Parentesco -->
-                                    <div class="mb-3">
-                                        <FloatInput id="padre_madre" label="Parentesco" v-model="form.padre_madre" 
-                                            icon="pi pi-users" :invalid="!!errors.padre_madre" 
-                                            :errors="errors" size="small" />
-                                    </div>
+
+
                                 </div>
-                                
+
                                 <div class="col-md-6">
                                     <!-- Celular de emergencia -->
                                     <div class="mb-3">
-                                        <FloatInput id="cel_emergencia" label="Celular de Emergencia" 
-                                            v-model="form.cel_emergencia" icon="pi pi-phone" 
+                                        <FloatInput id="cel_emergencia" label="Celular de Emergencia"
+                                            v-model="form.cel_emergencia" icon="pi pi-phone"
                                             :invalid="!!errors.cel_emergencia" :errors="errors" size="small" />
                                     </div>
-                                    
-                                    <!-- Email personal -->
-                                    <div class="mb-3">
-                                        <FloatInput id="email_per" label="Email Personal" v-model="form.email_per" 
-                                            type="email" icon="pi pi-envelope" :invalid="!!errors.email_per" 
-                                            :errors="errors" size="small" />
-                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Pestaña de Acceso -->
                         <div class="tab-pane fade" id="access" role="tabpanel" aria-labelledby="access-tab">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- Usuario -->
                                     <div class="mb-3">
-                                        <FloatInput id="user" label="Usuario" v-model="form.user" 
-                                            icon="pi pi-user" :invalid="!!errors.user" 
-                                            :errors="errors" size="small" />
-                                    </div>
-                                    
-                                    <!-- Acceso -->
-                                    <div class="mb-3">
-                                        <label for="acceso" class="form-label">Nivel de Acceso</label>
-                                        <Dropdown id="acceso" v-model="form.acceso" :options="accesoOptions" 
-                                            optionLabel="label" optionValue="value" placeholder="Seleccionar nivel de acceso"
-                                            :class="{ 'p-invalid': !!errors.acceso }" class="w-100" />
-                                        <small v-if="errors.acceso" class="p-error">
-                                            {{ errors.acceso[0] }}
-                                        </small>
-                                    </div>
-                                    
-                                    <!-- Fecha de habilitación de acceso -->
-                                    <div class="mb-3">
-                                        <label for="fecha_habilitacion_acceso" class="form-label">Fecha Habilitación Acceso</label>
-                                        <DatePicker v-model="form.fecha_habilitacion_acceso" id="fecha_habilitacion_acceso" 
-                                            dateFormat="dd/mm/yy" :showIcon="true" class="w-100" 
-                                            :class="{ 'is-invalid': !!errors.fecha_habilitacion_acceso }" />
-                                        <div v-if="errors.fecha_habilitacion_acceso" class="invalid-feedback d-block">
-                                            {{ errors.fecha_habilitacion_acceso[0] }}
-                                        </div>
+                                        <FloatInput id="user" label="Usuario" v-model="form.user" icon="pi pi-user"
+                                            :invalid="!!errors.user" :errors="errors" size="small" />
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-6">
-                                    <!-- Habilitado por -->
-                                    <div class="mb-3">
-                                        <FloatInput id="habilitado_por" label="Habilitado Por" v-model="form.habilitado_por" 
-                                            icon="pi pi-user-plus" :invalid="!!errors.habilitado_por" 
-                                            :errors="errors" size="small" />
-                                    </div>
-                                    
                                     <!-- Es conductor -->
                                     <div class="mb-3">
                                         <div class="form-check form-switch mt-4">
@@ -386,27 +374,7 @@
                                             <label class="form-check-label" for="esConductorCheck">Es Conductor</label>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Activo -->
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch mt-4">
-                                            <input v-model="form.activo" class="form-check-input" type="checkbox"
-                                                id="activoCheck" role="switch">
-                                            <label class="form-check-label" for="activoCheck">Activo</label>
-                                        </div>
-                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Switch de activo (mantenido para compatibilidad) -->
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <div class="form-check form-switch">
-                                <input v-model="form.is_active" class="form-check-input" type="checkbox"
-                                    id="isActiveCheck" role="switch">
-                                <label class="form-check-label" for="isActiveCheck">Usuario Activo</label>
                             </div>
                         </div>
                     </div>
@@ -524,6 +492,9 @@
             <template #body-area_nombre="{ data }">
                 {{ data.area_nombre || '-' }}
             </template>
+            <template #body-condicion_nombre="{ data }">
+                {{ data.condicion_nombre || '-' }}
+            </template>
             <template v-if="isSuperuser" #body-acceso="{ data }">
                 <!-- Habilitado -->
                 <Badge v-if="data.acceso === true" severity="success" class="p-2">
@@ -603,11 +574,12 @@
                                         </div>
                                         <div class="field mb-1">
                                             <label class="text-600 small fw-medium">Salario</label>
-                                            <p class="m-0 text-900 fw-medium">{{ formatCurrency(data.salario || '-' )}}</p>
+                                            <p class="m-0 text-900 fw-medium">{{ formatCurrency(data.salario || '-') }}
+                                            </p>
                                         </div>
                                         <div class="field mb-1">
                                             <label class="text-600 small fw-medium">Anexo</label>
-                                            <p class="m-0 text-900 fw-medium">{{ data.anexo || '-' }}</p>
+                                            <p class="m-0 text-900 fw-medium">{{ data.anexo_number || '-' }}</p>
                                         </div>
                                     </div>
 
@@ -788,10 +760,20 @@ const selectedModulos = ref([]);
 const modalMode = ref('habilitar');
 const message = ref('');
 const messageType = ref('info');
+
+const anexoOptions = ref([]); // Array vacío inicial
+const condicionOptions = ref([]); // Array vacío inicial
+const nivelOptions = ref([]); // Array vacío inicial
 const dependenciasOptions = ref([]);
 const areasOptions = ref([]);
+const profesionOptions = ref([]);
+const cargoOptions = ref([]);
+const regimenOptions = ref([]);
+const grupoOcupacionalOptions = ref([]);
+const estadoOptions = ref([]);
+const genericaOptions = ref([]);
 
-// Computed para opciones de filtro
+
 const dependenciaOptions = computed(() => {
     return [...new Set(personalStore.personal.map(p => p.dependencia_nombre))].filter(Boolean);
 });
@@ -820,6 +802,12 @@ const FORM_STATE = {
     email: '',
     dependencia: '',
     area: '',
+    profesion: '',
+    cargo: '',
+    regimen: '',
+    grupo_ocupacional: '',
+    estado: '',
+    generica: '',
     fecha_nac: '',
     fecha_inicio: '',
     salario: '',
@@ -855,13 +843,22 @@ const columns = ref([
         filter: true,
         filterOptions: areaOptions
     },
+    {
+        field: 'condicion_nombre', header: 'CONDICIÓN', sortable: false, bodyTemplate: true, filter: true, filterOptions: computed(() =>
+            personalStore.personal.map(u => u.condicion_nombre).filter((v, i, a) => a.indexOf(v) === i)
+        ),
+    },
+
 ]);
 // Opciones para el dropdown de sexo
 const sexoOptions = ref([
     { value: 'M', label: 'Masculino' },
     { value: 'F', label: 'Femenino' }
 ]);
-
+const opcionesSiNo = ref([
+    { value: 'Si', label: 'Sí' },
+    { value: 'No', label: 'No' }
+]);
 // Manejar cambios de filtro
 const handleFilterChange = (event) => {
     if (event.field === 'dependencia_nombre') {
@@ -871,37 +868,37 @@ const handleFilterChange = (event) => {
 };
 // Función para formatear el salario
 const formatSalario = (event) => {
-  let input = event.target.value;
-  
-  // Eliminar todos los caracteres no numéricos excepto el punto decimal
-  let numericValue = input.replace(/[^\d.]/g, '');
-  
-  // Eliminar puntos decimales adicionales
-  const decimalParts = numericValue.split('.');
-  if (decimalParts.length > 2) {
-    numericValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
-  }
-  
-  // Limitar a dos decimales
-  if (decimalParts.length === 2) {
-    numericValue = decimalParts[0] + '.' + decimalParts[1].slice(0, 2);
-  }
-  
-  // Formatear con separadores de miles
-  if (numericValue) {
-    const parts = numericValue.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    numericValue = parts.join('.');
-  }
-  
-  // Actualizar el valor en el formulario (sin el símbolo de moneda)
-  form.value.salario = numericValue;
+    let input = event.target.value;
+
+    // Eliminar todos los caracteres no numéricos excepto el punto decimal
+    let numericValue = input.replace(/[^\d.]/g, '');
+
+    // Eliminar puntos decimales adicionales
+    const decimalParts = numericValue.split('.');
+    if (decimalParts.length > 2) {
+        numericValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
+    }
+
+    // Limitar a dos decimales
+    if (decimalParts.length === 2) {
+        numericValue = decimalParts[0] + '.' + decimalParts[1].slice(0, 2);
+    }
+
+    // Formatear con separadores de miles
+    if (numericValue) {
+        const parts = numericValue.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        numericValue = parts.join('.');
+    }
+
+    // Actualizar el valor en el formulario (sin el símbolo de moneda)
+    form.value.salario = numericValue;
 };
 
 // También necesitamos una función para convertir el valor formateado a número antes de enviarlo
 const getUnformattedSalario = () => {
-  if (!form.value.salario) return null;
-  return parseFloat(form.value.salario.replace(/,/g, ''));
+    if (!form.value.salario) return null;
+    return parseFloat(form.value.salario.replace(/,/g, ''));
 };
 
 // Métodos
@@ -932,64 +929,53 @@ const closeDeleteModal = () => {
 };
 
 const openEditModal = async (personal) => {
-    editing.value = true;
-    personalToEdit.value = personal;
+    try {
+        editing.value = true;
+        personalToEdit.value = personal;
 
-    // Resetear formulario
-    Object.assign(form.value, FORM_STATE);
+        // Resetear formulario primero
+        resetForm();
 
-    // Llenar el formulario con los datos del personal
-    form.value = {
-        ...form.value,
-        ...personal,
-    };
+        // Llenar el formulario con los datos del personal
+        form.value = {
+            ...personal,
+            dependencia: personal.dependencia?.id || personal.dependencia,
+            area: personal.area?.id || personal.area,
+            anexo: personal.anexo?.id || personal.anexo,
+            condicion: personal.condicion?.id || personal.condicion,
+            nivel: personal.nivel?.id || personal.nivel,
+            profesion: personal.nivel?.id || personal.profesion,
+            cargo: personal.nivel?.id || personal.cargo,
+            regimen: personal.nivel?.id || personal.regimen,
+            grupo_ocupacional: personal.nivel?.id || personal.grupo_ocupacional,
+            estado: personal.nivel?.id || personal.estado,
+            generica: personal.nivel?.id || personal.generica
+        };
 
-    // Obtener el ID de la dependencia
-    const dependenciaId = personal.dependencia?.id || personal.dependencia;
+        console.log('Datos del formulario:', form.value);
 
-    if (dependenciaId) {
-        try {
-            console.log('Cargando áreas para dependencia ID:', dependenciaId);
+        // Si hay dependencia, cargar sus áreas
+        if (form.value.dependencia) {
+            try {
+                console.log('Cargando áreas para dependencia ID:', form.value.dependencia);
+                const areasData = await personalStore.ListAreasByDependencia(form.value.dependencia);
+                console.log('Áreas cargadas:', areasData);
+                areasOptions.value = areasData;
 
-            // Cargar áreas para la dependencia
-            const areasData = await personalStore.ListAreasByDependencia(dependenciaId);
-            console.log('Áreas cargadas:', areasData);
-
-            // Actualizar las opciones del dropdown
-            areasOptions.value = areasData;
-
-            // Esperar a que el DOM se actualice
-            await nextTick();
-
-            // Establecer el área después de que las opciones estén disponibles
-            const areaId = personal.area?.id || personal.area;
-            console.log('Intentando establecer área:', areaId);
-
-            if (areaId) {
-                // Asegurarse de que el área existe en las opciones
-                const areaExists = areasData.some(area =>
-                    area.id == areaId || area.id.toString() === areaId.toString()
-                );
-
-                if (areaExists) {
-                    console.log('Estableciendo área:', areaId);
-                    form.value.area = areaId;
-                } else {
-                    console.warn('Área no encontrada en las opciones:', areaId);
-                    form.value.area = '';
-                }
+                // Esperar a que el DOM se actualice
+                await nextTick();
+            } catch (error) {
+                console.error('Error loading areas for edit:', error);
+                areasOptions.value = [];
             }
-        } catch (error) {
-            console.error('Error loading areas for edit:', error);
-            areasOptions.value = [];
-            form.value.area = '';
         }
-    } else {
-        areasOptions.value = [];
-        form.value.area = '';
-    }
 
-    showModal.value = true;
+        showModal.value = true;
+
+    } catch (error) {
+        console.error('Error al abrir modal de edición:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la información para editar', life: 3000 });
+    }
 };
 const proceedDelete = async () => {
     isDeleting.value = true;
@@ -1006,31 +992,31 @@ const proceedDelete = async () => {
 };
 
 const handleSubmit = async () => {
-  isSubmitting.value = true;
-  errors.value = {};
+    isSubmitting.value = true;
+    errors.value = {};
 
-  try {
-    // Crear copia del formulario con el salario sin formato
-    const submitData = {
-      ...form.value,
-      salario: getUnformattedSalario()
-    };
+    try {
+        // Crear copia del formulario con el salario sin formato
+        const submitData = {
+            ...form.value,
+            salario: getUnformattedSalario()
+        };
 
-    if (editing.value) {
-      await personalStore.UpdatePersonal(personalToEdit.value.id, submitData);
-    } else {
-      await personalStore.CreatePersonal(submitData);
+        if (editing.value) {
+            await personalStore.UpdatePersonal(personalToEdit.value.id, submitData);
+        } else {
+            await personalStore.CreatePersonal(submitData);
+        }
+        closeModal();
+    } catch (error) {
+        if (error.response?.data) {
+            errors.value = error.response.data;
+        } else {
+            console.error('Error al guardar:', error);
+        }
+    } finally {
+        isSubmitting.value = false;
     }
-    closeModal();
-  } catch (error) {
-    if (error.response?.data) {
-      errors.value = error.response.data;
-    } else {
-      console.error('Error al guardar:', error);
-    }
-  } finally {
-    isSubmitting.value = false;
-  }
 };
 
 // Métodos para gestión de módulos
@@ -1101,19 +1087,55 @@ const resetearPassword = async (person) => {
     }
 };
 
-// Lifecycle
 onMounted(async () => {
     try {
         await personalStore.ListPersonal();
         await personalStore.ListModulos();
 
+        // Cargar anexos
+        const anexosData = await personalStore.ListAnexos();
+        anexoOptions.value = anexosData;
+
+        // Cargar condicion
+        const condicionData = await personalStore.ListCondicion();
+        condicionOptions.value = condicionData;
+
+        // Cargar nivel
+        const nivelData = await personalStore.ListNivel();
+        nivelOptions.value = nivelData;
+
         // Cargar dependencias
         const dependenciasData = await personalStore.ListDependencias();
         dependenciasOptions.value = dependenciasData;
+
+        // Cargar profesion
+        const profesionData = await personalStore.ListProfesion();
+        profesionOptions.value = profesionData;
+
+        // Cargar cargo
+        const cargoData = await personalStore.ListCargo();
+        cargoOptions.value = cargoData;
+
+        // Cargar regimen
+        const regimenData = await personalStore.ListRegimen();
+        regimenOptions.value = regimenData;
+
+        // Cargar regimen
+        const grupoOcupacionalData = await personalStore.ListGrupoOcupacional();
+        grupoOcupacionalOptions.value = grupoOcupacionalData;
+
+        // Cargar regimen
+        const estadoData = await personalStore.ListEstado();
+        estadoOptions.value = estadoData;
+
+        // Cargar regimen
+        const genericaData = await personalStore.ListGenerica();
+        genericaOptions.value = genericaData;
     } catch (error) {
         console.error('Error loading data:', error);
     }
-});// Watcher para cuando cambie la dependencia seleccionada
+});
+
 watch(() => form.value.dependencia, async (newDependencia) => {
     // Obtener el ID (puede ser un objeto o un ID directo)
     const dependenciaId = newDependencia?.id || newDependencia;
@@ -1290,5 +1312,9 @@ watch(() => form.value.dependencia, async (newDependencia) => {
     border-bottom: 2px solid #2563EB;
     /* Azul más oscuro al pasar el mouse */
     color: #2563EB !important;
+}
+
+small {
+    color: #6B7B90;
 }
 </style>

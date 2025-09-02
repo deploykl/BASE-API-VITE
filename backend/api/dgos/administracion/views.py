@@ -14,6 +14,31 @@ from api.services.userServices import PersonalAccessService
 from rest_framework.decorators import action
 from rest_framework.response import Response
 # Create your views here.
+
+class AnexoViewSet(viewsets.ModelViewSet):
+    queryset = Anexo.objects.all()  # Añade esta línea
+    serializer_class = AnexoSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+
+class ConditionViewSet(viewsets.ModelViewSet):
+    queryset = Condition.objects.all()  # Añade esta línea
+    serializer_class = ConditionSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+
+class NivelViewSet(viewsets.ModelViewSet):
+    queryset = Nivel.objects.all()  # Añade esta línea
+    serializer_class = NivelSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+
 class DependenciaViewSet(viewsets.ModelViewSet):
     queryset = Dependencia.objects.all()  # Añade esta línea
     serializer_class = DependenciaSerializer
@@ -31,6 +56,54 @@ class AreaViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_fields = ['dependencia']  # ← AÑADE ESTA LÍNEA
 
+class ProfesionViewSet(viewsets.ModelViewSet):
+    queryset = Profesion.objects.all()  # Añade esta línea
+    serializer_class = ProfesionSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+class CargoViewSet(viewsets.ModelViewSet):
+    queryset = Cargo.objects.all()  # Añade esta línea
+    serializer_class = CargoSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+class RegimenViewSet(viewsets.ModelViewSet):
+    queryset = Regimen.objects.all()  # Añade esta línea
+    serializer_class = RegimenSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+class GrupoOcupacionalViewSet(viewsets.ModelViewSet):
+    queryset = GrupoOcupacional.objects.all()  # Añade esta línea
+    serializer_class = GrupoOcupacionalSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+class EstadoViewSet(viewsets.ModelViewSet):
+    queryset = Estado.objects.all()  # Añade esta línea
+    serializer_class = EstadoSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
+class GenericaViewSet(viewsets.ModelViewSet):
+    queryset = Generica.objects.all()  # Añade esta línea
+    serializer_class = GenericaSerializer
+    permission_classes = [IsAuthenticated] 
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
 # Create your views here.
 class PersonalViewSet(viewsets.ModelViewSet):
     queryset = Personal.objects.all()  # Añade esta línea

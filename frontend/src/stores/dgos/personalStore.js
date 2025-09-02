@@ -6,10 +6,19 @@ import { useCustomToast } from "@/components/utils/toast";
 export const usePersonalStore = defineStore("personalStore", () => {
   const toast = useCustomToast();
   const loading = ref(false);
+  const anexos = ref([]);
+  const condicion = ref([]);
+  const nivel = ref([]);
   const personal = ref([]);
   const modulos = ref([]); // Añadir módulos al store
   const dependencias = ref([]);
   const areas = ref([]);
+  const profesion = ref([]);
+  const cargo = ref([]);
+  const regimen = ref([]);
+  const grupo_ocupacional = ref([]);
+  const estado = ref([]);
+  const generica = ref([]);
   const error = ref(null);
   const selectedDependencia = ref(null);
 
@@ -60,28 +69,130 @@ export const usePersonalStore = defineStore("personalStore", () => {
       throw err;
     }
   };
-   const ListAreas = async () => {
+  const ListAreas = async () => {
     try {
       const response = await api.get("dgos/administracion/area/"); // Ajusta la URL según tu API
       areas.value = response.data;
       return response.data;
     } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar areas";
+      toast.showError(message);
+      throw err;
+    }
+  };
+  const ListAnexos = async () => {
+    try {
+      const response = await api.get("dgos/administracion/anexo/"); // Ajusta la URL según tu API
+      anexos.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar anexos";
+      toast.showError(message);
+      throw err;
+    }
+  };
+  const ListCondicion = async () => {
+    try {
+      const response = await api.get("dgos/administracion/condicion/"); // Ajusta la URL según tu API
+      condicion.value = response.data;
+      return response.data;
+    } catch (err) {
       const message =
-        err.response?.data?.message || "Error al cargar areas";
+        err.response?.data?.message || "Error al cargar condicion";
+      toast.showError(message);
+      throw err;
+    }
+  };
+  const ListNivel = async () => {
+    try {
+      const response = await api.get("dgos/administracion/nivel/"); // Ajusta la URL según tu API
+      nivel.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar nivel";
       toast.showError(message);
       throw err;
     }
   };
   const ListAreasByDependencia = async (dependenciaId) => {
-  try {
-    const response = await api.get(`dgos/administracion/area/?dependencia=${dependenciaId}`);
-    return response.data;
-  } catch (err) {
-    const message = err.response?.data?.message || "Error al cargar áreas";
-    toast.showError(message);
-    throw err;
-  }
-};
+    try {
+      const response = await api.get(
+        `dgos/administracion/area/?dependencia=${dependenciaId}`
+      );
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar áreas";
+      toast.showError(message);
+      throw err;
+    }
+  };
+  const ListProfesion = async () => {
+    try {
+      const response = await api.get("dgos/administracion/profesion/"); // Ajusta la URL según tu API
+      profesion.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message =
+        err.response?.data?.message || "Error al cargar profesion";
+      toast.showError(message);
+      throw err;
+    }
+  };
+  const ListCargo = async () => {
+    try {
+      const response = await api.get("dgos/administracion/cargo/"); // Ajusta la URL según tu API
+      cargo.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar cargo";
+      toast.showError(message);
+      throw err;
+    }
+  };
+  const ListRegimen = async () => {
+    try {
+      const response = await api.get("dgos/administracion/regimen/"); // Ajusta la URL según tu API
+      regimen.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar regimen";
+      toast.showError(message);
+      throw err;
+    }
+  };
+    const ListGrupoOcupacional = async () => {
+    try {
+      const response = await api.get("dgos/administracion/grupo_ocupacional/"); // Ajusta la URL según tu API
+      grupo_ocupacional.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar grupo_ocupacional";
+      toast.showError(message);
+      throw err;
+    }
+  };
+    const ListEstado = async () => {
+    try {
+      const response = await api.get("dgos/administracion/estado/"); // Ajusta la URL según tu API
+      estado.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar estado";
+      toast.showError(message);
+      throw err;
+    }
+  };
+    const ListGenerica = async () => {
+    try {
+      const response = await api.get("dgos/administracion/generica/"); // Ajusta la URL según tu API
+      generica.value = response.data;
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || "Error al cargar generica";
+      toast.showError(message);
+      throw err;
+    }
+  };
   // NUEVO: Obtener módulos disponibles
   const ListModulos = async () => {
     try {
@@ -270,19 +381,37 @@ export const usePersonalStore = defineStore("personalStore", () => {
   return {
     // Estado
     loading,
+    anexos,
+    condicion,
+    nivel,
     personal,
     modulos,
     dependencias,
     areas,
+    profesion,
+    cargo,
+    regimen,
+    grupo_ocupacional,
+    estado,
+    generica,
     error,
     selectedDependencia,
     areaFilterOptions,
 
     // Métodos
+    ListAnexos,
+    ListCondicion,
+    ListNivel,
     ListPersonal,
     ListModulos,
     ListDependencias,
     ListAreas,
+    ListProfesion,
+    ListCargo,
+    ListRegimen,
+    ListGrupoOcupacional,
+    ListEstado,
+    ListGenerica,
     ListAreasByDependencia,
     CreatePersonal,
     UpdatePersonal,
