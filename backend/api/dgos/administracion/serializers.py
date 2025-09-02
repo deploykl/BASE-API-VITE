@@ -8,6 +8,7 @@ class DependenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependencia
         fields = '__all__'
+
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Area
