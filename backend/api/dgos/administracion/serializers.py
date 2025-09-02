@@ -2,19 +2,58 @@ from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from api.user.serializers import ModuloSerializer, UserSerializer
 from datetime import date
-from .models import Dependencia, Personal, Vehiculo, Comision, Area
+from .models import *
 
+class AnexoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Anexo
+        fields = '__all__'
+class ConditionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Condition
+        fields = '__all__'
+class NivelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Nivel
+        fields = '__all__'
 class DependenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependencia
         fields = '__all__'
-
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Area
         fields = '__all__'
+   
+class ProfesionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profesion
+        fields = '__all__'
+
+class CargoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cargo
+        fields = '__all__'
         
+class RegimenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Regimen
+        fields = '__all__'
+class GrupoOcupacionalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GrupoOcupacional
+        fields = '__all__'        
+class EstadoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estado
+        fields = '__all__'    
+        
+class GenericaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Generica
+        fields = '__all__'          
 class PersonalSerializer(serializers.ModelSerializer):
+    anexo_number = serializers.CharField(source='anexo.number', read_only=True)
     dependencia_nombre = serializers.CharField(source='dependencia.nombre', read_only=True)
     area_nombre = serializers.CharField(source='area.nombre', read_only=True)
     anexo_number = serializers.CharField(source='anexo.number', read_only=True)
