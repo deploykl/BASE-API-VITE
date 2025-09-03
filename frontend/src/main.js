@@ -29,6 +29,12 @@ import Sidebar from 'primevue/sidebar';
 import Textarea from 'primevue/Textarea';
 import Select  from 'primevue/Select';
 import DatePicker from 'primevue/datepicker';
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
+
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
@@ -91,6 +97,11 @@ app.component('Sidebar', Sidebar);
 app.component('Textarea', Textarea);
 app.component('Select', Select);
 app.component('DatePicker', DatePicker);
+app.component('Tabs', Tabs);
+app.component('TabList', TabList);
+app.component('Tab', Tab);
+app.component('TabPanels', TabPanels);
+app.component('TabPanel', TabPanel);
 
 // Monta la aplicación
 app.mount('#app')

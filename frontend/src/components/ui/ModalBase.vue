@@ -6,10 +6,12 @@
     :header="dynamicTitle"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
     @hide="handleClose"
-    
   >
+
     <div class="dialog-content">
       <slot name="content"></slot>
+        <Divider />
+
     </div>
     
     <template #footer>
@@ -97,5 +99,8 @@ const handleClose = () => {
 <style scoped>
 .dialog-content {
   padding: 1.2rem 1.2rem 0 1.2rem !important;
+}
+.custom-modal{
+  border:1px solid red;
 }
 </style>

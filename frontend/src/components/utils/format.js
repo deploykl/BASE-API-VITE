@@ -56,10 +56,15 @@ export const formatDateTimeForInput = (dateString) => {
  * @returns {string} - Valor formateado como moneda
  */
 export const formatCurrency = (value, currency = 'PEN') => {
+  // Verificar si el valor es null, undefined, vacío o no es un número válido
+  if (value === null || value === undefined || value === '' || isNaN(Number(value))) {
+    return '-';
+  }
+  
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',
     currency: currency,
-  }).format(value || 0);
+  }).format(value);
 };
 
 /**
