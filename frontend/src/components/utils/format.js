@@ -142,6 +142,23 @@ export const onlyNumbersTelefono = (event) => {
     return formattedValue; // Retorna con guión
 };
 
+export const onlyNumbersSpaceHyphen = (event, maxLength = null) => {
+    let value = event.target.value;
+    
+    // Filtrar solo números, espacios y guiones
+    value = value.replace(/[^\d\s-]/g, '');
+    
+    // Limitar longitud si se especifica
+    if (maxLength !== null) {
+        value = value.slice(0, maxLength);
+    }
+    
+    // Actualizar el valor del input
+    event.target.value = value;
+    
+    return value;
+};
+
 export const onlyNumbers = (event, maxLength = null) => {
     let value = event.target.value;
     
@@ -158,6 +175,7 @@ export const onlyNumbers = (event, maxLength = null) => {
     
     return value;
 };
+export const onlyNumbersSpaceHyphenUnlimited = (event) => onlyNumbersSpaceHyphen(event);
 
 // Para DNI (8 dígitos)
 export const onlyNumbersDNI = (event) => onlyNumbers(event, 8);
@@ -170,3 +188,25 @@ export const onlyNumbersCelular = (event) => onlyNumbers(event, 9);
 
 // Para cualquier campo sin límite
 export const onlyNumbersUnlimited = (event) => onlyNumbers(event);
+
+
+// Función para formatear fecha a YYYY-MM-DD (sin problemas de zona horaria)
+// En tu archivo de utils/format.js
+export const formatDateToISO = (date) => {
+    if (!date) return null;
+    if (date instanceof Date) {
+        return date.toISOString().split('T')[0];
+    }
+    return date;
+};
+
+export const parseDateFromISO = (dateString) => {
+    if (!dateString) return null;
+    
+    // Crear fecha y ajustar por timezone offset
+    const date = new Date(dateString);
+    const timezoneOffset = date.getTimezoneOffset() * 60000; // minutos a milisegundos
+    const adjustedDate = new Date(date.getTime() + timezoneOffset);
+    
+    return adjustedDate;
+};

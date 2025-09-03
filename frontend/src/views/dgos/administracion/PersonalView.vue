@@ -42,18 +42,17 @@
                                     <!-- Email -->
                                     <div class="mb-3">
                                         <FloatInput id="email" label="Email Institucional" v-model="form.email"
-                                            type="email institucional" icon="pi pi-envelope" :invalid="!!errors.email"
+                                            type="email" icon="pi pi-envelope" :invalid="!!errors.email"
                                             :errors="errors" size="small" />
                                     </div>
 
-                                    <!-- Fecha de nacimiento -->
                                     <div class="mb-3">
                                         <FloatLabel>
                                             <label for="fecha_nac" class="form-label" style="font-size: 0.8rem;">
                                                 <i class="pi pi-calendar me-2"></i>
                                                 Fecha de Nacimiento
                                             </label>
-                                            <DatePicker v-model="form.fecha_nac" id="fecha_nac" dateFormat="dd/mm/yy"
+                                            <DatePicker v-model="form.fecha_nac" id="fecha_nac"
                                                 :showIcon="false" class="w-100" size="small"
                                                 :class="{ 'is-invalid': !!errors.fecha_nac }" inputId="fecha_nac"
                                                 :showClear="true" />
@@ -97,7 +96,7 @@
                                                     <i :class="slotProps.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
                                                         style="font-size: 1rem; margin-right: 8px;"></i>
                                                     <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino'
-                                                        }}</span>
+                                                    }}</span>
                                                 </div>
                                                 <span v-else>
                                                     {{ slotProps.placeholder }}
@@ -799,7 +798,7 @@ import DatePicker from 'primevue/datepicker';
 import { useRouter } from 'vue-router'
 import { api } from "@/components/services/Axios"
 import { useToast } from 'primevue/usetoast';
-import { calculateTimeWorked, formatCurrency, onlyNumbersDNI, onlyNumbersRUC, onlyNumbersCelular, onlyNumbersTelefono } from "@/components/utils/format";
+import { calculateTimeWorked, formatCurrency, onlyNumbersDNI, onlyNumbersRUC, onlyNumbersCelular, onlyNumbersTelefono, formatDateToISO, parseDateFromISO } from "@/components/utils/format";
 import { distritosLima } from "@/components/utils/distritos";
 
 const personalStore = usePersonalStore();
@@ -886,7 +885,7 @@ const columns = ref([
     { field: 'dni', header: 'DNI', bodyTemplate: true, filter: false },
     { field: 'ruc', header: 'RUC', bodyTemplate: true, filter: false },
     { field: 'full_name', header: 'NOMBRE COMPLETO', sortable: true, bodyTemplate: true, filter: false },
-    { field: 'sexo', header: 'SEXO', sortable: true, bodyTemplate: true, filter: false },
+    { field: 'sexo', header: 'GÉNERO', sortable: true, bodyTemplate: true, filter: false },
     { field: 'fecha_nac', header: 'F.NACIMIENTO', sortable: true, bodyTemplate: true, filter: false },
     { field: 'celular', header: 'CELULAR', sortable: false, bodyTemplate: true, filter: false },
     { field: 'email', header: 'EMAIL', sortable: false, bodyTemplate: true, filter: false },
@@ -911,8 +910,8 @@ const columns = ref([
             personalStore.personal.map(u => u.condicion_nombre).filter((v, i, a) => a.indexOf(v) === i)
         ),
     },
-
 ]);
+
 // Opciones para el dropdown de sexo
 const sexoOptions = ref([
     { value: 'M', label: 'Masculino' },
@@ -1015,21 +1014,24 @@ const openEditModal = async (personal) => {
 
         // Resetear formulario primero
         resetForm();
-
         // Llenar el formulario con los datos del personal
         form.value = {
             ...personal,
+
+            fecha_nac: parseDateFromISO(personal.fecha_nac),
+            fecha_inicio: parseDateFromISO(personal.fecha_inicio),
+            fecha_fin: parseDateFromISO(personal.fecha_fin),
             dependencia: personal.dependencia?.id || personal.dependencia,
             area: personal.area?.id || personal.area,
             anexo: personal.anexo?.id || personal.anexo,
             condicion: personal.condicion?.id || personal.condicion,
             nivel: personal.nivel?.id || personal.nivel,
-            profesion: personal.nivel?.id || personal.profesion,
-            cargo: personal.nivel?.id || personal.cargo,
-            regimen: personal.nivel?.id || personal.regimen,
-            grupo_ocupacional: personal.nivel?.id || personal.grupo_ocupacional,
-            estado: personal.nivel?.id || personal.estado,
-            generica: personal.nivel?.id || personal.generica
+            profesion: personal.profesion?.id || personal.profesion, // Corregí
+            cargo: personal.cargo?.id || personal.cargo,             // Corregí
+            regimen: personal.regimen?.id || personal.regimen,
+            grupo_ocupacional: personal.grupo_ocupacional?.id || personal.grupo_ocupacional,
+            estado: personal.estado?.id || personal.estado,
+            generica: personal.generica?.id || personal.generica
         };
 
         console.log('Datos del formulario:', form.value);
@@ -1079,7 +1081,11 @@ const handleSubmit = async () => {
         // Crear copia del formulario con el salario sin formato
         const submitData = {
             ...form.value,
-            salario: getUnformattedSalario()
+            salario: getUnformattedSalario(),
+            fecha_nac: formatDateToISO(form.value.fecha_nac),
+            fecha_inicio: formatDateToISO(form.value.fecha_inicio),
+            fecha_fin: formatDateToISO(form.value.fecha_fin),
+
         };
 
         if (editing.value) {

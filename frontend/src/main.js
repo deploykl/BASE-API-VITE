@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'          // Importa el router
-import { createPinia } from 'pinia'    // Importa Pinia
+import router from './router'
+import { createPinia } from 'pinia'
 import ErrorMessage from '@/components/utils/ErrorMessage.vue'
 import PrimeVue from 'primevue/config'
 import FloatLabel from 'primevue/floatlabel'
@@ -15,7 +15,7 @@ import Message from 'primevue/message';
 import ProgressSpinner from 'primevue/progressspinner';
 import Aura from '@primeuix/themes/aura';
 import Toast from 'primevue/toast';
-import ToastService from 'primevue/toastservice' // Añade esta importación
+import ToastService from 'primevue/toastservice'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dropdown from 'primevue/dropdown';
@@ -51,12 +51,59 @@ import 'primeicons/primeicons.css'
 import '@/assets/css/font.css'
 import '@/assets/css/main.css'
 
+// LOCALE EN ESPAÑOL MANUAL
+const esLocale = {
+    startsWith: 'Comienza con',
+    contains: 'Contiene',
+    notContains: 'No contiene',
+    endsWith: 'Termina con',
+    equals: 'Igual a',
+    notEquals: 'No igual a',
+    noFilter: 'Sin filtro',
+    lt: 'Menor que',
+    lte: 'Menor o igual que',
+    gt: 'Mayor que',
+    gte: 'Mayor o igual que',
+    dateIs: 'La fecha es',
+    dateIsNot: 'La fecha no es',
+    dateBefore: 'La fecha es anterior',
+    dateAfter: 'La fecha es posterior',
+    clear: 'Limpiar',
+    apply: 'Aplicar',
+    matchAll: 'Coincidir con todos',
+    matchAny: 'Coincidir con cualquier',
+    addRule: 'Agregar regla',
+    removeRule: 'Eliminar regla',
+    accept: 'Sí',
+    reject: 'No',
+    choose: 'Elegir',
+    upload: 'Subir',
+    cancel: 'Cancelar',
+    completed: 'Completado',
+    pending: 'Pendiente',
+    fileSizeTypes: ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+    dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+    dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+    dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    today: 'Hoy',
+    weekHeader: 'Sem',
+    firstDayOfWeek: 1,
+    dateFormat: 'dd/mm/yy',
+    weak: 'Débil',
+    medium: 'Medio',
+    strong: 'Fuerte',
+    passwordPrompt: 'Ingrese una contraseña',
+    emptyFilterMessage: 'No se encontraron resultados',
+    emptyMessage: 'No hay opciones disponibles'
+};
+
 const app = createApp(App)
 const pinia = createPinia()
 
-// Configure and use PrimeVue once
+// Configure and use PrimeVue with Spanish locale
 app.use(PrimeVue, {
-    // Default theme configuration
     theme: {
         preset: Aura,
         options: {
@@ -64,8 +111,9 @@ app.use(PrimeVue, {
             darkModeSelector: 'false',
             cssLayer: false
         }
-    }
- });
+    },
+    locale: esLocale
+});
 
 // Use other plugins
 app.use(router)
