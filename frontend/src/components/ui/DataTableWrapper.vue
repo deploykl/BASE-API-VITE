@@ -377,13 +377,19 @@ const rowClass = (data) => {
   return [
     {
       'inactive-row': data.is_active === false,
-      'active-row': data.is_active === true
+      'active-row': data.is_active === true,
+      'cesado-row': data.estado_nombre === 'Cesado' // Añade esta línea
     }
   ];
 };
 
 const rowStyle = (data) => {
-  if (data.is_active === false) {
+  if (data.estado_nombre === 'Cesado') {
+    return {
+      backgroundColor: '#fff5f5', // Fondo rojo claro para cesados
+      'box-shadow': 'inset 5px 0 0 #dc3545' // Borde rojo intenso para cesados
+    };
+  } else if (data.is_active === false) {
     return {
       backgroundColor: '#f8f9fa',
       color: '#868e96',
@@ -1065,5 +1071,44 @@ const printTable = () => {
   .header-search-container .p-inputtext {
     font-size: 0.8rem;
   }
+}
+/* Nuevos estilos para cesado */
+:deep(.cesado-row) {
+    background-color: #fff5f5 !important;
+    border-left: 4px solid #dc3545 !important;
+}
+
+:deep(.cesado-row:hover) {
+    background-color: #ffe6e6 !important;
+}
+
+/* Para el panel de expansión cuando es cesado */
+:deep(.cesado-row + tr .expansion-content) {
+    background-color: #fff5f5 !important;
+}
+
+:deep(.cesado-row + tr .expansion-card) {
+    border-left: 4px solid #dc3545 !important;
+    background-color: #fffafa !important;
+}
+
+/* Badge específico para estado cesado */
+.badge-cesado {
+    background-color: #dc3545 !important;
+    color: white !important;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Estilo para el panel de expansión cuando es cesado */
+:deep(.bg-cesado) {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%) !important;
+}
+
+:deep(.bg-cesado .expansion-card) {
+    background-color: #fffafa !important;
+    border-left: 4px solid #dc3545 !important;
 }
 </style>

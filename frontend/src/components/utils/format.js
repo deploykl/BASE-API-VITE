@@ -120,3 +120,53 @@ export const calculateTimeWorked = (startDate) => {
     return '-';
   }
 };
+
+export const onlyNumbersTelefono = (event) => {
+    let value = event.target.value;
+    
+    // Filtrar solo números y remover guiones existentes
+    let numbersOnly = value.replace(/[^\d]/g, '');
+    
+    // Limitar a 7 dígitos (máximo para teléfono fijo)
+    numbersOnly = numbersOnly.slice(0, 7);
+    
+    // Aplicar formato con guión
+    let formattedValue = numbersOnly;
+    if (numbersOnly.length > 3) {
+        formattedValue = numbersOnly.slice(0, 3) + '-' + numbersOnly.slice(3);
+    }
+    
+    // Actualizar el valor del input
+    event.target.value = formattedValue;
+    
+    return formattedValue; // Retorna con guión
+};
+
+export const onlyNumbers = (event, maxLength = null) => {
+    let value = event.target.value;
+    
+    // Filtrar solo números
+    value = value.replace(/[^\d]/g, '');
+    
+    // Limitar longitud si se especifica
+    if (maxLength !== null) {
+        value = value.slice(0, maxLength);
+    }
+    
+    // Actualizar el valor del input
+    event.target.value = value;
+    
+    return value;
+};
+
+// Para DNI (8 dígitos)
+export const onlyNumbersDNI = (event) => onlyNumbers(event, 8);
+
+// Para RUC (11 dígitos)
+export const onlyNumbersRUC = (event) => onlyNumbers(event, 11);
+
+// Para Celular (9 dígitos)
+export const onlyNumbersCelular = (event) => onlyNumbers(event, 9);
+
+// Para cualquier campo sin límite
+export const onlyNumbersUnlimited = (event) => onlyNumbers(event);

@@ -18,6 +18,7 @@ from redis import Redis
 from django.conf import settings
 from datetime import datetime, timedelta  # Modifica esta línea
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 User = get_user_model()
 

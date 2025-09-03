@@ -21,17 +21,18 @@ const props = defineProps({
 })
 
 const statusClass = computed(() => ({
-  'online': props.isApiConnected === true,
-  'offline': props.isApiConnected === false,
+  'online': props.isApiConnected === true && !props.isCheckingApi,
+  'offline': props.isApiConnected === false && !props.isCheckingApi,
   'checking': props.isCheckingApi
 }))
 
 const iconClass = computed(() => ({
-  'pi pi-database': props.isApiConnected === true && !props.isCheckingApi,
-  'pi pi-times-circle': props.isApiConnected === false && !props.isCheckingApi,
-  'pi pi-spin pi-spinner': props.isCheckingApi
+  'pi': true,
+  'bi bi-database-fill-gear': props.isApiConnected === true && !props.isCheckingApi,
+  'pi-times-circle': props.isApiConnected === false && !props.isCheckingApi,
+  'pi-spinner': props.isCheckingApi,
+  'pi-spin': props.isCheckingApi // Añadido para la animación de spinner
 }))
-
 
 const statusText = computed(() => {
   if (props.isCheckingApi) return 'Verificando API...'
@@ -39,10 +40,10 @@ const statusText = computed(() => {
 })
 
 const tooltipText = computed(() => {
-  if (props.isCheckingApi) return 'Verificando conexión con el servidor...'
+  if (props.isCheckingApi) return 'Verificando conexión con el servidor Django...'
   return props.isApiConnected ? 
-    'Conexión estable con el servidor' : 
-    'Problemas de conexión con el servidor'
+    'Conexión estable con el servidor Django' : 
+    'Problemas de conexión con el servidor Django'
 })
 </script>
 
@@ -56,6 +57,7 @@ const tooltipText = computed(() => {
   gap: 0.5rem;
   transition: all 0.3s ease;
   cursor: pointer;
+  min-width: fit-content;
 }
 
 .api-status-indicator.online {
@@ -78,6 +80,20 @@ const tooltipText = computed(() => {
 
 .status-text {
   font-weight: 500;
+}
+
+/* Asegurar que el spinner gire correctamente */
+.pi-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {

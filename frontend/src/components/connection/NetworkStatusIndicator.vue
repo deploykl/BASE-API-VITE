@@ -23,15 +23,11 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  lastNetworkCheck: {  // This must match what's passed from parent
+  lastNetworkCheck: {
     type: Date,
     default: null
   },
   isCheckingNetwork: {
-    type: Boolean,
-    default: false
-  },
-  isCheckingNetwork: {  // Ahora usa esta propiedad específica
     type: Boolean,
     default: false
   }
@@ -46,7 +42,7 @@ const forceNetworkCheck = () => {
 const statusClass = computed(() => ({
   'online': props.isOnline,
   'offline': !props.isOnline,
-  'checking': props.isCheckingNetwork,  // Clase para estado de verificación
+  'checking': props.isCheckingNetwork,
   'clickable': true
 }))
 
@@ -54,8 +50,8 @@ const iconClass = computed(() => ({
   'pi': true,
   'pi-wifi': props.isOnline && !props.isCheckingNetwork,
   'bi bi-wifi-off': !props.isOnline && !props.isCheckingNetwork,
-  'pi-spin pi-spinner': props.isCheckingNetwork // Icono de carga
-}));
+  'pi-spinner pi-spin': props.isCheckingNetwork
+}))
 
 const statusText = computed(() => {
   if (props.isCheckingNetwork) return 'Verificando...'

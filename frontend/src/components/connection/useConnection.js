@@ -1,25 +1,20 @@
 import { ref, onMounted, onUnmounted } from "vue";
-import { api } from "@/components/services/Axios";
 import { useCustomToast } from "@/components/utils/toast";
 
-// Constantes para mejor mantenibilidad
-const NETWORK_TEST_ENDPOINTS = [
-  "https://www.gstatic.com/generate_204",
-  "https://connectivitycheck.gstatic.com/generate_204",
-  "https://api.ipify.org?format=json",
-];
+// Ruta de tu API Django
+const API_BASE_URL = "http://172.27.0.200:5000";
 
 const DEFAULT_CHECK_INTERVALS = {
   online: 60000,    // 1 minuto cuando está online
   offline: 10000,   // 10 segundos cuando está offline
-  retry: 1000,      // 1 segundo para reintentos
-  network: 5000,    // 5 segundos para chequeo de red
+  retry: 5000,      // 5 segundos para reintentos (aumentado)
+  network: 10000,   // 10 segundos para chequeo de red
   debounce: 2000,   // 2 segundos debounce
-  apiTimeout: 3000, // 3 segundos timeout para API
+  apiTimeout: 8000, // 8 segundos timeout para API (aumentado)
 };
 
 export function useConnection() {
-  const toast = useCustomToast(); // Correcta inicialización dentro del composable
+  const toast = useCustomToast();
   
   // Estados reactivos
   const state = {
@@ -55,7 +50,7 @@ export function useConnection() {
     }
   };
 
-  // Verificar estado real de la red
+  // Verificar estado real de la red usando una imagen como método alternativo
   const checkRealNetworkStatus = async () => {
     if (state.isCheckingNetwork.value) return;
     
@@ -64,26 +59,12 @@ export function useConnection() {
 
     let isConnected = false;
 
-    // Probar múltiples endpoints
-    for (const endpoint of NETWORK_TEST_ENDPOINTS) {
-      try {
-        const url = new URL(endpoint);
-        url.searchParams.append("ts", Date.now()); // Evitar caché
-
-        const response = await fetch(url, {
-          method: endpoint.includes("generate_204") ? "HEAD" : "GET",
-          cache: "no-store",
-          mode: "no-cors",
-        });
-
-        isConnected = endpoint.includes("generate_204") 
-          ? response.status === 204 
-          : true;
-
-        if (isConnected) break;
-      } catch {
-        continue;
-      }
+    // Método alternativo para verificar conexión sin problemas CORS
+    try {
+      isConnected = await checkConnectionWithImage();
+    } catch (error) {
+      console.error("Error checking network connection:", error);
+      isConnected = false;
     }
 
     // Solo actualizar si hay cambio de estado
@@ -104,6 +85,37 @@ export function useConnection() {
       checkRealNetworkStatus, 
       DEFAULT_CHECK_INTERVALS.network
     );
+  };
+
+  // Método alternativo para verificar conexión usando una imagen
+  const checkConnectionWithImage = () => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      let timedOut = false;
+      
+      // Timeout para la verificación
+      const timeout = setTimeout(() => {
+        timedOut = true;
+        resolve(false);
+      }, 2000);
+      
+      img.onload = () => {
+        if (!timedOut) {
+          clearTimeout(timeout);
+          resolve(true);
+        }
+      };
+      
+      img.onerror = () => {
+        if (!timedOut) {
+          clearTimeout(timeout);
+          resolve(false);
+        }
+      };
+      
+      // Usar una imagen de Google con timestamp para evitar caché
+      img.src = "https://www.google.com/favicon.ico?t=" + Date.now();
+    });
   };
 
   // Actualizar estado de red con debounce
@@ -133,7 +145,7 @@ export function useConnection() {
     checkRealNetworkStatus();
   };
 
-  // Verificar conexión con la API
+  // Verificar conexión con la API de Django - CORREGIDO
   const checkApiConnection = async () => {
     if (state.isCheckingApi.value || !state.isOnline.value) {
       if (!state.isOnline.value) {
@@ -150,30 +162,65 @@ export function useConnection() {
     );
 
     try {
-      const response = await api.options("", {
+      // Verificar API Django directamente
+      const response = await fetch(`${API_BASE_URL}/api/user/health-check/`, {
+        method: 'GET',
         signal: controller.signal,
-        timeout: DEFAULT_CHECK_INTERVALS.apiTimeout,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
-      const newStatus = response.status >= 200 && response.status < 300;
-
-      if (state.isApiConnected.value !== newStatus) {
-        showNotification(
-          newStatus
-            ? "Conexión con el servidor restablecida"
-            : "Problemas de conexión con el servidor",
-          newStatus ? "success" : "error"
-        );
+      // Verificar si la respuesta es exitosa
+      const responseOk = response.status >= 200 && response.status < 300;
+      
+      if (responseOk) {
+        // Intentar parsear la respuesta JSON
+        try {
+          const data = await response.json();
+          
+          // Verificar el contenido específico de la respuesta
+          // Dependiendo de la estructura de tu health check
+          const isApiHealthy = data.status === "OK" || 
+                              data.status === "success" || 
+                              (data.services && data.services.database === true);
+          
+          if (state.isApiConnected.value !== isApiHealthy) {
+            showNotification(
+              isApiHealthy
+                ? "Conexión con el servidor Django restablecida"
+                : "Problemas de conexión con el servidor Django",
+              isApiHealthy ? "success" : "error"
+            );
+          }
+          
+          state.isApiConnected.value = isApiHealthy;
+        } catch (jsonError) {
+          console.error("Error parsing JSON response:", jsonError);
+          // Si no podemos parsear JSON, al menos la respuesta HTTP fue exitosa
+          state.isApiConnected.value = responseOk;
+          if (state.isApiConnected.value !== responseOk) {
+            showNotification(
+              "Conexión con el servidor Django restablecida",
+              "success"
+            );
+          }
+        }
+      } else {
+        state.isApiConnected.value = false;
+        if (state.isApiConnected.value !== false) {
+          showNotification("Problemas de conexión con el servidor Django", "error");
+        }
       }
 
-      state.isApiConnected.value = newStatus;
       state.lastApiCheck.value = new Date();
       resetCheckInterval();
     } catch (error) {
+      console.error("API connection check failed:", error);
       state.isApiConnected.value = false;
 
-      if (error.message !== "Timeout" && state.lastApiCheck.value) {
-        showNotification("Error al conectar con el servidor", "error");
+      if (error.name !== "AbortError" && state.lastApiCheck.value) {
+        showNotification("Error al conectar con el servidor Django", "error");
       }
 
       scheduleRetry();
@@ -205,9 +252,13 @@ export function useConnection() {
   onMounted(() => {
     window.addEventListener("online", updateNetworkStatus);
     window.addEventListener("offline", updateNetworkStatus);
-    checkApiConnection();
-    resetCheckInterval();
-    checkRealNetworkStatus();
+    
+    // Iniciar verificaciones después de un breve delay
+    setTimeout(() => {
+      checkApiConnection();
+      resetCheckInterval();
+      checkRealNetworkStatus();
+    }, 1000);
   });
 
   onUnmounted(() => {

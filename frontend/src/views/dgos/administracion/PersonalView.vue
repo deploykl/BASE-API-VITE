@@ -97,7 +97,7 @@
                                                     <i :class="slotProps.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
                                                         style="font-size: 1rem; margin-right: 8px;"></i>
                                                     <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino'
-                                                    }}</span>
+                                                        }}</span>
                                                 </div>
                                                 <span v-else>
                                                     {{ slotProps.placeholder }}
@@ -116,14 +116,15 @@
                                     <!-- DNI -->
                                     <div class="mb-3">
                                         <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card"
-                                            :errors="errors" :invalid="!!errors.dni" size="small" required />
+                                            :errors="errors" :invalid="!!errors.dni" size="small" type="tel" required
+                                            maxlength="8" @input="onlyNumbersDNI" />
                                     </div>
 
                                     <!-- Celular -->
                                     <div class="mb-1">
                                         <FloatInput id="celular" label="Celular" v-model="form.celular"
                                             icon="pi pi-mobile" :invalid="!!errors.celular" :errors="errors"
-                                            size="small" />
+                                            size="small" maxlength="9" @input="onlyNumbersCelular" />
                                     </div>
 
                                     <!-- Es Padre / Madre -->
@@ -145,13 +146,14 @@
                                     <div class="mb-3">
                                         <FloatInput id="ruc" label="RUC" v-model="form.ruc"
                                             icon="bi bi-person-badge-fill" :errors="errors" :invalid="!!errors.ruc"
-                                            size="small" required />
+                                            size="small" required maxlength="11" @input="onlyNumbersRUC" />
                                     </div>
                                     <!-- Teléfono -->
                                     <div class="mb-1">
                                         <FloatInput id="telefono" label="Teléfono" v-model="form.telefono"
                                             icon="pi pi-phone" :invalid="!!errors.telefono" :errors="errors"
-                                            size="small" />
+                                            size="small" maxlength="8" @input="onlyNumbersTelefono"
+                                            placeholder="123-4567" />
                                     </div>
 
                                     <!-- Número de hijos (siempre visible pero desactivado cuando no es padre/madre) -->
@@ -552,6 +554,7 @@
             <template #body-condicion_nombre="{ data }">
                 {{ data.condicion_nombre || '-' }}
             </template>
+
             <template v-if="isSuperuser" #body-acceso="{ data }">
                 <!-- Habilitado -->
                 <Badge v-if="data.acceso === true" severity="success" class="p-2">
@@ -796,7 +799,7 @@ import DatePicker from 'primevue/datepicker';
 import { useRouter } from 'vue-router'
 import { api } from "@/components/services/Axios"
 import { useToast } from 'primevue/usetoast';
-import { calculateTimeWorked, formatCurrency } from "@/components/utils/format";
+import { calculateTimeWorked, formatCurrency, onlyNumbersDNI, onlyNumbersRUC, onlyNumbersCelular, onlyNumbersTelefono } from "@/components/utils/format";
 import { distritosLima } from "@/components/utils/distritos";
 
 const personalStore = usePersonalStore();
