@@ -41,3 +41,4 @@ class PersonalExportSerializer(serializers.ModelSerializer):
             today = date.today()
             return today.year - obj.fecha_nac.year - ((today.month, today.day) < (obj.fecha_nac.month, obj.fecha_nac.day))
         return None
+

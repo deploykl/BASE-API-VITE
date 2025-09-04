@@ -519,8 +519,12 @@
 
             <template #header>
                 <div class="d-flex justify-content-between align-items-center">
-                    <Button class="p-button-sm" @click="exportExcel" :loading="exporting" icon="pi pi-download"
-                        label="Excel" />
+                    <Button class="p-button-sm me-1" @click="handleExportExcel" :loading="exporting"
+                        icon="pi pi-file-excel" label="Excel" severity="success" />
+                    <Button class="p-button-sm me-1" @click="handleExportCSV" :loading="exporting" icon="pi pi-file"
+                        label="CSV" severity="info" />
+                    <Button class="p-button-sm" @click="handleExportPDF" :loading="exporting" icon="pi pi-file-pdf"
+                        label="PDF" severity="danger" />
                     <!-- Aquí puedes dejar tu botón de "Nuevo Personal" si quieres -->
                 </div>
             </template>
@@ -823,27 +827,33 @@ import { api } from "@/components/services/Axios";
 import { useToast } from 'primevue/usetoast';
 import { calculateTimeWorked, formatCurrency, onlyNumbersDNI, onlyNumbersRUC, onlyNumbersCelular, onlyNumbersTelefono, formatDateToISO, parseDateFromISO } from "@/components/utils/format";
 import { distritosLima } from "@/components/utils/distritos";
-import { useExportWithLoading } from '@/components/utils/exportData'; // Ajusta la ruta
+import { usePersonalExports } from '@/components/utils/exportData'; // Ajusta la ruta
 
 
-const { exporting, executeExport } = useExportWithLoading();
+const { exporting, exportExcel, exportCSV, exportPDF } = usePersonalExports();
 
 
-const exportExcel = async () => {
-    const result = await executeExport(
-        'componentes/personal/excel/',
-        'personal.xlsx', // Este será el base name
-        'Personal exportado correctamente',
-        'No se pudo exportar el personal'
-    );
-
-    // Mostrar toast basado en el resultado
+// Función para exportar a Excel
+const handleExportExcel = async () => {
+    const result = await exportExcel();
     if (result.toast) {
         toast.add(result.toast);
     }
+};
 
-    if (result.success) {
-        console.log('Archivo descargado:', result.fileName);
+// Función para exportar a CSV
+const handleExportCSV = async () => {
+    const result = await exportCSV();
+    if (result.toast) {
+        toast.add(result.toast);
+    }
+};
+
+// Función para exportar a PDF
+const handleExportPDF = async () => {
+    const result = await exportPDF();
+    if (result.toast) {
+        toast.add(result.toast);
     }
 };
 
@@ -1128,15 +1138,15 @@ const handleSubmit = async () => {
         // ================= VALIDACIONES PREVIAS =================
         const validationErrors = {};
 
-        // Validar DNI (exactamente 8 dígitos si tiene valor)
+        // Validar DNI (permitir ceros al inicio)
         if (form.value.dni) {
             const dniClean = form.value.dni.replace(/\D/g, '');
             if (dniClean.length !== 8) {
                 validationErrors.dni = 'El DNI debe tener exactamente 8 dígitos';
             }
+            // Elimina la validación del cero inicial
         }
-
-        // Validar RUC (exactamente 11 dígitos si tiene valor)
+        // Validar RUC (exactamente 11 dígitos si tiene valor) - MANTENER COMO STRING
         if (form.value.ruc) {
             const rucClean = form.value.ruc.replace(/\D/g, '');
             if (rucClean.length !== 11) {
@@ -1144,15 +1154,14 @@ const handleSubmit = async () => {
             }
         }
 
-        // Validar Teléfono (exactamente 8 dígitos si tiene valor)
+        // Validar Teléfono (formato: 123-4567)
         if (form.value.telefono) {
-            const telefonoClean = form.value.telefono.replace(/\D/g, '');
-            if (telefonoClean.length !== 8) {
-                validationErrors.telefono = 'El teléfono debe tener exactamente 8 dígitos';
+            if (!/^\d{3}-\d{4}$/.test(form.value.telefono)) {
+                validationErrors.telefono = 'El teléfono debe tener el formato 123-4567';
             }
         }
 
-        // Validar Celular (exactamente 9 dígitos si tiene valor)
+        // Validar Celular (exactamente 9 dígitos si tiene valor) - MANTENER COMO STRING
         if (form.value.celular) {
             const celularClean = form.value.celular.replace(/\D/g, '');
             if (celularClean.length !== 9) {
@@ -1160,35 +1169,14 @@ const handleSubmit = async () => {
             }
         }
 
-
-        // Si hay errores de validación, NO enviar y mostrar mensajes
+        // Si hay errores de validación, NO enviar
         if (Object.keys(validationErrors).length > 0) {
             errors.value = validationErrors;
-
-            // Mostrar el primer error en un toast
-            const firstError = Object.values(validationErrors)[0];
-            toast.add({
-                severity: 'error',
-                summary: 'Error de validación',
-                detail: firstError,
-                life: 5000
-            });
-
-            // Hacer scroll al primer error
-            setTimeout(() => {
-                const firstErrorField = Object.keys(validationErrors)[0];
-                const errorElement = document.querySelector(`[data-field="${firstErrorField}"]`);
-                if (errorElement) {
-                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    errorElement.focus();
-                }
-            }, 100);
-
-            return; // Detener la ejecución aquí
+            // ... (código de mostrar errores)
+            return;
         }
 
-        // ================= SI PASÓ LAS VALIDACIONES, ENVIAR DATOS =================
-        // Crear copia del formulario con el salario sin formato
+        // ================= PREPARAR DATOS PARA ENVIAR =================
         const submitData = {
             ...form.value,
             salario: getUnformattedSalario(),
@@ -1208,13 +1196,15 @@ const handleSubmit = async () => {
             estado: form.value.estado ? parseInt(form.value.estado) : null,
             generica: form.value.generica ? parseInt(form.value.generica) : null,
 
-            // Campos numéricos (ya validados, así que podemos limpiarlos)
-            dni: form.value.dni ? parseInt(form.value.dni.replace(/\D/g, '')) : null,
-            ruc: form.value.ruc ? parseInt(form.value.ruc.replace(/\D/g, '')) : null,
+            // === CORRECCIÓN: MANTENER COMO STRINGS PARA CONSERVAR FORMATO ===
+            dni: form.value.dni ? form.value.dni.replace(/\D/g, '') : null, // Solo dígitos, pero como string
+            ruc: form.value.ruc ? form.value.ruc.replace(/\D/g, '') : null, // Solo dígitos, pero como string
             n_hijos: form.value.n_hijos ? parseInt(form.value.n_hijos.replace(/\D/g, '')) : null,
-            celular: form.value.celular ? parseInt(form.value.celular.replace(/\D/g, '')) : null,
-            telefono: form.value.telefono ? parseInt(form.value.telefono.replace(/\D/g, '')) : null,
-            cel_emergencia: form.value.cel_emergencia ? parseInt(form.value.cel_emergencia.replace(/\D/g, '')) : null
+
+            // Teléfono y celulares: mantener como strings
+            celular: form.value.celular ? form.value.celular.replace(/\D/g, '') : null, // Solo dígitos
+            telefono: form.value.telefono || null, // ← Mantiene el formato 123-4567
+            cel_emergencia: form.value.cel_emergencia ? form.value.cel_emergencia.replace(/\D/g, '') : null // Solo dígitos
         };
 
         console.log('Datos a enviar:', submitData);
