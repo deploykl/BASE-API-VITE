@@ -96,32 +96,93 @@ class PersonalSerializer(serializers.ModelSerializer):
     created_by_username = serializers.CharField(
         source="created_by.username", read_only=True
     )
-    ruc = serializers.CharField(
-        required=True
-    )  # por esta ve porque en el modelo esta null y blank true
-    email = serializers.EmailField(
-        required=False,  # No obligatorio
-        allow_null=True,  # Acepta null
-        allow_blank=True,  # Acepta ""
-        error_messages={"invalid": "Correo inválido"},
-    )
-    email_per= serializers.EmailField(
-        required=False,  # No obligatorio
-        allow_null=True,  # Acepta null
-        allow_blank=True,  # Acepta ""
-        error_messages={"invalid": "Correo inválido"},
-    )
     class Meta:
         model = Personal
         fields = "__all__"
+    class Meta:
+        model = Personal
+        fields = "__all__"
+        read_only_fields = ["created_by"]
         extra_kwargs = {
-            "dni": {"required": True},
+            "dni": {
+                "required": True,
+                "min_length": 8,
+                "max_length": 8,
+                "error_messages": {
+                    "min_length": "El DNI debe tener exactamente 8 dígitos",
+                    "max_length": "El DNI debe tener exactamente 8 dígitos",
+                    "blank": "El DNI es obligatorio"
+                }
+            },
+            "ruc": {
+                "required": True,
+                "min_length": 11,
+                "max_length": 11,
+                "error_messages": {
+                    "min_length": "El RUC debe tener exactamente 11 dígitos",
+                    "max_length": "El RUC debe tener exactamente 11 dígitos",
+                    "blank": "El RUC es obligatorio"
+                }
+            },
+            "celular": {
+                "required": False,
+                "min_length": 9,
+                "max_length": 9,
+                "error_messages": {
+                    "min_length": "El celular debe tener exactamente 9 dígitos",
+                    "max_length": "El celular debe tener exactamente 9 dígitos"
+                }
+            },
+            "telefono": {
+                "required": False,
+                "min_length": 8,
+                "max_length": 8,
+                "error_messages": {
+                    "min_length": "El teléfono debe tener exactamente 8 dígitos",
+                    "max_length": "El teléfono debe tener exactamente 8 dígitos"
+                }
+            },
+            "email": {
+                "required": False,
+                "allow_blank": True,
+                "allow_null": True,
+                "error_messages": {"invalid": "Correo inválido"}
+            },
+            "email_per": {
+                "required": False,
+                "allow_blank": True,
+                "allow_null": True,
+                "error_messages": {"invalid": "Correo inválido"}
+            },
             "nombre": {"required": True},
-            "apellido": {"required": True},
-            "ruc": {"required": True},
+            "apellido": {"required": True}
         }
         read_only_fields = ["created_by"]
 
+    def validate_email(self, value):
+        """Solo validar unicidad si el email tiene valor"""
+        if value in [None, ""]:
+            return None
+        
+        if Personal.objects.filter(email=value).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError("Este email ya está registrado")
+        return value
+
+    def validate_email_per(self, value):
+        """Solo validar unicidad si el email_per tiene valor"""
+        if value in [None, ""]:
+            return None
+        
+        if Personal.objects.filter(email_per=value).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError("Este email personal ya está registrado")
+        return value
+    
+    def validate(self, data):
+        """Convertir strings vacíos a None"""
+        for field in ['email', 'email_per']:
+            if field in data and data[field] == "":
+                data[field] = None
+        return data   
     @extend_schema_field(str)
     def get_full_name(self, obj) -> str:
         return f"{obj.nombre} {obj.apellido}".strip() or "-"

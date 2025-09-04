@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 
 from .Choices import MARCA_CHOICES, ESTADO_CHOICES
 
@@ -146,8 +147,15 @@ class Personal(models.Model):
     verbose_name="Creado por"
 )
     # Datos personales
-    dni = models.CharField(max_length=8, unique = True, null=False, blank=False)
-    ruc = models.CharField(max_length=11, null=True, blank=True, verbose_name="RUC")  # Cambiado a null=True
+    dni = models.CharField(
+        max_length=8,
+        validators=[MinLengthValidator(8), MaxLengthValidator(8)],
+    )    
+    ruc = models.CharField(
+        max_length=11,
+        validators=[MinLengthValidator(11), MaxLengthValidator(11)],
+        
+    )  # Cambiado a null=True
     nombre = models.CharField(max_length=50, verbose_name="Nombres")
     apellido = models.CharField(max_length=50, verbose_name="Apellidos")
     sexo = models.CharField(max_length=1, verbose_name="Sexo", null=True, blank=True,)        # AÑADE ESTE CAMPO NUEVO
@@ -184,15 +192,19 @@ class Personal(models.Model):
     )
     celular = models.CharField(
         max_length=9,
-        null=True,
         blank=True,
-        verbose_name="Celular",
+        null=True,
+        validators=[MinLengthValidator(9), MaxLengthValidator(9)],
+        
     )
     telefono = models.CharField(
         max_length=10,  # Aumentado a 10 para incluir código de área
         null=True,
         blank=True,
         verbose_name="Teléfono fijo",
+        validators=[MinLengthValidator(8), MaxLengthValidator(8)],
+        
+
     )
     # Información laboral   
     fecha_inicio = models.DateField(verbose_name="Fecha inicio", null=True, blank=True)

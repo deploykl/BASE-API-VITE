@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import render
 from .models import *
 from .serializers import *
@@ -13,6 +14,7 @@ from .models import Personal
 from api.services.userServices import PersonalAccessService
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from api.permissions import PersonalPermissions
 # Create your views here.
 
 class AnexoViewSet(viewsets.ModelViewSet):
@@ -108,7 +110,7 @@ class GenericaViewSet(viewsets.ModelViewSet):
 class PersonalViewSet(viewsets.ModelViewSet):
     queryset = Personal.objects.all()  # Añade esta línea
     serializer_class = PersonalSerializer
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated, PersonalPermissions] 
     ordering = ["id"]
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
@@ -127,6 +129,24 @@ class PersonalViewSet(viewsets.ModelViewSet):
             
         return queryset.order_by('apellido', 'nombre')
     
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except IntegrityError:
+            return Response(
+                {'error': 'El email ya existe en el sistema'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except Exception as e:
+            # Log del error para debugging
+            print(f"Error en update: {str(e)}")
+            return Response(
+                {'error': 'Error al actualizar el registro', 'details': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )    
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def habilitar_acceso(self, request, pk=None):
         personal = self.get_object()

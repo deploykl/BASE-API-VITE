@@ -7,6 +7,29 @@ class IsSuperUser(BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_superuser
 
+class PersonalPermissions(BasePermission):
+    """
+    Permisos:
+    - Superusuarios: Todo
+    - Usuarios normales: Ver todo, crear, editar todo, pero solo eliminar sus propias creaciones
+    """
+    
+    def has_object_permission(self, request, view, obj):
+        # Superusuarios pueden hacer TODO
+        if request.user.is_superuser:
+            return True
+            
+        # Todos pueden VER (GET, HEAD, OPTIONS) y EDITAR (PUT, PATCH)
+        if request.method in SAFE_METHODS or request.method in ['PUT', 'PATCH']:
+            return True
+            
+        # Solo pueden ELIMINAR (DELETE) si son el creador
+        if request.method == 'DELETE':
+            return obj.created_by == request.user
+        
+        return False
+    
+    
 class HasModuleAccess(BasePermission):
     """
     Permite el acceso solo si el usuario tiene asignado el módulo requerido o es superusuario.
