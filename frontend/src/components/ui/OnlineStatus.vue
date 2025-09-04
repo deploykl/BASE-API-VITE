@@ -1,46 +1,52 @@
 <template>
-    <div class="floating-users-panel" :class="{ 'panel-collapsed': isCollapsed }" ref="panelRef"
-        :style="{ top: panelTop + 'px' }">
-        <div class="panel-content">
-            <div class="panel-header" @mousedown="startHeaderDrag" @click="handleHeaderClick">
-                <i class="pi pi-users"></i>
-                <span>Usuarios ({{ onlineCount }})</span>
-            </div>
+  <div class="floating-users-panel" :class="{ 'panel-collapsed': isCollapsed }" ref="panelRef"
+       :style="{ top: panelTop + 'px' }">
+    <div class="panel-content">
+      <div class="panel-header" @mousedown="startHeaderDrag" @click="handleHeaderClick">
+        <i class="pi pi-users"></i>
+        <span>Usuarios ({{ onlineCount }})</span>
+      </div>
 
-            <div class="panel-body">
-                <div v-if="loading" class="loading-indicator">
-                    <ProgressSpinner style="width: 30px; height: 30px" />
-                </div>
-                <div v-else-if="onlineUsers.length === 0" class="empty-message">
-                    <i class="pi pi-users mr-2"></i>
-                    No hay usuarios conectados
-                </div>
-                <div v-else class="users-list">
-                    <div v-for="user in onlineUsers" :key="user.id" class="user-item">
-                        <Badge severity="success" class="mr-2"></Badge>
-                        <div class="user-info">
-                            <span class="username">{{ user.username }}</span>
-                            <span class="fullname">{{ user.fullname }}</span>
-                        </div>
-                        <span v-if="user.device_count > 1" class="connection-count">
-                            {{ user.device_count }}x
-                        </span>
-                    </div>
-                </div>
-            </div>
+      <div class="panel-body">
+        <div v-if="loading" class="loading-indicator">
+          <ProgressSpinner style="width: 30px; height: 30px" />
         </div>
-
-        <button class="panel-toggle-button" :class="{ 'is-collapsed': isCollapsed }" @mousedown="startDrag"
-            @click="handleButtonClick">
-            <i class="pi pi-users"></i>
-            <span class="badge">{{ onlineCount }}</span>
-        </button>
+        <div v-else-if="onlineUsers.length === 0" class="empty-message">
+          <i class="pi pi-users mr-2"></i>
+          No hay usuarios conectados
+        </div>
+        <div v-else class="users-list">
+          <div v-for="user in onlineUsers" :key="user.id" class="user-item">
+            <Badge severity="success" class="mr-2"></Badge>
+            <div class="user-info">
+              <span class="username">{{ user.username }}</span>
+              <span class="fullname">{{ user.fullname }}</span>
+            </div>
+            <span v-if="user.device_count > 1" class="connection-count">
+              {{ user.device_count }}x
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <button class="panel-toggle-button" :class="{ 'is-collapsed': isCollapsed }"
+            @mousedown="startDrag" @click="handleButtonClick">
+      <i class="pi pi-users"></i>
+      <span class="badge">{{ onlineCount }}</span>
+    </button>
+
+    <Toast />
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import loginSoundFile from '@/assets/audios/login.ogg';
+import logoutSoundFile from '@/assets/audios/logout.ogg';
 
+const toast = useToast();
 const onlineUsers = ref([]);
 const loading = ref(true);
 const onlineCount = ref(0);
@@ -52,6 +58,12 @@ const hasDragged = ref(false);
 const dragStartY = ref(0);
 const dragStartTop = ref(0);
 
+const loginSound = ref(null);
+const logoutSound = ref(null);
+const previousUsers = ref(new Map());
+const firstLoad = ref(true);
+const myUserId = localStorage.getItem('user_id'); // Ajusta según tu app
+
 let socket = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
@@ -59,177 +71,192 @@ const reconnectDelay = 3000;
 let heartbeatInterval = null;
 
 const connectWebSocket = () => {
-    loading.value = true;
+  loading.value = true;
 
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-        console.error('No authentication token available');
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    console.error('No authentication token available');
+    loading.value = false;
+    return;
+  }
+
+  const wsUrl = import.meta.env.VITE_API_URL_WS_URL ||
+      `${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}/ws/online-status/`;
+
+  socket = new WebSocket(wsUrl);
+
+  socket.onopen = () => {
+    reconnectAttempts = 0;
+    socket.send(JSON.stringify({ type: 'authenticate', token }));
+
+    heartbeatInterval = setInterval(() => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'heartbeat' }));
+      }
+    }, 30000);
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'online_users') {
+        detectUserChanges(data.users);
+        onlineUsers.value = data.users;
+        onlineCount.value = data.users.length;
         loading.value = false;
-        return;
+      } else if (data.type === 'authentication_success') {
+        console.log('Autenticación WebSocket exitosa');
+      }
+    } catch (e) {
+      console.error('Error parsing WebSocket message:', e);
+    }
+  };
+
+  socket.onclose = (event) => {
+    console.log('WebSocket cerrado:', event.code, event.reason);
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+
+    if (!event.wasClean && reconnectAttempts < maxReconnectAttempts) {
+      setTimeout(() => {
+        reconnectAttempts++;
+        console.log(`Reconectando (intento ${reconnectAttempts}/${maxReconnectAttempts})...`);
+        connectWebSocket();
+      }, reconnectDelay);
+    }
+  };
+
+  socket.onerror = (error) => {
+    console.error('WebSocket error:', error);
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+  };
+};
+
+const detectUserChanges = (newUsers) => {
+  const currentUsersMap = new Map(newUsers.map(u => [u.id, u]));
+
+  if (!firstLoad.value) {
+    // Usuarios nuevos
+    for (const [id, user] of currentUsersMap) {
+      if (!previousUsers.value.has(id) && id != myUserId) {
+        showUserNotification(user, 'conectado');
+        playLoginSound();
+      }
     }
 
-    // Use the Vite environment variable directly
-    const wsUrl = import.meta.env.VITE_API_URL_WS_URL ||
-        `${window.location.protocol === 'https:' ? 'wss://' : 'ws://'}${window.location.host}/ws/online-status/`;
-
-    socket = new WebSocket(wsUrl);
-
-    socket = new WebSocket(wsUrl);
-
-    socket.onopen = () => {
-        reconnectAttempts = 0;
-
-        // Enviar token como primer mensaje
-        socket.send(JSON.stringify({
-            type: 'authenticate',
-            token: token
-        }));
-
-        // Configurar heartbeat
-        heartbeatInterval = setInterval(() => {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'heartbeat' }));
-            }
-        }, 30000);
-    };
-
-    socket.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-
-            if (data.type === 'online_users') {
-                onlineUsers.value = data.users;
-                onlineCount.value = data.users.length;
-                loading.value = false;
-            } else if (data.type === 'authentication_success') {
-                console.log('Autenticación WebSocket exitosa');
-            }
-        } catch (e) {
-            console.error('Error parsing WebSocket message:', e);
-        }
-    };
-
-    socket.onclose = (event) => {
-        console.log('WebSocket cerrado:', event.code, event.reason);
-        if (heartbeatInterval) clearInterval(heartbeatInterval);
-
-        if (!event.wasClean && reconnectAttempts < maxReconnectAttempts) {
-            setTimeout(() => {
-                reconnectAttempts++;
-                console.log(`Reconectando (intento ${reconnectAttempts}/${maxReconnectAttempts})...`);
-                connectWebSocket();
-            }, reconnectDelay);
-        }
-    };
-
-    socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        if (heartbeatInterval) clearInterval(heartbeatInterval);
-    };
-};
-
-const togglePanel = () => {
-    isCollapsed.value = !isCollapsed.value;
-};
-
-const handleHeaderClick = (e) => {
-    if (hasDragged.value) {
-        e.preventDefault();
-        return;
+    // Usuarios desconectados
+    for (const [id, user] of previousUsers.value) {
+      if (!currentUsersMap.has(id) && id != myUserId) {
+        showUserNotification(user, 'desconectado');
+        playLogoutSound();
+      }
     }
-    togglePanel();
+  }
+
+  previousUsers.value = currentUsersMap;
+  firstLoad.value = false;
 };
 
-const handleButtonClick = (e) => {
-    if (hasDragged.value) {
-        e.preventDefault();
-        hasDragged.value = false;
-        return;
-    }
-    togglePanel();
+
+const playLoginSound = () => {
+  if (loginSound.value) {
+    loginSound.value.currentTime = 0;
+    loginSound.value.play().catch(() => {});
+  }
 };
 
-const startDrag = (e) => {
-    if (!isCollapsed.value) return;
-
-    isDragging.value = true;
-    hasDragged.value = false;
-    dragStartY.value = e.clientY;
-    dragStartTop.value = panelTop.value;
-
-    panelRef.value.classList.add('dragging-active');
-
-    document.addEventListener('mousemove', handleDrag, { passive: false });
-    document.addEventListener('mouseup', stopDrag, { passive: true });
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
+const playLogoutSound = () => {
+  if (logoutSound.value) {
+    logoutSound.value.currentTime = 0;
+    logoutSound.value.play().catch(() => {});
+  }
 };
 
-const startHeaderDrag = (e) => {
-    if (isCollapsed.value) return;
-
-    isDragging.value = true;
-    hasDragged.value = false;
-    dragStartY.value = e.clientY;
-    dragStartTop.value = panelTop.value;
-
-    panelRef.value.classList.add('dragging-active');
-
-    document.addEventListener('mousemove', handleDrag, { passive: false });
-    document.addEventListener('mouseup', stopDrag, { passive: true });
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
+const showUserNotification = (user, action) => {
+  toast.add({
+    severity: action === 'conectado' ? 'info' : 'warn',
+    summary: `Usuario ${action}`,
+    detail: `${user.fullname || user.username} se ha ${action}`,
+    life: 4000,
+    icon: action === 'conectado' ? 'pi pi-user-plus' : 'pi pi-user-minus',
+    styleClass: 'user-login-toast'
+  });
 };
 
-const handleDrag = (e) => {
-    if (!isDragging.value) return;
-    e.preventDefault();
+// Panel toggle & drag
+const togglePanel = () => { isCollapsed.value = !isCollapsed.value; };
+const handleHeaderClick = e => { if (!hasDragged.value) togglePanel(); else { e.preventDefault(); hasDragged.value = false; }};
+const handleButtonClick = e => { if (!hasDragged.value) togglePanel(); else { e.preventDefault(); hasDragged.value = false; }};
 
-    // Detect if we've dragged more than 5px to consider it a drag
-    if (Math.abs(e.clientY - dragStartY.value) > 5) {
-        hasDragged.value = true;
-    }
+const startDrag = e => {
+  if (!isCollapsed.value) return;
+  isDragging.value = true;
+  hasDragged.value = false;
+  dragStartY.value = e.clientY;
+  dragStartTop.value = panelTop.value;
+  panelRef.value.classList.add('dragging-active');
+  document.addEventListener('mousemove', handleDrag, { passive: false });
+  document.addEventListener('mouseup', stopDrag, { passive: true });
+  document.body.style.userSelect = 'none';
+  e.preventDefault();
+};
 
-    const deltaY = e.clientY - dragStartY.value;
-    let newTop = dragStartTop.value + deltaY;
+const startHeaderDrag = e => {
+  if (isCollapsed.value) return;
+  isDragging.value = true;
+  hasDragged.value = false;
+  dragStartY.value = e.clientY;
+  dragStartTop.value = panelTop.value;
+  panelRef.value.classList.add('dragging-active');
+  document.addEventListener('mousemove', handleDrag, { passive: false });
+  document.addEventListener('mouseup', stopDrag, { passive: true });
+  document.body.style.userSelect = 'none';
+  e.preventDefault();
+};
 
-    requestAnimationFrame(() => {
-        panelTop.value = Math.max(0, Math.min(window.innerHeight - 44, newTop));
-    });
+const handleDrag = e => {
+  if (!isDragging.value) return;
+  e.preventDefault();
+  if (Math.abs(e.clientY - dragStartY.value) > 5) hasDragged.value = true;
+  const deltaY = e.clientY - dragStartY.value;
+  let newTop = dragStartTop.value + deltaY;
+  requestAnimationFrame(() => { panelTop.value = Math.max(0, Math.min(window.innerHeight - 44, newTop)); });
 };
 
 const stopDrag = () => {
-    if (!isDragging.value) return;
-
-    isDragging.value = false;
-    panelRef.value.classList.remove('dragging-active');
-    document.body.style.userSelect = '';
-
-    document.removeEventListener('mousemove', handleDrag);
-    document.removeEventListener('mouseup', stopDrag);
-
-    // Small delay to allow click event to check hasDragged
-    setTimeout(() => {
-        hasDragged.value = false;
-    }, 100);
+  if (!isDragging.value) return;
+  isDragging.value = false;
+  panelRef.value.classList.remove('dragging-active');
+  document.body.style.userSelect = '';
+  document.removeEventListener('mousemove', handleDrag);
+  document.removeEventListener('mouseup', stopDrag);
+  setTimeout(() => { hasDragged.value = false; }, 100);
 };
 
 onMounted(() => {
-    panelTop.value = window.innerHeight / 2 - 22;
-    connectWebSocket();
+  loginSound.value = new Audio(loginSoundFile);
+  loginSound.value.volume = 0.9;
+  loginSound.value.preload = 'auto';
 
-    window.addEventListener('resize', () => {
-        panelTop.value = Math.min(panelTop.value, window.innerHeight - 44);
-    });
+  logoutSound.value = new Audio(logoutSoundFile);
+  logoutSound.value.volume = 0.9;
+  logoutSound.value.preload = 'auto';
+
+  panelTop.value = window.innerHeight / 2 - 22;
+  connectWebSocket();
+
+  window.addEventListener('resize', () => {
+    panelTop.value = Math.min(panelTop.value, window.innerHeight - 44);
+  });
 });
 
 onUnmounted(() => {
-    if (socket) {
-        socket.close();
-    }
-    if (heartbeatInterval) clearInterval(heartbeatInterval);
-    document.removeEventListener('mousemove', handleDrag);
-    document.removeEventListener('mouseup', stopDrag);
+  if (socket) socket.close();
+  if (heartbeatInterval) clearInterval(heartbeatInterval);
+  if (loginSound.value) { loginSound.value.pause(); loginSound.value = null; }
+  if (logoutSound.value) { logoutSound.value.pause(); logoutSound.value = null; }
+  document.removeEventListener('mousemove', handleDrag);
+  document.removeEventListener('mouseup', stopDrag);
 });
 </script>
 
@@ -238,13 +265,11 @@ onUnmounted(() => {
     position: fixed;
     right: 0;
     z-index: 100;
-    /* Valor intermedio seguro */
     display: flex;
     contain: layout;
     backface-visibility: hidden;
     transform: translate3d(0, 0, 0);
     pointer-events: none;
-    /* Permite clicks a través del panel */
 }
 
 .floating-users-panel.dragging-active {
@@ -259,7 +284,6 @@ onUnmounted(() => {
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-right: none;
     overflow: hidden;
-    /* Asegura que no haya overflow */
     backdrop-filter: blur(5px);
     transform-origin: right center;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
@@ -291,13 +315,11 @@ onUnmounted(() => {
 .panel-body {
     max-height: 400px;
     overflow: hidden;
-    /* Desactivamos completamente el scroll */
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
 }
 
-/* Ocultar scrollbar en WebKit (Chrome, Safari) */
 .panel-body::-webkit-scrollbar {
     display: none;
     width: 0;
@@ -390,8 +412,6 @@ onUnmounted(() => {
     will-change: transform;
     transform: translate3d(0, 0, 0);
     pointer-events: auto;
-    /* El botón siempre debe ser clickeable */
-
 }
 
 .panel-toggle-button:hover {
@@ -427,14 +447,12 @@ onUnmounted(() => {
 
 .panel-collapsed .panel-content {
     transform: translateX(100%);
-    /* Mueve completamente fuera de pantalla */
     opacity: 0;
     width: 0;
     border: none;
     padding: 0;
     margin: 0;
     pointer-events: none;
-    /* Desactiva interacción cuando está colapsado */
 }
 
 @keyframes fadeIn {
@@ -442,7 +460,6 @@ onUnmounted(() => {
         opacity: 0;
         transform: translateY(5px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -453,25 +470,11 @@ onUnmounted(() => {
     animation: fadeIn 0.3s ease forwards;
 }
 
-.user-item:nth-child(1) {
-    animation-delay: 0.05s;
-}
-
-.user-item:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.user-item:nth-child(3) {
-    animation-delay: 0.15s;
-}
-
-.user-item:nth-child(4) {
-    animation-delay: 0.2s;
-}
-
-.user-item:nth-child(5) {
-    animation-delay: 0.25s;
-}
+.user-item:nth-child(1) { animation-delay: 0.05s; }
+.user-item:nth-child(2) { animation-delay: 0.1s; }
+.user-item:nth-child(3) { animation-delay: 0.15s; }
+.user-item:nth-child(4) { animation-delay: 0.2s; }
+.user-item:nth-child(5) { animation-delay: 0.25s; }
 
 .connection-count {
     margin-left: auto;
@@ -481,5 +484,16 @@ onUnmounted(() => {
     padding: 0.25rem 0.5rem;
     border-radius: 9999px;
     font-weight: 600;
+}
+
+/* Estilos para el toast personalizado */
+:deep(.user-login-toast) {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    border: none;
+    color: white;
+}
+
+:deep(.user-login-toast .p-toast-message-content) {
+    border: none;
 }
 </style>
