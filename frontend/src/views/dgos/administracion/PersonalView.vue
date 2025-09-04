@@ -81,7 +81,7 @@
                                     <!-- Sexo -->
                                     <div class="mb-5">
                                         <Dropdown id="sexo" v-model="form.sexo" :options="sexoOptions"
-                                            optionLabel="label" optionValue="value" placeholder="Seleccionar sexo"
+                                            optionLabel="label" optionValue="value" placeholder="Seleccionar género"
                                             :class="{ 'p-invalid': !!errors.sexo }" class="w-100" size="small"
                                             :showClear="true">
                                             <template #option="slotProps">
@@ -882,7 +882,7 @@ const form = ref({ ...FORM_STATE });
 
 // Columnas con filtros dependientes
 const columns = ref([
-    { field: 'dni', header: 'DNI', bodyTemplate: true, filter: false },
+    { field: 'dni', header: 'DNI', bodyTemplate: true, filter: false,sortable: true, },
     { field: 'ruc', header: 'RUC', bodyTemplate: true, filter: false },
     { field: 'full_name', header: 'NOMBRE COMPLETO', sortable: true, bodyTemplate: true, filter: false },
     { field: 'sexo', header: 'GÉNERO', sortable: true, bodyTemplate: true, filter: false },
@@ -1085,8 +1085,28 @@ const handleSubmit = async () => {
             fecha_nac: formatDateToISO(form.value.fecha_nac),
             fecha_inicio: formatDateToISO(form.value.fecha_inicio),
             fecha_fin: formatDateToISO(form.value.fecha_fin),
-
+// Asegurar que los IDs sean números
+            dependencia: form.value.dependencia ? parseInt(form.value.dependencia) : null,
+            area: form.value.area ? parseInt(form.value.area) : null,
+            condicion: form.value.condicion ? parseInt(form.value.condicion) : null,
+            nivel: form.value.nivel ? parseInt(form.value.nivel) : null,
+            profesion: form.value.profesion ? parseInt(form.value.profesion) : null,
+            cargo: form.value.cargo ? parseInt(form.value.cargo) : null,
+            regimen: form.value.regimen ? parseInt(form.value.regimen) : null,
+            grupo_ocupacional: form.value.grupo_ocupacional ? parseInt(form.value.grupo_ocupacional) : null,
+            estado: form.value.estado ? parseInt(form.value.estado) : null,
+            generica: form.value.generica ? parseInt(form.value.generica) : null,
+            
+            // Campos numéricos
+            dni: form.value.dni ? parseInt(form.value.dni.replace(/\D/g, '')) : null,
+            ruc: form.value.ruc ? parseInt(form.value.ruc.replace(/\D/g, '')) : null,
+            n_hijos: form.value.n_hijos ? parseInt(form.value.n_hijos) : null,
+            celular: form.value.celular ? parseInt(form.value.celular.replace(/\D/g, '')) : null,
+            telefono: form.value.telefono ? parseInt(form.value.telefono.replace(/\D/g, '')) : null,
+            cel_emergencia: form.value.cel_emergencia ? parseInt(form.value.cel_emergencia.replace(/\D/g, '')) : null
         };
+
+        console.log('Datos a enviar:', submitData);
 
         if (editing.value) {
             await personalStore.UpdatePersonal(personalToEdit.value.id, submitData);

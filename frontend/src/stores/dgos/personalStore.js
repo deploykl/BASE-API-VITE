@@ -44,7 +44,7 @@ export const usePersonalStore = defineStore("personalStore", () => {
   const ListPersonal = async () => {
     error.value = null;
     try {
-      const response = await api.get("dgos/administracion/personal");
+      const response = await api.get("dgos/administracion/personal/");
       personal.value = response.data;
       return response.data;
     } catch (err) {
@@ -209,11 +209,9 @@ export const usePersonalStore = defineStore("personalStore", () => {
 
   // Crear un nuevo tablero
   const CreatePersonal = async (personalData) => {
-    loading.value = true;
-
     try {
       const response = await api.post(
-        "dgos/administracion/personal",
+        "dgos/administracion/personal/",
         personalData
       );
       personal.value.unshift(response.data);

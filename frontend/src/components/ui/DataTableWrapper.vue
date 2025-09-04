@@ -831,15 +831,15 @@ const printTable = () => {
 .table-header-container {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.70rem;
   margin-bottom: 1rem;
 }
 
 .table-title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #333;
+  color: #343F54;
 }
 
 .header-actions-container {
@@ -857,7 +857,7 @@ const printTable = () => {
 }
 
 .header-search-container {
-  min-width: 250px;
+  min-width: 300px;
 }
 
 .header-search-container .p-input-icon-left {
@@ -870,14 +870,14 @@ const printTable = () => {
   left: 0.75rem;
   margin-top: -0.5rem;
   color: #6c757d;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .header-search-container .p-inputtext {
   padding-left: 2rem;
   width: 100%;
   height: 36px;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .empty-state,

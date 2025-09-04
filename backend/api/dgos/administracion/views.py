@@ -113,7 +113,9 @@ class PersonalViewSet(viewsets.ModelViewSet):
     ordering_fields = "__all__"
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     #filterset_fields = ['es_conductor', 'activo', 'dependencia'] # se filtra asi 
-
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
     def get_queryset(self):
         queryset = Personal.objects.all()  # ← MUESTRA TODOS
         

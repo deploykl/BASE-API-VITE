@@ -146,11 +146,11 @@ class Personal(models.Model):
     verbose_name="Creado por"
 )
     # Datos personales
-    dni = models.CharField(max_length=8,  null=False, blank=False)
+    dni = models.CharField(max_length=8, unique = True, null=False, blank=False)
     ruc = models.CharField(max_length=11, null=True, blank=True, verbose_name="RUC")  # Cambiado a null=True
     nombre = models.CharField(max_length=50, verbose_name="Nombres")
     apellido = models.CharField(max_length=50, verbose_name="Apellidos")
-    sexo = models.CharField(max_length=1, verbose_name="Sexo")        # AÑADE ESTE CAMPO NUEVO
+    sexo = models.CharField(max_length=1, verbose_name="Sexo", null=True, blank=True,)        # AÑADE ESTE CAMPO NUEVO
     fecha_nac = models.DateField(verbose_name="Fecha de nacimiento", null=True, blank=True)
     distrito = models.CharField(max_length=100, null=True, blank=True)
     direccion = models.CharField(max_length=250, null=True, blank=True)
