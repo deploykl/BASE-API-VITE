@@ -503,6 +503,19 @@
             createButtonIcon="pi pi-user" :expandable="true" @create="openCreateModal"
             @column-filter-change="handleFilterChange">
 
+            <template #header>
+        <div class="d-flex justify-content-between align-items-center">
+            <Button
+                icon="pi pi-file-excel"
+                label="Exportar Excel"
+                class="p-button-success p-button-sm"
+                @click="exportExcel"
+            />
+            <!-- Aquí puedes dejar tu botón de "Nuevo Personal" si quieres -->
+        </div>
+    </template>
+
+    
             <template #body-dni="{ data }">
                 {{ data.dni || '-' }}
             </template>
@@ -796,10 +809,63 @@ import FloatInput from '@/components/widgets/FloatInput.vue';
 import ModalBase from '@/components/ui/ModalBase.vue';
 import DatePicker from 'primevue/datepicker';
 import { useRouter } from 'vue-router'
-import { api } from "@/components/services/Axios"
+import { api } from "@/components/services/Axios";
 import { useToast } from 'primevue/usetoast';
 import { calculateTimeWorked, formatCurrency, onlyNumbersDNI, onlyNumbersRUC, onlyNumbersCelular, onlyNumbersTelefono, formatDateToISO, parseDateFromISO } from "@/components/utils/format";
 import { distritosLima } from "@/components/utils/distritos";
+
+
+const exporting = ref(false);
+
+const exportExcel = async () => {
+  exporting.value = true;
+
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const response = await api.get(`${API_BASE_URL}componentes/personal/excel/`, {
+      responseType: 'blob', // clave para que sea binario
+    });
+
+    // Crear objeto URL a partir del blob
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+
+    // Obtener nombre del archivo desde Content-Disposition si existe
+    const disposition = response.headers['content-disposition'];
+    let fileName = 'personal.xlsx';
+    if (disposition && disposition.indexOf('filename=') !== -1) {
+      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    }
+
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'Archivo Excel exportado correctamente',
+      life: 3000
+    });
+
+  } catch (error) {
+    console.error('Error en exportación:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'No se pudo exportar el archivo Excel',
+      life: 3000
+    });
+  } finally {
+    exporting.value = false;
+  }
+};
+
+
+
 
 const personalStore = usePersonalStore();
 const toast = useToast();

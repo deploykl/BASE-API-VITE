@@ -17,6 +17,7 @@ urlpatterns = [
     path('user/', include('api.user.urls')),  
     path('gore/', include('api.gore.urls')),  
     path('dimon/', include('api.dimon.urls')),  
+    path('componentes/', include('api.componentes.urls')),  
     path('dgos/administracion/', include('api.dgos.administracion.urls')),  
 
 ]
