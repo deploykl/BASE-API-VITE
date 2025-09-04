@@ -785,6 +785,15 @@
                                         <p class="m-0 text-900 fw-medium">{{ data.habilitado_por || '-' }}</p>
                                     </div>
                                     <div class="field mb-1">
+                                        <label class="text-600 small fw-medium">actualizado por</label>
+                                        <p class="m-0 text-900 fw-medium">{{ data.updated_by || '-' }}</p>
+                                    </div>
+                                    <div class="field mb-1">
+                                        <label class="text-600 small fw-medium">Ultima actualización</label>
+                                        <p class="m-0 text-900 fw-medium">{{ data.updated_at_lima || '-' }}
+                                        </p>
+                                    </div>
+                                    <div class="field mb-1">
                                         <label class="text-600 small fw-medium">Acceso</label>
                                         <p class="m-0 text-900 fw-medium">{{ data.fecha_habilitacion_acceso || '-' }}
                                         </p>

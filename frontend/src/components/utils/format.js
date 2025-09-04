@@ -35,6 +35,45 @@ export const formatDateTime = (dateString, options = {}) => {
     return dateString;
   }
 };
+export const formatDateTimeISO = (dateString, options = {}) => {
+  if (!dateString) return '-';
+  try {
+    // Convertir el formato Django (con microsegundos) a formato ISO válido
+    let isoString = dateString;
+    
+    // Si tiene microsegundos (más de 3 decimales), truncar a milisegundos
+    if (dateString.includes('.') && dateString.length > 24) {
+      const parts = dateString.split('.');
+      const milliseconds = parts[1].substring(0, 3); // Tomar solo 3 dígitos para ms
+      const timezonePart = parts[1].substring(3); // Resto (usualmente 'Z' o offset)
+      isoString = `${parts[0]}.${milliseconds}${timezonePart}`;
+    }
+    
+    // Si no tiene zona horaria, agregar 'Z' para indicar UTC
+    if (!isoString.endsWith('Z') && !isoString.includes('+')) {
+      isoString += 'Z';
+    }
+    
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return '-';
+    
+    const defaultOptions = {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false // Formato 24 horas
+    };
+    
+    return new Intl.DateTimeFormat('es-PE', { ...defaultOptions, ...options }).format(date);
+  } catch (error) {
+    console.error('Error formatting date:', dateString, error);
+    return '-';
+  }
+};
+
+
 // Nueva función para formatear fechas para input datetime-local
 export const formatDateTimeForInput = (dateString) => {
   if (!dateString) return '';

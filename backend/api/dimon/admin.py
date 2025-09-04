@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Tablero
+from .models import *
 
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'description')
+    search_fields = ('nombre',)
+    
 @admin.register(Tablero)
 class TableroAdmin(admin.ModelAdmin):
     # Configuración de visualización en la lista

@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from api.user.serializers import ModuloSerializer, UserSerializer
 from datetime import date
 from .models import *
+from django.utils import timezone
 
 
 class AnexoSerializer(serializers.ModelSerializer):
@@ -88,7 +89,7 @@ class PersonalSerializer(serializers.ModelSerializer):
     )
     estado_nombre = serializers.CharField(source="estado.nombre", read_only=True)
     generica_nombre = serializers.CharField(source="generica.nombre", read_only=True)
-
+    updated_by = serializers.SerializerMethodField()
     user = UserSerializer(read_only=True)
     modulos = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()  # ← AÑADE ESTE CAMPO
@@ -96,6 +97,8 @@ class PersonalSerializer(serializers.ModelSerializer):
     created_by_username = serializers.CharField(
         source="created_by.username", read_only=True
     )
+    updated_at_lima = serializers.SerializerMethodField()  # ← Nuevo campo para hora Lima
+    updated_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Personal
@@ -104,7 +107,7 @@ class PersonalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personal
         fields = "__all__"
-        read_only_fields = ["created_by"]
+        read_only_fields = ("created_by", "updated_at", "updated_by")
         extra_kwargs = {
             "email": {
                 "required": False,
@@ -122,7 +125,7 @@ class PersonalSerializer(serializers.ModelSerializer):
             "apellido": {"required": True},
         }
         read_only_fields = ["created_by"]
-        
+
     def validate_email(self, value):
         """Solo validar unicidad si el email tiene valor"""
         if value in [None, ""]:
@@ -155,11 +158,23 @@ class PersonalSerializer(serializers.ModelSerializer):
             if field in data and data[field] == "":
                 data[field] = None
         return data
-
+    
+    def get_updated_at_lima(self, obj):
+        if not obj.updated_at:
+            return None
+        
+        # Convertir a la zona horaria actual del servidor (debería estar configurada como Lima)
+        local_time = timezone.localtime(obj.updated_at)
+        return local_time.strftime('%Y-%m-%d %H:%M:%S')
     @extend_schema_field(str)
     def get_full_name(self, obj) -> str:
         return f"{obj.nombre} {obj.apellido}".strip() or "-"
-
+    
+    def get_updated_by(self, obj):
+        if obj.updated_by:
+            return obj.updated_by.username
+        return None
+    
     def get_modulos(self, obj):
         if obj.user:
             return ModuloSerializer(obj.user.modulos.all(), many=True).data

@@ -118,6 +118,11 @@ class PersonalViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        
+    def perform_update(self, serializer):
+        """Guardar updated_by al actualizar"""
+        serializer.save(updated_by=self.request.user)  # ← ESTA ES LA LÍNEA CLAVE
+        
     def get_queryset(self):
         queryset = Personal.objects.all()  # ← MUESTRA TODOS
         

@@ -3,28 +3,65 @@ from django.db import models, IntegrityError
 from .Choises import GENDER_CHOICES
 from django.core.exceptions import ValidationError
 
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
+    description = models.TextField(blank=True, null=True, verbose_name="Descripción")
+
+    def __str__(self):
+        return f"{self.nombre}"
+
+    class Meta:
+        verbose_name = "Categoria"
+        verbose_name_plural = "Categorias"
+        ordering = ["nombre"]
+        
+class Fuentes(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
+    frecuencia = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    categoria = models.ForeignKey(
+        Categoria,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Categoria",
+    )
+    def __str__(self):
+        return f"{self.nombre}"
+
+    class Meta:
+        verbose_name = "Fuente"
+        verbose_name_plural = "Fuentes"
+        ordering = ["nombre"]        
+
 # Create your models here.
 class Tablero(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
     url = models.URLField(max_length=500, verbose_name="URL del Tablero")
-    codigo_embed = models.TextField()  
+    codigo_embed = models.TextField()
     description = models.TextField(blank=True, null=True, verbose_name="Descripción")
     source = models.CharField(max_length=255, verbose_name="Fuente de datos")
     last_updated = models.DateTimeField(verbose_name="Última actualización")
-    update_frequency  = models.TextField(blank=True, null=True, verbose_name="Frecuencia de actualización")
+    update_frequency = models.TextField(
+        blank=True, null=True, verbose_name="Frecuencia de actualización"
+    )
     is_active = models.BooleanField(default=True)
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)    
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")   
-    
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Fecha de creación"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, verbose_name="Fecha de modificación"
+    )
+
     def __str__(self):
         return f"{self.name}"
-    
+
     class Meta:
         verbose_name = "Tablero"
         verbose_name_plural = "Tableros"
-        ordering = ['name']
-        
+        ordering = ["name"]
+
+
 class ConsultaExterna(models.Model):
     tipo_seguro = models.CharField(max_length=70)
     fecha_nacimiento = models.DateField()
@@ -51,15 +88,15 @@ class ConsultaExterna(models.Model):
     )
     especialidad = models.CharField(max_length=100)
     creado_por = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="consultas_creadas"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="consultas_creadas",
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return (
-            f"Consulta {self.id} - {self.fecha_hora_atencion.date()}"
-        )
+        return f"Consulta {self.id} - {self.fecha_hora_atencion.date()}"
 
     def clean(self):
         super().clean()
