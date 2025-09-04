@@ -30,25 +30,24 @@
       :expandedRows="expandedRows" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" ref="dt"
       :rowClass="rowClass" :rowStyle="rowStyle">
 
-      <template #header>
-        <slot name="header"></slot>
-        <div class="bottom-center flex flex-wrap justify-end gap-1">
-          <template v-if="expandable">
-            <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
-            <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll"
-              class="p-button-text p-button-sm me-1" />
-          </template>
+<template #header>
+  <div class="d-flex align-items-center flex-wrap gap-2">
+    <!-- Botón(es) que vengan desde PersonalView -->
+    <slot name="header"></slot>
 
-          <!-- Botón de Exportación CSV -->
-          <!--<Button icon="pi pi-file-excel" label="CSV" @click="exportCSV" class="p-button-sm me-1" severity="success"
-            :loading="exportingCSV" />-->
-          <Button icon="pi pi-file-pdf outline" label="PDF" @click="exportPDF" class="p-button-sm me-1"
-            severity="danger" />
-          <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-1" severity="info" />
-          <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV2" class="p-button-sm me-1" severity="success" />
-          <Button icon="pi pi-print" label="Imprimir" @click="printTable" class="p-button-sm" severity="secondary" />
-        </div>
-      </template>
+    <!-- Botones propios del DataTableWrapper -->
+    <template v-if="expandable">
+      <Button icon="pi pi-plus" label="Mostrar Todo" @click="expandAll" class="p-button-text p-button-sm" />
+      <Button icon="pi pi-minus" label="Ocultar Todo" @click="collapseAll" class="p-button-text p-button-sm me-1" />
+    </template>
+
+    <Button icon="pi pi-file-pdf" label="PDF" @click="exportPDF" class="p-button-sm me-1" severity="danger" />
+    <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV2" class="p-button-sm me-1" severity="success" />
+    <Button icon="pi pi-print" label="Imprimir" @click="printTable" class="p-button-sm" severity="secondary" />
+  </div>
+</template>
+
+
 
       <!-- Columna expander (condicional) -->
       <Column v-if="expandable" expander style="width: 2rem" headerClass="header-cell">
@@ -591,77 +590,6 @@ const exportPDF = async () => {
 
   // Guardar el PDF
   doc.save(`${title.replace(/\s/g, "_")}_${date.replace(/\//g, "-")}.pdf`);
-};
-
-// Agrega esta función en tus métodos
-const exportExcel = () => {
-  // Preparar los datos
-  const headers = props.columns.map(col => ({
-    title: col.header,
-    dataKey: col.field,
-    dataType: col.dataType
-  }));
-
-  // Crear matriz de datos incluyendo encabezados
-  const excelData = [
-    // Fila de encabezado
-    headers.map(h => h.title),
-    // Filas de datos
-    ...filteredData.value.map(row => {
-      return headers.map(col => {
-        // Formatear valores según tipo
-        const value = row[col.dataKey];
-
-        // Manejar valores null/undefined
-        if (value === null || value === undefined) return '';
-
-        // Caso especial para booleanos (incluyendo el campo staff)
-        if (col.dataType === 'boolean' || typeof value === 'boolean') {
-          return value ? 'Sí' : 'No'; // Mostrar "No" cuando es false
-        }
-        // Formatear fechas
-        else if (col.dataType === 'date') {
-          return value ? new Date(value).toLocaleDateString() : '';
-        }
-        // Formatear números
-        else if (col.dataType === 'numeric') {
-          return Number(value) || 0;
-        }
-        // Valor por defecto (string)
-        return value || '';
-      });
-    })
-  ];
-
-  // Crear hoja de trabajo
-  const ws = utils.aoa_to_sheet(excelData);
-
-  // Estilos para encabezados
-  const headerStyle = {
-    fill: { fgColor: { rgb: "2c3e50" } }, // Fondo oscuro
-    font: { bold: true, color: { rgb: "FFFFFF" } }, // Texto blanco en negrita
-    alignment: { horizontal: "center" }
-  };
-
-  // Aplicar estilos a la primera fila (encabezados)
-  const range = utils.decode_range(ws['!ref']);
-  for (let C = range.s.c; C <= range.e.c; ++C) {
-    const cellAddress = utils.encode_cell({ r: 0, c: C });
-    if (!ws[cellAddress].s) ws[cellAddress].s = {};
-    Object.assign(ws[cellAddress].s, headerStyle);
-  }
-
-  // Ajustar anchos de columnas
-  ws['!cols'] = headers.map(col => ({
-    wch: Math.max(10, Math.min(30, col.title.length * 1.3))
-  }));
-
-  // Crear libro y guardar
-  const wb = utils.book_new();
-  utils.book_append_sheet(wb, ws, "Datos");
-
-  const dateStr = new Date().toISOString().slice(0, 10);
-  writeFile(wb, `${props.title || 'Reporte'}_${dateStr}.xlsx`);
 };
 
 const exportCSV2 = () => {

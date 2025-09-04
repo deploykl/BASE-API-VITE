@@ -95,7 +95,7 @@
                                                     <i :class="slotProps.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
                                                         style="font-size: 1rem; margin-right: 8px;"></i>
                                                     <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino'
-                                                        }}</span>
+                                                    }}</span>
                                                 </div>
                                                 <span v-else>
                                                     {{ slotProps.placeholder }}
@@ -519,7 +519,8 @@
 
             <template #header>
                 <div class="d-flex justify-content-between align-items-center">
-                    <Button class="p-button-sm" @click="exportExcel" :loading="exporting" icon="pi pi-download" label="Excel" />
+                    <Button class="p-button-sm" @click="exportExcel" :loading="exporting" icon="pi pi-download"
+                        label="Excel" />
                     <!-- Aquí puedes dejar tu botón de "Nuevo Personal" si quieres -->
                 </div>
             </template>
@@ -1163,7 +1164,7 @@ const handleSubmit = async () => {
         // Si hay errores de validación, NO enviar y mostrar mensajes
         if (Object.keys(validationErrors).length > 0) {
             errors.value = validationErrors;
-            
+
             // Mostrar el primer error en un toast
             const firstError = Object.values(validationErrors)[0];
             toast.add({
@@ -1172,7 +1173,7 @@ const handleSubmit = async () => {
                 detail: firstError,
                 life: 5000
             });
-            
+
             // Hacer scroll al primer error
             setTimeout(() => {
                 const firstErrorField = Object.keys(validationErrors)[0];
@@ -1182,7 +1183,7 @@ const handleSubmit = async () => {
                     errorElement.focus();
                 }
             }, 100);
-            
+
             return; // Detener la ejecución aquí
         }
 
@@ -1194,7 +1195,7 @@ const handleSubmit = async () => {
             fecha_nac: formatDateToISO(form.value.fecha_nac),
             fecha_inicio: formatDateToISO(form.value.fecha_inicio),
             fecha_fin: formatDateToISO(form.value.fecha_fin),
-            
+
             // Asegurar que los IDs sean números
             dependencia: form.value.dependencia ? parseInt(form.value.dependencia) : null,
             area: form.value.area ? parseInt(form.value.area) : null,
@@ -1223,13 +1224,13 @@ const handleSubmit = async () => {
         } else {
             await personalStore.CreatePersonal(submitData);
         }
-        
+
         closeModal();
 
     } catch (error) {
         if (error.response?.data) {
             errors.value = error.response.data;
-            
+
             // Mostrar error general del backend
             toast.add({
                 severity: 'error',
