@@ -1,7 +1,6 @@
 <template>
   <div 
-    class="api-status-indicator"
-    :class="statusClass"
+    :class="['api-status-indicator', statusClass]"
     :title="tooltipText"
     @click="checkApiConnection"
   >
@@ -20,25 +19,27 @@ const props = defineProps({
   checkApiConnection: Function
 })
 
-const statusClass = computed(() => ({
-  'online': props.isApiConnected === true && !props.isCheckingApi,
-  'offline': props.isApiConnected === false && !props.isCheckingApi,
-  'checking': props.isCheckingApi
-}))
+// Clase de estado (online/offline/checking)
+const statusClass = computed(() => {
+  if (props.isCheckingApi) return 'checking';
+  if (props.isApiConnected) return 'online';
+  return 'offline';
+});
 
-const iconClass = computed(() => ({
-  'pi': true,
-  'bi bi-database-fill-gear': props.isApiConnected === true && !props.isCheckingApi,
-  'pi-times-circle': props.isApiConnected === false && !props.isCheckingApi,
-  'pi-spinner': props.isCheckingApi,
-  'pi-spin': props.isCheckingApi // Añadido para la animación de spinner
-}))
+// Iconos dinámicos según estado
+const iconClass = computed(() => {
+  if (props.isCheckingApi) return 'pi pi-spinner pi-spin';
+  if (props.isApiConnected) return 'bi bi-database-fill-gear';
+  return 'bi bi-database-fill-slash';
+});
 
+// Texto visible del estado
 const statusText = computed(() => {
   if (props.isCheckingApi) return 'Verificando API...'
   return props.isApiConnected ? 'API Conectado' : 'API Desconectado'
 })
 
+// Tooltip dinámico
 const tooltipText = computed(() => {
   if (props.isCheckingApi) return 'Verificando conexión con el servidor Django...'
   return props.isApiConnected ? 
@@ -60,6 +61,7 @@ const tooltipText = computed(() => {
   min-width: fit-content;
 }
 
+/* Estados */
 .api-status-indicator.online {
   background-color: rgba(40, 167, 69, 0.15);
   color: #28a745;
@@ -78,11 +80,12 @@ const tooltipText = computed(() => {
   border: 1px solid #ffc107;
 }
 
+/* Texto del estado */
 .status-text {
   font-weight: 500;
 }
 
-/* Asegurar que el spinner gire correctamente */
+/* Spinner animado */
 .pi-spin {
   animation: spin 1s linear infinite;
 }
@@ -96,6 +99,7 @@ const tooltipText = computed(() => {
   }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
   .api-status-indicator {
     padding: 0.25rem;

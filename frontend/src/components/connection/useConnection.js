@@ -2,7 +2,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { useCustomToast } from "@/components/utils/toast";
 
 // Ruta de tu API Django
-const API_BASE_URL = "http://172.27.0.200:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const DEFAULT_CHECK_INTERVALS = {
   online: 60000,    // 1 minuto cuando está online
@@ -163,7 +163,7 @@ export function useConnection() {
 
     try {
       // Verificar API Django directamente
-      const response = await fetch(`${API_BASE_URL}/api/user/health-check/`, {
+const response = await fetch(`${API_BASE_URL}user/health-check/`, {
         method: 'GET',
         signal: controller.signal,
         headers: {
