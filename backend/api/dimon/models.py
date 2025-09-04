@@ -3,6 +3,7 @@ from django.db import models, IntegrityError
 from .Choises import GENDER_CHOICES
 from django.core.exceptions import ValidationError
 
+
 class Categoria(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
     description = models.TextField(blank=True, null=True, verbose_name="Descripción")
@@ -14,10 +15,23 @@ class Categoria(models.Model):
         verbose_name = "Categoria"
         verbose_name_plural = "Categorias"
         ordering = ["nombre"]
-        
+
+
 class Fuentes(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Nombre del Tablero")
-    frecuencia = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    FRECUENCIA_CHOICES = [
+        ("Diario", "Diario"),
+        ("Semanal", "Semanal"),
+        ("Mensual", "Mensual"),
+        ("Anual", "Anual"),
+    ]
+    nombre = models.CharField(max_length=255, verbose_name="Nombre de la fuente")
+    frecuencia = models.CharField(
+        max_length=20,
+        choices=FRECUENCIA_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="Frecuencia",
+    )
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.SET_NULL,
@@ -25,13 +39,15 @@ class Fuentes(models.Model):
         blank=True,
         verbose_name="Categoria",
     )
+
     def __str__(self):
         return f"{self.nombre}"
 
     class Meta:
         verbose_name = "Fuente"
         verbose_name_plural = "Fuentes"
-        ordering = ["nombre"]        
+        ordering = ["nombre"]
+
 
 # Create your models here.
 class Tablero(models.Model):
@@ -40,6 +56,12 @@ class Tablero(models.Model):
     codigo_embed = models.TextField()
     description = models.TextField(blank=True, null=True, verbose_name="Descripción")
     source = models.CharField(max_length=255, verbose_name="Fuente de datos")
+    fuentes = models.ManyToManyField(  # ← NUEVO CAMPO
+        Fuentes,
+        blank=True,
+        verbose_name="Fuentes de datos",
+        related_name="tableros"
+    )
     last_updated = models.DateTimeField(verbose_name="Última actualización")
     update_frequency = models.TextField(
         blank=True, null=True, verbose_name="Frecuencia de actualización"

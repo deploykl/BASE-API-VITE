@@ -19,8 +19,16 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 User = get_user_model()
 
+class FuentesViewSet(viewsets.ModelViewSet):
+    queryset = Fuentes.objects.all()  # <-- Esto faltaba
+    serializer_class = FuentesSerializer
+    permission_classes = [IsAuthenticated]  # Permite acceso sin autenticación
+    ordering = ["id"]
+    ordering_fields = "__all__"
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    
 class TableroViewSet(viewsets.ModelViewSet):
-    queryset = Tablero.objects.all()  # Añade esta línea
+    queryset = Tablero.objects.all().prefetch_related('fuentes')  # ← Añade prefetch_related
     serializer_class = TableroSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] 
     ordering = ["id"]

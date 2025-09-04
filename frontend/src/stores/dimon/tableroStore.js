@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { api } from "@/components/services/Axios";
 import { useCustomToast } from "@/components/utils/toast";
-import { webSocketTableroInstance } from "@/components/services/WebSocketTablero"; // Nombre corregido
+import { webSocketTableroInstance } from "@/components/services/WebSocketTablero";
 
 export const useTableroStore = defineStore("tableroStore", () => {
   const toast = useCustomToast();
@@ -10,45 +10,27 @@ export const useTableroStore = defineStore("tableroStore", () => {
   const error = ref(null);
   const loading = ref(false);
 
-  // Inicializar WebSocket
-  // Inicializar WebSocket
+  // WebSocket methods
   const initWebSocket = () => {
-    console.log("Inicializando WebSocket...");
-
-    // Conectar WebSocket si no está conectado
     if (!webSocketTableroInstance.connected) {
-      console.log("WebSocket no conectado, conectando...");
       webSocketTableroInstance.connect();
-    } else {
-      console.log("WebSocket ya está conectado");
     }
 
-    // Registrar handlers para los diferentes tipos de mensajes
-    webSocketTableroInstance.on("TABLERO_CREATED", (data) => {
-      handleTableroCreated(data);
-    });
-
-    webSocketTableroInstance.on("TABLERO_UPDATED", (data) => {
-      handleTableroUpdated(data);
-    });
-
-    webSocketTableroInstance.on("TABLERO_DELETED", (data) => {
-      handleTableroDeleted(data);
-    });
-
-    webSocketTableroInstance.on("TABLERO_STATUS_CHANGED", (data) => {
-      handleTableroStatusChanged(data);
-    });
-
-    console.log("Handlers de WebSocket registrados");
+    webSocketTableroInstance.on("TABLERO_CREATED", handleTableroCreated);
+    webSocketTableroInstance.on("TABLERO_UPDATED", handleTableroUpdated);
+    webSocketTableroInstance.on("TABLERO_DELETED", handleTableroDeleted);
+    webSocketTableroInstance.on("TABLERO_STATUS_CHANGED", handleTableroStatusChanged);
   };
 
-  // Handlers para eventos WebSocket
   const handleTableroCreated = (data) => {
-    // Verificar si el tablero ya existe para evitar duplicados
     const exists = tableros.value.some((t) => t.id === data.tablero.id);
     if (!exists) {
-      tableros.value.unshift(data.tablero);
+      const tableroWithFuentes = {
+        ...data.tablero,
+        fuentes_detalles: data.tablero.fuentes_info || [],
+        fuentes_ids: data.tablero.fuentes_info ? data.tablero.fuentes_info.map(f => f.id) : []
+      };
+      tableros.value.unshift(tableroWithFuentes);
       toast.showSuccess("Nuevo tablero creado (en tiempo real)");
     }
   };
@@ -56,7 +38,12 @@ export const useTableroStore = defineStore("tableroStore", () => {
   const handleTableroUpdated = (data) => {
     const index = tableros.value.findIndex((t) => t.id === data.tablero.id);
     if (index !== -1) {
-      tableros.value[index] = data.tablero;
+      const tableroWithFuentes = {
+        ...data.tablero,
+        fuentes_detalles: data.tablero.fuentes_info || [],
+        fuentes_ids: data.tablero.fuentes_info ? data.tablero.fuentes_info.map(f => f.id) : []
+      };
+      tableros.value[index] = tableroWithFuentes;
       toast.showSuccess("Tablero actualizado (en tiempo real)");
     }
   };
@@ -70,44 +57,35 @@ export const useTableroStore = defineStore("tableroStore", () => {
     const index = tableros.value.findIndex((t) => t.id === data.tablero.id);
     if (index !== -1) {
       tableros.value[index] = data.tablero;
-      toast.showSuccess(
-        `Tablero ${
-          data.tablero.is_active ? "activado" : "desactivado"
-        } (en tiempo real)`
-      );
+      toast.showSuccess(`Tablero ${data.tablero.is_active ? "activado" : "desactivado"} (en tiempo real)`);
     }
   };
 
-  // Limpiar handlers al destruir el store
   const cleanupWebSocket = () => {
     webSocketTableroInstance.off("TABLERO_CREATED", handleTableroCreated);
     webSocketTableroInstance.off("TABLERO_UPDATED", handleTableroUpdated);
     webSocketTableroInstance.off("TABLERO_DELETED", handleTableroDeleted);
-    webSocketTableroInstance.off(
-      "TABLERO_STATUS_CHANGED",
-      handleTableroStatusChanged
-    );
+    webSocketTableroInstance.off("TABLERO_STATUS_CHANGED", handleTableroStatusChanged);
   };
 
-  // Métodos
+  // API methods
   const ListTablero = async () => {
     error.value = null;
     loading.value = true;
 
     try {
       const response = await api.get("dimon/tablero/");
-      tableros.value = response.data;
+      tableros.value = response.data.map(tablero => ({
+        ...tablero,
+        fuentes_detalles: tablero.fuentes_info || [],
+        fuentes_ids: tablero.fuentes_info ? tablero.fuentes_info.map(f => f.id) : []
+      }));
 
-      // Inicializar WebSocket después de cargar los datos
       initWebSocket();
-
-      return response.data;
+      return tableros.value;
     } catch (err) {
       error.value = err;
-      const message =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        "Error al obtener tableros";
+      const message = err.response?.data?.detail || err.response?.data?.message || "Error al obtener tableros";
       toast.showError(message);
       throw err;
     } finally {
@@ -115,18 +93,27 @@ export const useTableroStore = defineStore("tableroStore", () => {
     }
   };
 
-
-  // Crear un nuevo tablero
   const CreateTablero = async (tableroData) => {
     loading.value = true;
-
     try {
-      const response = await api.post("dimon/tablero/", tableroData);
-      //tableros.value.unshift(response.data);
+      const dataToSend = {
+        ...tableroData,
+        fuentes: tableroData.fuentes ? tableroData.fuentes.map(f => f.id || f) : []
+      };
+
+      const response = await api.post("dimon/tablero/", dataToSend);
+      
+      // Agregar el nuevo tablero a la lista
+      const newTablero = {
+        ...response.data,
+        fuentes_detalles: response.data.fuentes_info || [],
+        fuentes_ids: response.data.fuentes_info ? response.data.fuentes_info.map(f => f.id) : []
+      };
+      tableros.value.unshift(newTablero);
+      
       return response.data;
     } catch (err) {
       error.value = err;
-
       if (err.response?.data) {
         for (const [field, messages] of Object.entries(err.response.data)) {
           const errorMsg = Array.isArray(messages) ? messages[0] : messages;
@@ -141,44 +128,46 @@ export const useTableroStore = defineStore("tableroStore", () => {
     }
   };
 
-  // Actualizar un tablero existente
   const UpdateTablero = async (id, tableroData) => {
     loading.value = true;
-
     try {
-      const response = await api.patch(`dimon/tablero/${id}/`, tableroData);
+      const dataToSend = {
+        ...tableroData,
+        fuentes: tableroData.fuentes ? tableroData.fuentes.map(f => f.id || f) : []
+      };
 
+      const response = await api.patch(`dimon/tablero/${id}/`, dataToSend);
+      
+      // Actualizar en la lista
       const index = tableros.value.findIndex((t) => t.id === id);
       if (index !== -1) {
-        tableros.value[index] = response.data;
+        const updatedTablero = {
+          ...response.data,
+          fuentes_detalles: response.data.fuentes_info || [],
+          fuentes_ids: response.data.fuentes_info ? response.data.fuentes_info.map(f => f.id) : []
+        };
+        tableros.value[index] = updatedTablero;
       }
+      
       return response.data;
     } catch (err) {
       error.value = err;
-      {
-        toast.showError(err.message || "Error al actualizar tablero");
-      }
-
+      toast.showError(err.message || "Error al actualizar tablero");
       throw err;
     } finally {
       loading.value = false;
     }
   };
 
-  // Eliminar un tablero
   const DeleteTablero = async (id) => {
     loading.value = true;
-
     try {
       await api.delete(`dimon/tablero/${id}/`);
       tableros.value = tableros.value.filter((t) => t.id !== id);
       return true;
     } catch (err) {
       error.value = err;
-      const message =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        "Error al eliminar tablero";
+      const message = err.response?.data?.detail || err.response?.data?.message || "Error al eliminar tablero";
       toast.showError(message);
       return false;
     } finally {
@@ -186,11 +175,10 @@ export const useTableroStore = defineStore("tableroStore", () => {
     }
   };
 
-  // Cambiar estado activo/inactivo del tablero
   const toggleTableroStatus = async (id, newStatus) => {
     try {
       const endpoint = newStatus ? "activate" : "deactivate";
-      const response = await api.post(`dimon/tablero/${id}/${endpoint}/`);
+      await api.post(`dimon/tablero/${id}/${endpoint}/`);
 
       const tablero = tableros.value.find((t) => t.id === id);
       if (tablero) {
@@ -199,34 +187,27 @@ export const useTableroStore = defineStore("tableroStore", () => {
       return true;
     } catch (err) {
       error.value = err;
-      const message =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        `Error al ${newStatus ? "activar" : "desactivar"} tablero`;
+      const message = err.response?.data?.detail || err.response?.data?.message || `Error al ${newStatus ? "activar" : "desactivar"} tablero`;
       toast.showError(message);
 
-      // Revertir el cambio en la UI si falla
+      // Revertir cambio en UI
       const tablero = tableros.value.find((t) => t.id === id);
       if (tablero) {
         tablero.is_active = !newStatus;
       }
-
       return false;
     }
   };
 
   return {
-    // Estado
     loading,
     tableros,
     error,
-
-    // Métodos
     ListTablero,
     CreateTablero,
     UpdateTablero,
     DeleteTablero,
     toggleTableroStatus,
-    cleanupWebSocket,
+    cleanupWebSocket
   };
 });

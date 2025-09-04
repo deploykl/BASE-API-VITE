@@ -6,6 +6,12 @@ from .models import *
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'description')
     search_fields = ('nombre',)
+
+@admin.register(Fuentes)
+class FuentesAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'frecuencia', 'categoria')
+    list_filter = ('categoria',)
+    search_fields = ('nombre',)
     
 @admin.register(Tablero)
 class TableroAdmin(admin.ModelAdmin):
