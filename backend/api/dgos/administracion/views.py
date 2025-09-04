@@ -130,23 +130,11 @@ class PersonalViewSet(viewsets.ModelViewSet):
         return queryset.order_by('apellido', 'nombre')
     
     def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except IntegrityError:
-            return Response(
-                {'error': 'El email ya existe en el sistema'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        return super().create(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
-        try:
-            return super().update(request, *args, **kwargs)
-        except Exception as e:
-            # Log del error para debugging
-            print(f"Error en update: {str(e)}")
-            return Response(
-                {'error': 'Error al actualizar el registro', 'details': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )    
+        return super().update(request, *args, **kwargs)
+    
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def habilitar_acceso(self, request, pk=None):
         personal = self.get_object()

@@ -52,10 +52,9 @@
                                                 <i class="pi pi-calendar me-2"></i>
                                                 Fecha de Nacimiento
                                             </label>
-                                            <DatePicker v-model="form.fecha_nac" id="fecha_nac"
-                                                :showIcon="false" class="w-100" size="small"
-                                                :class="{ 'is-invalid': !!errors.fecha_nac }" inputId="fecha_nac"
-                                                :showClear="true" />
+                                            <DatePicker v-model="form.fecha_nac" id="fecha_nac" :showIcon="false"
+                                                class="w-100" size="small" :class="{ 'is-invalid': !!errors.fecha_nac }"
+                                                inputId="fecha_nac" :showClear="true" />
                                         </FloatLabel>
 
                                         <div v-if="errors.fecha_nac" class="invalid-feedback d-block">
@@ -96,7 +95,7 @@
                                                     <i :class="slotProps.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
                                                         style="font-size: 1rem; margin-right: 8px;"></i>
                                                     <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino'
-                                                    }}</span>
+                                                        }}</span>
                                                 </div>
                                                 <span v-else>
                                                     {{ slotProps.placeholder }}
@@ -145,7 +144,7 @@
                                     <div class="mb-3">
                                         <FloatInput id="ruc" label="RUC" v-model="form.ruc"
                                             icon="bi bi-person-badge-fill" :errors="errors" :invalid="!!errors.ruc"
-                                            size="small" required maxlength="11" @input="onlyNumbersRUC" />
+                                            size="small" maxlength="11" required @input="onlyNumbersRUC" />
                                     </div>
                                     <!-- Teléfono -->
                                     <div class="mb-1">
@@ -373,14 +372,14 @@
                                         </small>
                                         <Dropdown id="condicion" v-model="form.condicion" :options="condicionOptions"
                                             optionLabel="nombre" optionValue="id" placeholder="Seleccionar condicion"
-                                            :class="{ 'p-invalid': !!errors.condicion }" class="w-100"
+                                            :class="{ 'p-invalid': !!errors.condicion }" class="w-100" size="small"
                                             :showClear="true" />
                                         <small v-if="errors.condicion" class="p-error">
                                             {{ errors.condicion[0] }}
                                         </small>
                                     </div>
                                     <!-- Profesión -->
-                                    <div class="mb-5">
+                                    <div class="mb-3">
                                         <small for="profesion" class="form-label">
                                             <i class="pi pi-graduation-cap me-2"></i> <!-- Icono de graduación -->
                                             Profesión
@@ -388,9 +387,23 @@
                                         <Dropdown id="profesion" v-model="form.profesion" :options="profesionOptions"
                                             optionLabel="nombre" optionValue="id" placeholder="Seleccionar profesión"
                                             :class="{ 'p-invalid': !!errors.profesion }" class="w-100" :filter="true"
-                                            filterPlaceholder="Buscar profesion..." :showClear="true" size="small" />
+                                            filterPlaceholder="Buscar profesion..." :showClear="true" />
                                         <small v-if="errors.profesion" class="p-error">
                                             {{ errors.profesion[0] }}
+                                        </small>
+                                    </div>
+                                    <!-- Anexo -->
+                                    <div class="mb-5">
+                                        <small for="regimen" class="form-label">
+                                            <i class="pi pi-sliders-h me-2"></i> <!-- Icono de ajustes -->
+                                            Anexo
+                                        </small>
+                                        <Dropdown id="anexo" v-model="form.anexo" :options="anexoOptions"
+                                            optionLabel="number" optionValue="id" placeholder="Seleccionar anexo"
+                                            :class="{ 'p-invalid': !!errors.anexo }" class="w-100" :showClear="true"
+                                            size="small" :filter="true" filterPlaceholder="Buscar anexo..." />
+                                        <small v-if="errors.anexo" class="p-error">
+                                            {{ errors.anexo[0] }}
                                         </small>
                                     </div>
                                     <!-- salario -->
@@ -400,11 +413,12 @@
                                             size="small" type="text" @input="formatSalario" currency="PEN" />
                                     </div>
                                     <!-- Número de contrato -->
-                                    <div class="mb-3">
+                                    <div class="mb-1">
                                         <FloatInput id="n_contrato" label="Número de Contrato" v-model="form.n_contrato"
                                             icon="pi pi-file-edit" :invalid="!!errors.n_contrato" :errors="errors"
                                             size="small" />
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -504,18 +518,13 @@
             @column-filter-change="handleFilterChange">
 
             <template #header>
-        <div class="d-flex justify-content-between align-items-center">
-            <Button
-                icon="pi pi-file-excel"
-                label="Exportar Excel"
-                class="p-button-success p-button-sm"
-                @click="exportExcel"
-            />
-            <!-- Aquí puedes dejar tu botón de "Nuevo Personal" si quieres -->
-        </div>
-    </template>
+                <div class="d-flex justify-content-between align-items-center">
+                    <Button class="p-button-sm" @click="exportExcel" :loading="exporting" icon="pi pi-download" label="Excel" />
+                    <!-- Aquí puedes dejar tu botón de "Nuevo Personal" si quieres -->
+                </div>
+            </template>
 
-    
+
             <template #body-dni="{ data }">
                 {{ data.dni || '-' }}
             </template>
@@ -813,58 +822,29 @@ import { api } from "@/components/services/Axios";
 import { useToast } from 'primevue/usetoast';
 import { calculateTimeWorked, formatCurrency, onlyNumbersDNI, onlyNumbersRUC, onlyNumbersCelular, onlyNumbersTelefono, formatDateToISO, parseDateFromISO } from "@/components/utils/format";
 import { distritosLima } from "@/components/utils/distritos";
+import { useExportWithLoading } from '@/components/utils/exportData'; // Ajusta la ruta
 
 
-const exporting = ref(false);
+const { exporting, executeExport } = useExportWithLoading();
+
 
 const exportExcel = async () => {
-  exporting.value = true;
+    const result = await executeExport(
+        'componentes/personal/excel/',
+        'personal.xlsx', // Este será el base name
+        'Personal exportado correctamente',
+        'No se pudo exportar el personal'
+    );
 
-  try {
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-    const response = await api.get(`${API_BASE_URL}componentes/personal/excel/`, {
-      responseType: 'blob', // clave para que sea binario
-    });
-
-    // Crear objeto URL a partir del blob
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-
-    // Obtener nombre del archivo desde Content-Disposition si existe
-    const disposition = response.headers['content-disposition'];
-    let fileName = 'personal.xlsx';
-    if (disposition && disposition.indexOf('filename=') !== -1) {
-      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    // Mostrar toast basado en el resultado
+    if (result.toast) {
+        toast.add(result.toast);
     }
 
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-
-    toast.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Archivo Excel exportado correctamente',
-      life: 3000
-    });
-
-  } catch (error) {
-    console.error('Error en exportación:', error);
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'No se pudo exportar el archivo Excel',
-      life: 3000
-    });
-  } finally {
-    exporting.value = false;
-  }
+    if (result.success) {
+        console.log('Archivo descargado:', result.fileName);
+    }
 };
-
-
 
 
 const personalStore = usePersonalStore();
@@ -948,7 +928,7 @@ const form = ref({ ...FORM_STATE });
 
 // Columnas con filtros dependientes
 const columns = ref([
-    { field: 'dni', header: 'DNI', bodyTemplate: true, filter: false,sortable: true, },
+    { field: 'dni', header: 'DNI', bodyTemplate: true, filter: false, sortable: true, },
     { field: 'ruc', header: 'RUC', bodyTemplate: true, filter: false },
     { field: 'full_name', header: 'NOMBRE COMPLETO', sortable: true, bodyTemplate: true, filter: false },
     { field: 'sexo', header: 'GÉNERO', sortable: true, bodyTemplate: true, filter: false },
@@ -1144,6 +1124,69 @@ const handleSubmit = async () => {
     errors.value = {};
 
     try {
+        // ================= VALIDACIONES PREVIAS =================
+        const validationErrors = {};
+
+        // Validar DNI (exactamente 8 dígitos si tiene valor)
+        if (form.value.dni) {
+            const dniClean = form.value.dni.replace(/\D/g, '');
+            if (dniClean.length !== 8) {
+                validationErrors.dni = 'El DNI debe tener exactamente 8 dígitos';
+            }
+        }
+
+        // Validar RUC (exactamente 11 dígitos si tiene valor)
+        if (form.value.ruc) {
+            const rucClean = form.value.ruc.replace(/\D/g, '');
+            if (rucClean.length !== 11) {
+                validationErrors.ruc = 'El RUC debe tener exactamente 11 dígitos';
+            }
+        }
+
+        // Validar Teléfono (exactamente 8 dígitos si tiene valor)
+        if (form.value.telefono) {
+            const telefonoClean = form.value.telefono.replace(/\D/g, '');
+            if (telefonoClean.length !== 8) {
+                validationErrors.telefono = 'El teléfono debe tener exactamente 8 dígitos';
+            }
+        }
+
+        // Validar Celular (exactamente 9 dígitos si tiene valor)
+        if (form.value.celular) {
+            const celularClean = form.value.celular.replace(/\D/g, '');
+            if (celularClean.length !== 9) {
+                validationErrors.celular = 'El celular debe tener exactamente 9 dígitos';
+            }
+        }
+
+
+        // Si hay errores de validación, NO enviar y mostrar mensajes
+        if (Object.keys(validationErrors).length > 0) {
+            errors.value = validationErrors;
+            
+            // Mostrar el primer error en un toast
+            const firstError = Object.values(validationErrors)[0];
+            toast.add({
+                severity: 'error',
+                summary: 'Error de validación',
+                detail: firstError,
+                life: 5000
+            });
+            
+            // Hacer scroll al primer error
+            setTimeout(() => {
+                const firstErrorField = Object.keys(validationErrors)[0];
+                const errorElement = document.querySelector(`[data-field="${firstErrorField}"]`);
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    errorElement.focus();
+                }
+            }, 100);
+            
+            return; // Detener la ejecución aquí
+        }
+
+        // ================= SI PASÓ LAS VALIDACIONES, ENVIAR DATOS =================
         // Crear copia del formulario con el salario sin formato
         const submitData = {
             ...form.value,
@@ -1151,7 +1194,8 @@ const handleSubmit = async () => {
             fecha_nac: formatDateToISO(form.value.fecha_nac),
             fecha_inicio: formatDateToISO(form.value.fecha_inicio),
             fecha_fin: formatDateToISO(form.value.fecha_fin),
-// Asegurar que los IDs sean números
+            
+            // Asegurar que los IDs sean números
             dependencia: form.value.dependencia ? parseInt(form.value.dependencia) : null,
             area: form.value.area ? parseInt(form.value.area) : null,
             condicion: form.value.condicion ? parseInt(form.value.condicion) : null,
@@ -1162,11 +1206,11 @@ const handleSubmit = async () => {
             grupo_ocupacional: form.value.grupo_ocupacional ? parseInt(form.value.grupo_ocupacional) : null,
             estado: form.value.estado ? parseInt(form.value.estado) : null,
             generica: form.value.generica ? parseInt(form.value.generica) : null,
-            
-            // Campos numéricos
+
+            // Campos numéricos (ya validados, así que podemos limpiarlos)
             dni: form.value.dni ? parseInt(form.value.dni.replace(/\D/g, '')) : null,
             ruc: form.value.ruc ? parseInt(form.value.ruc.replace(/\D/g, '')) : null,
-            n_hijos: form.value.n_hijos ? parseInt(form.value.n_hijos) : null,
+            n_hijos: form.value.n_hijos ? parseInt(form.value.n_hijos.replace(/\D/g, '')) : null,
             celular: form.value.celular ? parseInt(form.value.celular.replace(/\D/g, '')) : null,
             telefono: form.value.telefono ? parseInt(form.value.telefono.replace(/\D/g, '')) : null,
             cel_emergencia: form.value.cel_emergencia ? parseInt(form.value.cel_emergencia.replace(/\D/g, '')) : null
@@ -1179,12 +1223,28 @@ const handleSubmit = async () => {
         } else {
             await personalStore.CreatePersonal(submitData);
         }
+        
         closeModal();
+
     } catch (error) {
         if (error.response?.data) {
             errors.value = error.response.data;
+            
+            // Mostrar error general del backend
+            toast.add({
+                severity: 'error',
+                summary: 'Error del servidor',
+                detail: 'Verifique los datos ingresados',
+                life: 5000
+            });
         } else {
             console.error('Error al guardar:', error);
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error inesperado al guardar',
+                life: 3000
+            });
         }
     } finally {
         isSubmitting.value = false;

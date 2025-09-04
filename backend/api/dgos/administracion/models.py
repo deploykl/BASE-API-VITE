@@ -147,13 +147,9 @@ class Personal(models.Model):
     verbose_name="Creado por"
 )
     # Datos personales
-    dni = models.CharField(
-        max_length=8,
-        validators=[MinLengthValidator(8), MaxLengthValidator(8)],
+    dni = models.CharField(max_length=50, unique=True
     )    
-    ruc = models.CharField(
-        max_length=11,
-        validators=[MinLengthValidator(11), MaxLengthValidator(11)],
+    ruc = models.CharField(max_length=50, null=True, blank=True
         
     )  # Cambiado a null=True
     nombre = models.CharField(max_length=50, verbose_name="Nombres")
@@ -201,10 +197,7 @@ class Personal(models.Model):
         max_length=10,  # Aumentado a 10 para incluir código de área
         null=True,
         blank=True,
-        verbose_name="Teléfono fijo",
-        validators=[MinLengthValidator(8), MaxLengthValidator(8)],
-        
-
+        verbose_name="Teléfono fijo",       
     )
     # Información laboral   
     fecha_inicio = models.DateField(verbose_name="Fecha inicio", null=True, blank=True)

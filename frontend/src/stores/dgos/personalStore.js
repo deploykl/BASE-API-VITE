@@ -160,18 +160,19 @@ export const usePersonalStore = defineStore("personalStore", () => {
       throw err;
     }
   };
-    const ListGrupoOcupacional = async () => {
+  const ListGrupoOcupacional = async () => {
     try {
       const response = await api.get("dgos/administracion/grupo_ocupacional/"); // Ajusta la URL según tu API
       grupo_ocupacional.value = response.data;
       return response.data;
     } catch (err) {
-      const message = err.response?.data?.message || "Error al cargar grupo_ocupacional";
+      const message =
+        err.response?.data?.message || "Error al cargar grupo_ocupacional";
       toast.showError(message);
       throw err;
     }
   };
-    const ListEstado = async () => {
+  const ListEstado = async () => {
     try {
       const response = await api.get("dgos/administracion/estado/"); // Ajusta la URL según tu API
       estado.value = response.data;
@@ -182,7 +183,7 @@ export const usePersonalStore = defineStore("personalStore", () => {
       throw err;
     }
   };
-    const ListGenerica = async () => {
+  const ListGenerica = async () => {
     try {
       const response = await api.get("dgos/administracion/generica/"); // Ajusta la URL según tu API
       generica.value = response.data;
@@ -235,32 +236,46 @@ export const usePersonalStore = defineStore("personalStore", () => {
   };
 
   // Actualizar un tablero existente
-  const UpdatePersonal = async (id, personalData) => {
-    loading.value = true;
+const UpdatePersonal = async (id, personalData) => {
+  loading.value = true;
 
-    try {
-      const response = await api.patch(
-        `dgos/administracion/personal/${id}/`,
-        personalData
-      );
+  try {
+    const response = await api.patch(
+      `dgos/administracion/personal/${id}/`,
+      personalData
+    );
 
-      const index = personal.value.findIndex((t) => t.id === id);
-      if (index !== -1) {
-        personal.value[index] = response.data;
-      }
-      toast.showSuccess("Personal actualizado correctamente");
-      return response.data;
-    } catch (err) {
-      error.value = err;
-      {
-        toast.showError(err.message || "Error al actualizar tablero");
-      }
-
-      throw err;
-    } finally {
-      loading.value = false;
+    const index = personal.value.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      personal.value[index] = response.data;
     }
-  };
+    toast.showSuccess("Personal actualizado correctamente");
+    return response.data;
+  } catch (err) {
+    error.value = err;
+
+    if (err.response?.data) {
+      // Recorremos los errores que vienen del backend (Django REST Framework)
+      for (const [field, messages] of Object.entries(err.response.data)) {
+        let errorMsg = Array.isArray(messages) ? messages[0] : messages;
+
+        // Si llega como objeto tipo ErrorDetail lo convertimos a string
+        if (typeof errorMsg === "object" && "string" in errorMsg) {
+          errorMsg = errorMsg.string;
+        }
+
+        // Solo mostramos el mensaje, no la clave del campo
+        toast.showError(errorMsg);
+      }
+    } else {
+      toast.showError(err.message || "Error al actualizar personal");
+    }
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
+
 
   // Eliminar un tablero
   const DeletePersonal = async (id) => {

@@ -46,7 +46,7 @@
             severity="danger" />
           <Button icon="pi pi-file-excel" label="Excel" @click="exportExcel" class="p-button-sm me-1" severity="info" />
           <Button icon="pi pi-file-excel" label="CSV" @click="exportCSV2" class="p-button-sm me-1" severity="success" />
-<Button icon="pi pi-print" label="Imprimir" @click="printTable" class="p-button-sm" severity="secondary" />
+          <Button icon="pi pi-print" label="Imprimir" @click="printTable" class="p-button-sm" severity="secondary" />
         </div>
       </template>
 
@@ -731,13 +731,13 @@ const printTable = () => {
   printContainer.style.position = 'absolute';
   printContainer.style.left = '-9999px';
   printContainer.style.top = '-9999px';
-  
+
   // Clonar la tabla
   const tableElement = dt.value?.$el || document.querySelector('.p-datatable');
   if (!tableElement) return;
-  
+
   const tableClone = tableElement.cloneNode(true);
-  
+
   // Remover elementos no deseados para impresión
   const elementsToRemove = tableClone.querySelectorAll(`
     .p-paginator, 
@@ -750,14 +750,14 @@ const printTable = () => {
     th[aria-label="Acciones"],
     td[aria-label="Acciones"]
   `);
-  
+
   elementsToRemove.forEach(element => element.remove());
-  
+
   // Crear el contenido HTML para imprimir
   const title = props.title || 'Reporte';
   const date = new Date().toLocaleDateString();
   const time = new Date().toLocaleTimeString();
-  
+
   printContainer.innerHTML = `
     <div style="font-family: Arial, sans-serif; max-width: 100%;">
       <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
@@ -772,7 +772,7 @@ const printTable = () => {
       </div>
     </div>
   `;
-  
+
   // Agregar estilos específicos para impresión
   const style = document.createElement('style');
   style.innerHTML = `
@@ -799,13 +799,13 @@ const printTable = () => {
       }
     }
   `;
-  
+
   document.head.appendChild(style);
   document.body.appendChild(printContainer);
-  
+
   // Disparar la impresión
   window.print();
-  
+
   // Limpiar después de imprimir
   setTimeout(() => {
     document.body.removeChild(printContainer);
@@ -1072,43 +1072,44 @@ const printTable = () => {
     font-size: 0.8rem;
   }
 }
+
 /* Nuevos estilos para cesado */
 :deep(.cesado-row) {
-    background-color: #fff5f5 !important;
-    border-left: 4px solid #dc3545 !important;
+  background-color: #fff5f5 !important;
+  border-left: 4px solid #dc3545 !important;
 }
 
 :deep(.cesado-row:hover) {
-    background-color: #ffe6e6 !important;
+  background-color: #ffe6e6 !important;
 }
 
 /* Para el panel de expansión cuando es cesado */
 :deep(.cesado-row + tr .expansion-content) {
-    background-color: #fff5f5 !important;
+  background-color: #fff5f5 !important;
 }
 
 :deep(.cesado-row + tr .expansion-card) {
-    border-left: 4px solid #dc3545 !important;
-    background-color: #fffafa !important;
+  border-left: 4px solid #dc3545 !important;
+  background-color: #fffafa !important;
 }
 
 /* Badge específico para estado cesado */
 .badge-cesado {
-    background-color: #dc3545 !important;
-    color: white !important;
-    padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.85rem;
+  background-color: #dc3545 !important;
+  color: white !important;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 /* Estilo para el panel de expansión cuando es cesado */
 :deep(.bg-cesado) {
-    background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%) !important;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%) !important;
 }
 
 :deep(.bg-cesado .expansion-card) {
-    background-color: #fffafa !important;
-    border-left: 4px solid #dc3545 !important;
+  background-color: #fffafa !important;
+  border-left: 4px solid #dc3545 !important;
 }
 </style>
