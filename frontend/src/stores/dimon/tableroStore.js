@@ -7,6 +7,7 @@ import { webSocketTableroInstance } from "@/components/services/WebSocketTablero
 export const useTableroStore = defineStore("tableroStore", () => {
   const toast = useCustomToast();
   const tableros = ref([]);
+  const fuentesOptions = ref([]);
   const error = ref(null);
   const loading = ref(false);
 
@@ -198,16 +199,36 @@ export const useTableroStore = defineStore("tableroStore", () => {
       return false;
     }
   };
-
+const loadFuentesOptions = async () => {
+  try {
+    const response = await api.get("dimon/fuentes/");
+    console.log('Respuesta de fuentes:', response.data);
+    
+    // Fix: Properly update the reactive reference
+    fuentesOptions.value = response.data.map(fuente => ({
+      label: `${fuente.nombre} (${fuente.frecuencia})`,
+      value: fuente.id,
+      data: fuente
+    }));
+    
+    return fuentesOptions.value; // Return the options for convenience
+  } catch (error) {
+    console.error('Error cargando fuentes:', error);
+    toast.showError('Error al cargar las fuentes');
+    throw error; // Re-throw to handle in component
+  }
+};
   return {
     loading,
     tableros,
+    fuentesOptions,
     error,
     ListTablero,
     CreateTablero,
     UpdateTablero,
     DeleteTablero,
     toggleTableroStatus,
-    cleanupWebSocket
+    cleanupWebSocket,
+    loadFuentesOptions
   };
 });

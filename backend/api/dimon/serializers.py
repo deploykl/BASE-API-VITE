@@ -5,7 +5,7 @@ class FuentesSerializer(serializers.ModelSerializer):
     categoria_nombre = serializers.CharField(source='categoria.nombre', read_only=True)
     class Meta:
         model = Fuentes
-        fields = ['id', 'nombre', 'frecuencia', 'categoria']
+        fields = '__all__'
 
 class TableroSerializer(serializers.ModelSerializer):
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
@@ -22,28 +22,35 @@ class TableroSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('created_by', 'created_at', 'updated_at')
 
+class TableroSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    created_by_id = serializers.IntegerField(source='created_by.id', read_only=True)
+    fuentes_info = FuentesSerializer(source='fuentes', many=True, read_only=True)
+    fuentes = serializers.PrimaryKeyRelatedField(
+        queryset=Fuentes.objects.all(),
+        many=True,
+        required=False,
+        allow_empty=True  # ← Añade esto
+    )
+    
+    class Meta:
+        model = Tablero
+        fields = '__all__'
+        read_only_fields = ('created_by', 'created_at', 'updated_at')
+
     def create(self, validated_data):
-        # Extraer las fuentes del validated_data
         fuentes_data = validated_data.pop('fuentes', [])
-        
-        # Crear el tablero
         tablero = Tablero.objects.create(**validated_data)
-        
-        # Añadir las fuentes
-        tablero.fuentes.set(fuentes_data)
-        
+        tablero.fuentes.set(fuentes_data)  # ← Esto debería funcionar con IDs
         return tablero
 
     def update(self, instance, validated_data):
-        # Extraer las fuentes del validated_data
         fuentes_data = validated_data.pop('fuentes', None)
         
-        # Actualizar los demás campos
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
         
-        # Actualizar las fuentes si se proporcionan
         if fuentes_data is not None:
             instance.fuentes.set(fuentes_data)
         

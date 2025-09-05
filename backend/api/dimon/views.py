@@ -20,7 +20,7 @@ from asgiref.sync import async_to_sync
 User = get_user_model()
 
 class FuentesViewSet(viewsets.ModelViewSet):
-    queryset = Fuentes.objects.all()  # <-- Esto faltaba
+    queryset = Fuentes.objects.all()  
     serializer_class = FuentesSerializer
     permission_classes = [IsAuthenticated]  # Permite acceso sin autenticación
     ordering = ["id"]

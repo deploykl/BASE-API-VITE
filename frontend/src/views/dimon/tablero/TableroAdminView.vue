@@ -31,15 +31,15 @@
               <div class="mb-3">
                 <label for="fuentes" class="form-label">Fuentes relacionadas</label>
                 <MultiSelect 
-                  v-model="selectedFuentes" 
-                  :options="fuentesOptions" 
-                  optionLabel="label" 
-                  optionValue="value"
-                  placeholder="Seleccione las fuentes" 
-                  :maxSelectedLabels="3" 
-                  class="w-100"
-                  :class="{ 'is-invalid': !!errors.fuentes }"
-                />
+  v-model="selectedFuentes" 
+  :options="tableroStore.fuentesOptions" 
+  optionLabel="label" 
+  optionValue="value"
+  placeholder="Seleccione las fuentes" 
+  :maxSelectedLabels="3" 
+  class="w-100"
+  :class="{ 'is-invalid': !!errors.fuentes }"
+/>
                 <div v-if="errors.fuentes" class="invalid-feedback d-block">
                   {{ errors.fuentes[0] }}
                 </div>
@@ -199,13 +199,7 @@
 <script setup>
 import { ref, onMounted, computed, nextTick, watch, onUnmounted } from 'vue';
 import MultiSelect from 'primevue/multiselect';
-import Badge from 'primevue/badge';
-import Button from 'primevue/button';
-import Select from 'primevue/select';
-import DatePicker from 'primevue/datepicker';
-import Textarea from 'primevue/textarea';
 import ToggleSwitch from 'primevue/toggleswitch';
-import { Tooltip as vTooltip } from 'primevue/tooltip';
 
 import ModalBase from '@/components/ui/ModalBase.vue';
 import DataTableWrapper from '@/components/ui/DataTableWrapper.vue';
@@ -213,7 +207,6 @@ import { useTableroStore } from '@/stores/dimon/tableroStore';
 import FloatInput from '@/components/widgets/FloatInput.vue';
 import { formatDateTime, copyToClipboard } from '@/components/utils/format';
 import { useCustomToast } from "@/components/utils/toast";
-import { api } from "@/components/services/Axios";
 
 const tableroStore = useTableroStore();
 const toast = useCustomToast();
@@ -421,20 +414,6 @@ const isOwner = (tablero) => {
   }
 };
 
-// Método para cargar opciones de fuentes
-const loadFuentesOptions = async () => {
-  try {
-    const response = await api.get("dimon/fuentes/");
-    fuentesOptions.value = response.data.map(fuente => ({
-      label: `${fuente.nombre} (${fuente.frecuencia})`,
-      value: fuente.id,
-      data: fuente
-    }));
-  } catch (error) {
-    console.error('Error cargando fuentes:', error);
-    toast.showError('Error al cargar las fuentes');
-  }
-};
 
 // Watchers
 watch(
@@ -451,7 +430,9 @@ onMounted(async () => {
   try {
     tableroStore.loading = true;
     await tableroStore.ListTablero();
-    await loadFuentesOptions();
+    await tableroStore.loadFuentesOptions(); // This now properly updates the store
+    
+    // No need to reassign, the store's reactive reference is already updated
   } catch (error) {
     console.error('Error inicializando:', error);
   } finally {
