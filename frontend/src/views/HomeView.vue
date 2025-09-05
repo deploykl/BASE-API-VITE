@@ -3,10 +3,11 @@
     <!-- Barra de navegación corregida -->
     <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
       <div class="container">
-        <router-link to="/" class="navbar-brand navbar-brand-modern">
-          <i class="bi bi-heart-pulse-fill me-2"></i>
-          HGA
-        </router-link>
+      <!-- En la barra de navegación -->
+<router-link to="/" class="navbar-brand navbar-brand-modern">
+  <img src="/src/assets/img/logo2.png" alt="Logo HGA" class="navbar-logo me-2">
+  DGOS
+</router-link>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
           aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,9 +62,9 @@
         <div class="alert-icon-container me-3">
           <i class="bi bi-megaphone-fill"></i>
         </div>
-        <div>
-          <strong>Novedad:</strong> Lanzamiento de la Versión Demo (v1.0) con módulos esenciales
-        </div>
+        <small>
+          <strong>Novedad:</strong> Lanzamiento de la Versión (v2.0) nuevos modulos : (Personal, Tableros)
+        </small>
       </div>
 
       <!-- Módulos principales -->
@@ -489,7 +490,7 @@ onMounted(() => {
 
 /* Alert moderno */
 .alert-modern {
-  font-size: 1rem;
+  font-size: 0.9rem;
   border: none;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.8);
@@ -777,5 +778,10 @@ onMounted(() => {
   .navbar-brand-modern {
     font-size: 1.2rem;
   }
+}
+.navbar-logo {
+  height: 32px; /* Ajusta según el tamaño de tu logo */
+  width: auto;
+  object-fit: contain;
 }
 </style>
