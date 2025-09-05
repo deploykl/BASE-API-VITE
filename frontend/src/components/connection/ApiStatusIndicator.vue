@@ -41,10 +41,10 @@ const statusText = computed(() => {
 
 // Tooltip dinámico
 const tooltipText = computed(() => {
-  if (props.isCheckingApi) return 'Verificando conexión con el servidor Django...'
+  if (props.isCheckingApi) return 'Verificando conexión con el servidor...'
   return props.isApiConnected ? 
-    'Conexión estable con el servidor Django' : 
-    'Problemas de conexión con el servidor Django'
+    'Conexión estable con el servidor' : 
+    'Problemas de conexión con el servidor'
 })
 </script>
 
