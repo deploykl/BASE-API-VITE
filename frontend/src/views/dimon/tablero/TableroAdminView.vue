@@ -30,16 +30,9 @@
               <!-- Selección de Fuentes -->
               <div class="mb-3">
                 <label for="fuentes" class="form-label">Fuentes relacionadas</label>
-                <MultiSelect 
-  v-model="selectedFuentes" 
-  :options="tableroStore.fuentesOptions" 
-  optionLabel="label" 
-  optionValue="value"
-  placeholder="Seleccione las fuentes" 
-  :maxSelectedLabels="3" 
-  class="w-100"
-  :class="{ 'is-invalid': !!errors.fuentes }"
-/>
+                <MultiSelect v-model="selectedFuentes" :options="tableroStore.fuentesOptions" optionLabel="label"
+                  optionValue="value" placeholder="Seleccione las fuentes" :maxSelectedLabels="3" class="w-100"
+                  :class="{ 'is-invalid': !!errors.fuentes }" />
                 <div v-if="errors.fuentes" class="invalid-feedback d-block">
                   {{ errors.fuentes[0] }}
                 </div>
@@ -140,15 +133,18 @@
         {{ data.source || '-' }}
       </template>
 
-      <template #body-fuentes="{ data }">
-        <div v-if="data.fuentes_detalles && data.fuentes_detalles.length">
-          <Badge v-for="fuente in data.fuentes_detalles.slice(0, 3)" :key="fuente.id" 
-                 :value="fuente.nombre" class="me-1 mb-1" severity="info" />
-          <Badge v-if="data.fuentes_detalles.length > 3" 
-                 :value="`+${data.fuentes_detalles.length - 3}`" severity="secondary" />
-        </div>
-        <span v-else class="text-muted">-</span>
-      </template>
+<template #body-fuentes="{ data }">
+  <div v-if="data.fuentes_detalles && data.fuentes_detalles.length">
+    <Badge v-for="fuente in data.fuentes_detalles.slice(0, 3)" :key="fuente.id" 
+           :value="`${fuente.nombre} - ${fuente.frecuencia || 'N/A'}`" 
+           class="me-1 mb-1" severity="info" />
+    <Badge v-if="data.fuentes_detalles.length > 3" 
+           :value="`+${data.fuentes_detalles.length - 3}`" 
+           severity="secondary"
+           v-tooltip.top="`${data.fuentes_detalles.length - 3} fuentes adicionales`" />
+  </div>
+  <span v-else class="text-muted">-</span>
+</template>
 
       <template #body-update_frequency="{ data }">
         {{ data.update_frequency || '-' }}
@@ -185,7 +181,7 @@
           <Button v-if="isOwner(data)" icon="pi pi-trash"
             class="p-button-sm p-button-outlined p-button-rounded p-button-danger" v-tooltip.top="'Eliminar'"
             @click="confirmDelete(data)" />
-          
+
           <span v-else class="text-muted small">
             <i class="pi pi-lock"></i> Solo el creador
           </span>
@@ -253,7 +249,6 @@ const columns = ref([
   { field: 'name', header: 'Nombre', sortable: true, filter: false },
   { field: 'url', header: 'URL', bodyTemplate: true, filter: false },
   { field: 'description', header: 'DESCRIPCIÓN', bodyTemplate: true, filter: false },
-  { field: 'source', header: 'FUENTE PRINCIPAL', bodyTemplate: true, filter: false },
   { field: 'fuentes', header: 'FUENTES', bodyTemplate: true, filter: false },
   { field: 'update_frequency', header: 'FRECUENCIA', bodyTemplate: true, filter: false, sortable: true },
   { field: 'created_by_username', header: 'CREADO', bodyTemplate: true, filter: true },
@@ -431,7 +426,7 @@ onMounted(async () => {
     tableroStore.loading = true;
     await tableroStore.ListTablero();
     await tableroStore.loadFuentesOptions(); // This now properly updates the store
-    
+
     // No need to reassign, the store's reactive reference is already updated
   } catch (error) {
     console.error('Error inicializando:', error);

@@ -8,6 +8,8 @@ export const useTableroStore = defineStore("tableroStore", () => {
   const toast = useCustomToast();
   const tableros = ref([]);
   const fuentesOptions = ref([]);
+  const categoriasOptions = ref([]);
+
   const error = ref(null);
   const loading = ref(false);
 
@@ -218,10 +220,12 @@ const loadFuentesOptions = async () => {
     throw error; // Re-throw to handle in component
   }
 };
+
   return {
     loading,
     tableros,
     fuentesOptions,
+    categoriasOptions,
     error,
     ListTablero,
     CreateTablero,
