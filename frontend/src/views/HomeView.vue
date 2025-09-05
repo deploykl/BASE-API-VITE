@@ -314,8 +314,8 @@ const modules = ref([
     description: 'Gestión de Dashboards',
     icon: 'pi pi-chart-line',
     color: '#007bff',
-    path: '/dashboard',
-    enabled: false
+    path: '/dimon/tablero',
+    enabled: true
   },
   {
     id: 3,
