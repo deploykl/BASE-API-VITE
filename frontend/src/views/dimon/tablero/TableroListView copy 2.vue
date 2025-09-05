@@ -121,31 +121,30 @@
       </div>
 
       <!-- Modal para ambos tipos de tableros -->
- <!-- Modal para ambos tipos de tableros -->
-  <div v-if="showModal && selectedTablero" class="modal-overlay" @click="closeModal">
-    <div class="modal-content" :class="{ 'tableau-modal': isTableau(selectedTablero) }" @click.stop>
-      <div class="modal-header" :class="{ 'tableau-header': isTableau(selectedTablero) }">
-        <h2>{{ selectedTablero.name }}</h2>
-        <div class="modal-subtitle">
-          <span v-if="selectedTablero.fuentes_detalles?.length" class="modal-fuentes">
-            Fuentes: {{ selectedTablero.fuentes_detalles.map(f => f.nombre).join(', ') }}
-          </span>
-        </div>
-        <button @click="closeModal" class="close-btn">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Power BI - usa iframe -->
-        <div v-if="isPowerBI(selectedTablero)" class="iframe-container">
-          <iframe 
-            :src="selectedTablero.url" 
-            frameborder="0" 
-            allowFullScreen="true"
-            @load="iframeLoaded"
-            @error="iframeError"
-          ></iframe>
-        </div>
+      <div v-if="showModal && selectedTablero" class="modal-overlay" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h2>{{ selectedTablero.name }}</h2>
+            <div class="modal-subtitle">
+              <span v-if="selectedTablero.fuentes_detalles?.length" class="modal-fuentes">
+                Fuentes: {{ selectedTablero.fuentes_detalles.map(f => f.nombre).join(', ') }}
+              </span>
+            </div>
+            <button @click="closeModal" class="close-btn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Power BI - usa iframe -->
+            <div v-if="isPowerBI(selectedTablero)" class="iframe-container">
+              <iframe 
+                :src="selectedTablero.url" 
+                frameborder="0" 
+                allowFullScreen="true"
+                @load="iframeLoaded"
+                @error="iframeError"
+              ></iframe>
+            </div>
             
             <!-- Tableau - usa código embed -->
             <div v-else-if="isTableau(selectedTablero)" class="tableau-container">
@@ -209,38 +208,6 @@ const fuentes = computed(() => {
     a.nombre.localeCompare(b.nombre)
   );
 });
-
-// Función para extraer URL de Tableau del código embed
-const extractTableauUrlFromEmbed = (codigoEmbed) => {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(codigoEmbed, 'text/html');
-    const objectElement = doc.querySelector('object');
-    
-    if (objectElement) {
-      const paramElements = objectElement.querySelectorAll('param');
-      let hostUrl = '';
-      let workbookName = '';
-      
-      for (let param of paramElements) {
-        if (param.getAttribute('name') === 'host_url') {
-          hostUrl = decodeURIComponent(param.getAttribute('value') || '');
-        }
-        if (param.getAttribute('name') === 'name') {
-          workbookName = param.getAttribute('value') || '';
-        }
-      }
-      
-      if (hostUrl && workbookName) {
-        // Formar la URL completa de Tableau
-        return `${hostUrl}views/${workbookName}`;
-      }
-    }
-  } catch (error) {
-    console.error('Error extrayendo URL de Tableau:', error);
-  }
-  return null;
-};
 
 // Detectar tipo de tablero
 const isPowerBI = (tablero) => {
@@ -355,81 +322,30 @@ const filteredTableros = computed(() => {
 const openTablero = (tablero) => {
   if (!tablero.is_active) return;
   
-  selectedTablero.value = {...tablero};
+  selectedTablero.value = tablero;
   showModal.value = true;
   document.body.style.overflow = 'hidden';
   
-  // Si es Tableau, procesar el embed después de que el modal se renderice
-  if (isTableau(selectedTablero.value) && selectedTablero.value.codigo_embed) {
+  // Si es Tableau, esperar a que el modal se renderice y luego ejecutar el script
+  if (isTableau(tablero)) {
     nextTick(() => {
       setTimeout(() => {
-        procesarTableauEmbed(selectedTablero.value.codigo_embed);
-      }, 300);
-    });
-  }
-};
-
-// Reemplazar la función procesarTableauEmbed
-const procesarTableauEmbed = (codigoEmbed) => {
-  try {
-    // Crear un contenedor temporal
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = codigoEmbed;
-    
-    // Encontrar el elemento del viz y el placeholder
-    const vizElement = tempDiv.querySelector('.tableauViz');
-    const placeholder = tempDiv.querySelector('.tableauPlaceholder');
-    const scriptElements = tempDiv.querySelectorAll('script');
-    
-    if (vizElement && placeholder) {
-      // Hacer el viz completamente responsivo
-      vizElement.style.width = '100%';
-      vizElement.style.height = '100%';
-      vizElement.style.display = 'block';
-      
-      placeholder.style.width = '100%';
-      placeholder.style.height = '100%';
-      placeholder.style.position = 'relative';
-      
-      // Modificar todos los scripts para forzar responsividad
-      scriptElements.forEach(script => {
-        if (script.textContent.includes('vizElement.style.width')) {
-          // Reemplazar todo el código de dimensionamiento con uno responsivo
-          script.textContent = `
-            var divElement = document.getElementById('${placeholder.id}');
-            var vizElement = divElement.getElementsByTagName('object')[0];
-            vizElement.style.width = '100%';
-            vizElement.style.height = '100%';
-            vizElement.style.minWidth = '100px';
-            vizElement.style.maxWidth = '100%';
-            vizElement.style.minHeight = '100px';
-            vizElement.style.maxHeight = '100%';
-            
-            var scriptElement = document.createElement('script');
-            scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
-            vizElement.parentNode.insertBefore(scriptElement, vizElement);
-          `;
-        }
-      });
-      
-      // Insertar el código modificado en el modal
-      const tableauContainer = document.querySelector('.tableau-container');
-      if (tableauContainer) {
-        tableauContainer.innerHTML = tempDiv.innerHTML;
+        const tableauScripts = document.querySelectorAll('script[src*="tableau"]');
+        tableauScripts.forEach(script => script.remove());
         
-        // Ejecutar los scripts después de un breve delay
-        setTimeout(() => {
-          const newScripts = tableauContainer.querySelectorAll('script');
-          newScripts.forEach(script => {
-            const newScript = document.createElement('script');
-            newScript.textContent = script.textContent;
-            document.body.appendChild(newScript);
-          });
-        }, 100);
-      }
-    }
-  } catch (error) {
-    console.error('Error procesando embed de Tableau:', error);
+        if (tablero.codigo_embed) {
+          // Extraer y ejecutar el script del código embed
+          const scriptContent = tablero.codigo_embed.match(/<script\b[^>]*>([\s\S]*?)<\/script>/);
+          if (scriptContent && scriptContent[1]) {
+            try {
+              new Function(scriptContent[1])();
+            } catch (error) {
+              console.error('Error ejecutando script de Tableau:', error);
+            }
+          }
+        }
+      }, 100);
+    });
   }
 };
 
@@ -818,12 +734,12 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.9); /* Fondo más oscuro para Tableau */
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 10px; /* Menos padding para Tableau */
+  padding: 20px;
 }
 
 .modal-content {
@@ -835,16 +751,6 @@ onUnmounted(() => {
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-}
-
-/* Modal específico para Tableau - OCUPA EL 99% */
-.modal-content.tableau-modal {
-  width: 99% !important;
-  height: 99% !important;
-  border-radius: 8px;
-  max-width: none;
-  max-height: none;
 }
 
 .modal-header {
@@ -854,21 +760,8 @@ onUnmounted(() => {
   padding: 20px;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
-  transition: all 0.3s ease;
 }
-/* Header más compacto para Tableau */
-.modal-header.tableau-header {
-  padding: 12px 20px;
-  min-height: auto;
-}
-/* Título más pequeño para Tableau */
-.tableau-header h2 {
-  font-size: 1.2rem;
-}
-/* Fuentes más pequeñas para Tableau */
-.tableau-header .modal-fuentes {
-  font-size: 12px;
-}
+
 .modal-header h2 {
   margin: 0;
   color: #2d3748;
@@ -922,65 +815,25 @@ onUnmounted(() => {
   border: none;
 }
 
-/* Mejoras para el contenedor de Tableau - AHORA CON MÁS ESPACIO */
 .tableau-container {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-  justify-content: center; /* Centrar horizontalmente */
-  align-items: center; /* Centrar verticalmente */
-  background-color: #f8fafc; /* Fondo temporal para visualizar el área */
+  overflow: auto;
 }
 
 .tableau-container > div {
-  width: 100% !important;
-  height: 100% !important;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
 }
 
-/* Forzar responsividad y centrado en todos los elementos de Tableau */
+/* Asegurar que el contenido de Tableau se vea bien */
 .tableau-container .tableauPlaceholder {
   width: 100% !important;
   height: 100% !important;
-  position: relative !important;
-  min-height: 500px;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
 }
 
 .tableau-container .tableauViz {
   width: 100% !important;
   height: 100% !important;
-  display: block !important;
-}
-
-/* Asegurar que la barra de herramientas sea visible */
-.tableau-container .tab-toolbar {
-  z-index: 1000;
-  position: relative;
-}
-
-/* Ajustar el canvas principal de Tableau */
-.tableau-container .tabCanvas {
-  width: 100% !important;
-  height: calc(100% - 40px) !important; /* Restar altura de la barra de herramientas */
-}
-
-/* Para dispositivos móviles */
-@media (max-width: 768px) {
-  .tableau-container .tableauPlaceholder {
-    min-height: 300px;
-  }
-  
-  .tableau-container .tabCanvas {
-    height: calc(100% - 60px) !important; /* Más espacio para la barra en móviles */
-  }
 }
 
 /* Responsive */

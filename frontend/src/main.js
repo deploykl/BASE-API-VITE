@@ -35,6 +35,7 @@ import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import MultiSelect from 'primevue/multiselect';
+import Chip from 'primevue/chip';
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
@@ -152,6 +153,7 @@ app.component('Tab', Tab);
 app.component('TabPanels', TabPanels);
 app.component('TabPanel', TabPanel);
 app.component('MultiSelect', MultiSelect);
+app.component('Chip', Chip);
 
 // Monta la aplicación
 app.mount('#app')

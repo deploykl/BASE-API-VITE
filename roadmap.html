@@ -3,142 +3,320 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Landing Page - 10 Módulos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Prueba Tableau Modal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .hero {
-      background: linear-gradient(135deg, #0d6efd, #6610f2);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fb;
+      padding: 20px;
+    }
+
+    .open-modal-btn {
+      background-color: #4299e1;
       color: white;
-      padding: 100px 20px;
-      text-align: center;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 20px;
+      transition: background-color 0.3s ease;
     }
-    .module-card {
-      transition: transform 0.2s;
+
+    .open-modal-btn:hover {
+      background-color: #3182ce;
     }
-    .module-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 10px;
     }
-    footer {
-      background: #f8f9fa;
-      padding: 40px 0;
-      text-align: center;
-      margin-top: 50px;
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 95%;
+      height: 90%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    /* Modal específico para Tableau - OCUPA EL 99% */
+    .modal-content.tableau-modal {
+      width: 99% !important;
+      height: 99% !important;
+      border-radius: 8px;
+      max-width: none;
+      max-height: none;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+    }
+
+    /* Header más compacto para Tableau */
+    .modal-header.tableau-header {
+      padding: 12px 20px;
+      min-height: auto;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #2d3748;
+      font-size: 1.5rem;
+      flex: 1;
+    }
+
+    /* Título más pequeño para Tableau */
+    .tableau-header h2 {
+      font-size: 1.2rem;
+    }
+
+    .modal-subtitle {
+      flex: 1;
+      margin-left: 16px;
+    }
+
+    /* Subtítulo más compacto para Tableau */
+    .tableau-header .modal-subtitle {
+      margin-left: 12px;
+    }
+
+    .modal-fuentes {
+      font-size: 14px;
+      color: #718096;
+      font-style: italic;
+    }
+
+    /* Fuentes más pequeñas para Tableau */
+    .tableau-header .modal-fuentes {
+      font-size: 12px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #718096;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: #e2e8f0;
+      color: #2d3748;
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tableau-container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f8fafc;
+    }
+
+    .tableau-container > div {
+      width: 100% !important;
+      height: 100% !important;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Forzar responsividad y centrado en todos los elementos de Tableau */
+    .tableau-container .tableauPlaceholder {
+      width: 100% !important;
+      height: 100% !important;
+      position: relative !important;
+      min-height: 500px;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    .tableau-container .tableauViz {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      margin: 0 auto !important;
+    }
+
+    /* Asegurar que el contenido de Tableau esté centrado */
+    .tableau-container iframe,
+    .tableau-container object,
+    .tableau-container .tab-widget {
+      margin: 0 auto !important;
+      display: block !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      position: relative !important;
+    }
+
+    /* Para dispositivos móviles */
+    @media (max-width: 768px) {
+      .modal-overlay {
+        padding: 5px;
+      }
+      
+      .modal-content.tableau-modal {
+        width: 98% !important;
+        height: 98% !important;
+        border-radius: 6px;
+      }
+      
+      .modal-header.tableau-header {
+        padding: 10px 15px;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .tableau-header h2 {
+        font-size: 1.1rem;
+      }
+      
+      .tableau-header .modal-subtitle {
+        margin-left: 0;
+        width: 100%;
+      }
+      
+      .tableau-header .modal-fuentes {
+        font-size: 11px;
+      }
+      
+      .tableau-container .tableauPlaceholder {
+        min-height: 300px;
+      }
     }
   </style>
 </head>
 <body>
+  <h1>Prueba de Tableau en Modal</h1>
+  <button class="open-modal-btn" onclick="openModal()">
+    <i class="fas fa-chart-bar"></i> Abrir Tableau en Modal
+  </button>
 
-<!-- Header -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="#">Mi Landing</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="#modulos">Módulos</a></li>
-        <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
-        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Hero -->
-<section class="hero">
-  <div class="container">
-    <h1 class="display-4 fw-bold">Solución Completa con 10 Módulos</h1>
-    <p class="lead">Una plataforma diseñada para optimizar tu negocio.</p>
-    <a href="#contacto" class="btn btn-light btn-lg">Solicitar Demo</a>
-  </div>
-</section>
-
-<!-- Módulos -->
-<section id="modulos" class="py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Nuestros 10 Módulos</h2>
-    <div class="row g-4">
-      
-      <!-- Repite estas tarjetas para cada módulo -->
-      <div class="col-md-4 col-lg-3">
-        <div class="card module-card h-100 text-center p-3">
-          <div class="card-body">
-            <div class="mb-3"><i class="bi bi-gear fs-1 text-primary"></i></div>
-            <h5 class="card-title">Módulo 1</h5>
-            <p class="card-text">Descripción breve del módulo.</p>
+  <!-- Modal para Tableau -->
+  <div id="tableauModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content tableau-modal">
+      <div class="modal-header tableau-header">
+        <h2>Tablero Tableau de Ejemplo</h2>
+        <div class="modal-subtitle">
+          <span class="modal-fuentes">
+            Fuentes: Datos de ejemplo
+          </span>
+        </div>
+        <button class="close-btn" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="tableau-container">
+          <!-- Código Tableau embed -->
+          <div class='tableauPlaceholder' id='viz1756528725119' style='position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;'>
+            <noscript>
+              <a href='#'>
+                <img alt='RESUMEN ' src='https://public.tableau.com/static/images/TA/TABLERODEESTABLECIMIENTOSDESALUD_16951342007250/RESUMEN/1_rss.png' style='border: none' />
+              </a>
+            </noscript>
+            <object class='tableauViz' style='display:none;'>
+              <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+              <param name='embed_code_version' value='3' /> 
+              <param name='site_root' value='' />
+              <param name='name' value='TABLERODEESTABLECIMIENTOSDESALUD_16951342007250/RESUMEN' />
+              <param name='tabs' value='no' />
+              <param name='toolbar' value='yes' />
+              <param name='static_image' value='https://public.tableau.com/static/images/TA/TABLERODEESTABLECIMIENTOSDESALUD_16951342007250/RESUMEN/1.png' /> 
+              <param name='animate_transition' value='yes' />
+              <param name='display_static_image' value='yes' />
+              <param name='display_spinner' value='yes' />
+              <param name='display_overlay' value='yes' />
+              <param name='display_count' value='yes' />
+              <param name='language' value='es-ES' />
+            </object>
           </div>
+
+          <script type='text/javascript'>
+            var divElement = document.getElementById('viz1756528725119');
+            var vizElement = divElement.getElementsByTagName('object')[0];
+            
+            // REEMPLAZAR toda la lógica condicional por diseño responsivo
+            vizElement.style.width = '100%';
+            vizElement.style.height = '100%';
+            vizElement.style.minWidth = '100px';
+            vizElement.style.maxWidth = '100%';
+            vizElement.style.minHeight = '500px';
+            vizElement.style.maxHeight = '100%';
+            
+            // Asegurar que el contenedor también sea responsivo
+            divElement.style.width = '100%';
+            divElement.style.height = '100%';
+            
+            var scriptElement = document.createElement('script');
+            scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+            vizElement.parentNode.insertBefore(scriptElement, vizElement);
+          </script>
         </div>
       </div>
-
-      <div class="col-md-4 col-lg-3">
-        <div class="card module-card h-100 text-center p-3">
-          <div class="card-body">
-            <div class="mb-3"><i class="bi bi-bar-chart fs-1 text-success"></i></div>
-            <h5 class="card-title">Módulo 2</h5>
-            <p class="card-text">Descripción breve del módulo.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Copia hasta completar 10 módulos -->
-      <!-- ... -->
     </div>
   </div>
-</section>
 
-<!-- Beneficios -->
-<section id="beneficios" class="py-5 bg-light">
-  <div class="container">
-    <h2 class="text-center mb-4">Beneficios de nuestra plataforma</h2>
-    <div class="row text-center">
-      <div class="col-md-4">
-        <h5>✅ Fácil de usar</h5>
-        <p>Interfaz intuitiva para todos los usuarios.</p>
-      </div>
-      <div class="col-md-4">
-        <h5>⚡ Rápida implementación</h5>
-        <p>Comienza a usarla en pocos días.</p>
-      </div>
-      <div class="col-md-4">
-        <h5>🔒 Segura</h5>
-        <p>Tus datos siempre protegidos.</p>
-      </div>
-    </div>
-  </div>
-</section>
+  <script>
+    function openModal() {
+      document.getElementById('tableauModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
 
-<!-- Contacto -->
-<section id="contacto" class="py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Contáctanos</h2>
-    <form class="row g-3">
-      <div class="col-md-6">
-        <input type="text" class="form-control" placeholder="Nombre" required>
-      </div>
-      <div class="col-md-6">
-        <input type="email" class="form-control" placeholder="Correo" required>
-      </div>
-      <div class="col-12">
-        <textarea class="form-control" rows="4" placeholder="Mensaje"></textarea>
-      </div>
-      <div class="col-12 text-center">
-        <button type="submit" class="btn btn-primary btn-lg">Enviar</button>
-      </div>
-    </form>
-  </div>
-</section>
-<div class='tableauPlaceholder' id='viz1756528725119' style='position: relative'><noscript><a href='#'><img alt='RESUMEN ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;TA&#47;TABLERODEESTABLECIMIENTOSDESALUD_16951342007250&#47;RESUMEN&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='TABLERODEESTABLECIMIENTOSDESALUD_16951342007250&#47;RESUMEN' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;TA&#47;TABLERODEESTABLECIMIENTOSDESALUD_16951342007250&#47;RESUMEN&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='es-ES' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1756528725119');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height='100%';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height='100%';} else { vizElement.style.width='100%';vizElement.style.height='100%';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
-<!-- Footer -->
-<footer>
-  <div class="container">
-    <p>&copy; 2025 Mi Landing. Todos los derechos reservados.</p>
-  </div>
-</footer>
+    function closeModal() {
+      document.getElementById('tableauModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    // Cerrar modal con ESC key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
 </body>
 </html>
