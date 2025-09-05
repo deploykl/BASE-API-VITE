@@ -19,7 +19,7 @@ conn = pyodbc.connect(
 cursor = conn.cursor()
 
 # Leer el archivo Excel
-archivo_excel = 'D:/DATA_OPENLINE2.xlsx'
+archivo_excel = 'D:/POWERBI\DATA\DENGUE.xlsx'
 df = pd.read_excel(archivo_excel)
 
 # Función para limpiar y convertir valores
