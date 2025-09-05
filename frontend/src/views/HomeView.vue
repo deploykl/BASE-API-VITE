@@ -1,13 +1,12 @@
 <template>
   <div class="modern-container">
-    <!-- Barra de navegación corregida -->
+    <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
       <div class="container">
-      <!-- En la barra de navegación -->
-<router-link to="/" class="navbar-brand navbar-brand-modern">
-  <img src="/src/assets/img/logo2.png" alt="Logo HGA" class="navbar-logo me-2">
-  DGOS
-</router-link>
+        <router-link to="/" class="navbar-brand navbar-brand-modern">
+          <img src="/src/assets/img/logo2.png" alt="Logo HGA" class="navbar-logo me-2">
+          DGOS
+        </router-link>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
           aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +51,6 @@
     <div class="main-content">
       <!-- Header con logo y título -->
       <header class="header-section text-center">
-
         <h1 class="display-5 fw-bold text-primary">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
         <p class="text-muted mb-4">DGOS - DIMON - DIEM</p>
       </header>
@@ -75,15 +73,41 @@
           <span class="title-decoration"></span>
         </h2>
 
-        <div class="row justify-content-center g-4">
-          <div v-for="module in modules" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
+        <!-- Breadcrumb para navegación entre grupos -->
+        <div class="module-breadcrumb mb-4" v-if="currentGroup !== 'main'">
+          <button class="btn btn-sm btn-outline-secondary me-2" @click="goBackToMain">
+            <i class="bi bi-arrow-left"></i> Volver
+          </button>
+          <span class="text-muted">Grupo actual: {{ getGroupName(currentGroup) }}</span>
+        </div>
+
+        <!-- Vista de módulos principales -->
+        <div v-if="currentGroup === 'main'" class="row justify-content-center g-4">
+          <div v-for="group in moduleGroups" :key="group.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
             <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
-              :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
-              @click="module.enabled ? redirectToModule(module.path) : null">
+                 @click="selectGroup(group.id)">
+              <div class="module-icon-container-modern mb-3" :style="{ '--icon-color': group.color }">
+                <i :class="group.icon" class="module-icon-modern"></i>
+              </div>
+              <h6 class="fw-bold mb-2">{{ group.name }}</h6>
+              <p class="small text-muted mb-0">{{ group.description }}</p>
+              <div class="mt-2">
+                <small class="text-primary">{{ group.modules.length }} módulos disponibles</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista de módulos específicos de un grupo -->
+        <div v-else class="row justify-content-center g-4">
+          <div v-for="module in getCurrentGroupModules()" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
+            <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
+                 :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
+                 @click="module.enabled ? redirectToModule(module.path) : null">
 
               <!-- Badge para módulos deshabilitados -->
               <div v-if="!module.enabled"
-                class="position-absolute top-0 start-50 translate-middle px-3 py-1 badge bg-warning coming-soon-badge">
+                   class="position-absolute top-0 start-50 translate-middle px-3 py-1 badge bg-warning coming-soon-badge">
                 Próximamente
               </div>
 
@@ -286,6 +310,7 @@ const isAuthenticated = computed(() => {
 });
 
 const currentYear = ref(new Date().getFullYear());
+const currentGroup = ref('main'); // 'main' para el grupo principal, o el ID del grupo seleccionado
 
 // Array de tecnologías para el footer (sin imports para evitar errores)
 const technologies = ref([
@@ -298,82 +323,136 @@ const technologies = ref([
 ]);
 
 // Array de módulos para renderizar dinámicamente
-const modules = ref([
+// Definición de grupos de módulos
+const moduleGroups = ref([
   {
-    id: 1,
-    title: 'Personal',
-    description: 'Gestión de usuarios',
-    icon: 'pi pi-users',
+    id: 'hga',
+    name: 'HGA',
+    description: 'Herramientas de Gestión Administrativa',
+    icon: 'pi pi-building',
     color: '#6f42c1',
-    path: '/dgos/personal',
-    enabled: true
+    modules: [
+      {
+        id: 1,
+        title: 'Personal',
+        description: 'Gestión de usuarios',
+        icon: 'pi pi-users',
+        color: '#6f42c1',
+        path: '/dgos/personal',
+        enabled: true
+      },
+      {
+        id: 2,
+        title: 'POI',
+        description: 'Planeamiento Operativo',
+        icon: 'pi pi-lock',
+        color: '#ffc107',
+        path: '/dashboard',
+        enabled: false
+      },
+      {
+        id: 3,
+        title: 'Informática',
+        description: 'Control de equipos',
+        icon: 'pi pi-desktop',
+        color: '#28a745',
+        path: '/dashboard',
+        enabled: false
+      }
+    ]
   },
   {
-    id: 2,
-    title: 'Tableros',
-    description: 'Gestión de Dashboards',
+    id: 'dimon',
+    name: 'DIMON',
+    description: 'Dirección de Monitoreo',
     icon: 'pi pi-chart-line',
     color: '#007bff',
-    path: '/dimon/tablero',
-    enabled: true
+    modules: [
+      {
+        id: 4,
+        title: 'Tableros',
+        description: 'Gestión de Dashboards',
+        icon: 'pi pi-chart-line',
+        color: '#007bff',
+        path: '/dimon/tablero',
+        enabled: true
+      },
+      {
+        id: 5,
+        title: 'Pool vehicular',
+        description: 'Control de salida',
+        icon: 'pi pi-car',
+        color: '#0B5ED7',
+        path: '/dashboard',
+        enabled: false
+      }
+    ]
   },
   {
-    id: 3,
-    title: 'POI',
-    description: 'Planeamiento Operativo',
-    icon: 'pi pi-lock',
-    color: '#ffc107',
-    path: '/dashboard',
-    enabled: false
-  },
-  {
-    id: 4,
-    title: 'Informática',
-    description: 'Control de equipos',
-    icon: 'pi pi-desktop',
-    color: '#28a745',
-    path: '/dashboard',
-    enabled: false
-  },
-  {
-    id: 5,
-    title: 'Pool vehicular',
-    description: 'Control de salida',
-    icon: 'pi pi-car',
-    color: '#0B5ED7',
-    path: '/dashboard',
-    enabled: false
-  },
-  {
-    id: 6,
-    title: 'Patrimonio',
-    description: 'Control de bienes',
-    icon: 'pi pi-box',
+    id: 'diem',
+    name: 'DIEM',
+    description: 'Dirección de Ejecución',
+    icon: 'pi pi-cog',
     color: '#fd7e14',
-    path: '/dashboard',
-    enabled: false
-  },
-  {
-    id: 7,
-    title: 'Gasto',
-    description: 'Control de equipos',
-    icon: 'pi pi-chart-line',
-    color: '#ffb300',
-    path: '/dashboard',
-    enabled: false
-  },
-  {
-    id: 8,
-    title: 'Reuniones',
-    description: 'Control de reuniones',
-    icon: 'pi pi-desktop',
-    color: '#28a745',
-    path: '/dashboard',
-    enabled: false
+    modules: [
+      {
+        id: 6,
+        title: 'Patrimonio',
+        description: 'Control de bienes',
+        icon: 'pi pi-box',
+        color: '#fd7e14',
+        path: '/dashboard',
+        enabled: false
+      },
+      {
+        id: 7,
+        title: 'Gasto',
+        description: 'Control de equipos',
+        icon: 'pi pi-chart-line',
+        color: '#ffb300',
+        path: '/dashboard',
+        enabled: false
+      },
+      {
+        id: 8,
+        title: 'Reuniones',
+        description: 'Control de reuniones',
+        icon: 'pi pi-desktop',
+        color: '#28a745',
+        path: '/dashboard',
+        enabled: false
+      }
+    ]
   }
 ]);
 
-// Función para scroll suave a secciones
+// Función para obtener el nombre de un grupo por su ID
+const getGroupName = (groupId) => {
+  const group = moduleGroups.value.find(g => g.id === groupId);
+  return group ? group.name : '';
+};
+
+// Función para obtener los módulos del grupo actual
+const getCurrentGroupModules = () => {
+  const group = moduleGroups.value.find(g => g.id === currentGroup.value);
+  return group ? group.modules : [];
+};
+
+// Función para seleccionar un grupo
+const selectGroup = (groupId) => {
+  currentGroup.value = groupId;
+  // Desplazar hacia la sección de módulos
+  setTimeout(() => {
+    scrollToSection('modules');
+  }, 100);
+};
+
+// Función para volver al grupo principal
+const goBackToMain = () => {
+  currentGroup.value = 'main';
+};
+
+// Resto de funciones (scrollToSection, redirectToModule, etc.)
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {
@@ -381,7 +460,6 @@ const scrollToSection = (sectionId) => {
   }
 };
 
-// Función para redirigir a un módulo específico
 const redirectToModule = (path) => {
   if (isAuthenticated.value) {
     router.push(path);
@@ -418,7 +496,28 @@ onMounted(() => {
   height: 76px;
   /* Ajusta según la altura de tu navbar */
 }
+/* Breadcrumb para navegación entre grupos */
+.module-breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
 
+/* Ajustes para el espaciado del breadcrumb */
+.modules-section {
+  position: relative;
+}
+
+/* Asegurar que las animaciones funcionen correctamente */
+.module-card-modern {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
 /* Navbar styles corregidos */
 .navbar-modern {
   background: rgba(255, 255, 255, 0.95) !important;
