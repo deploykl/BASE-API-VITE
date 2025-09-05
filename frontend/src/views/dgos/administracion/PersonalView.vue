@@ -95,7 +95,7 @@
                                                     <i :class="slotProps.value === 'M' ? 'pi pi-mars text-primary' : 'pi pi-venus text-danger'"
                                                         style="font-size: 1rem; margin-right: 8px;"></i>
                                                     <span>{{ slotProps.value === 'M' ? 'Masculino' : 'Femenino'
-                                                    }}</span>
+                                                        }}</span>
                                                 </div>
                                                 <span v-else>
                                                     {{ slotProps.placeholder }}
@@ -471,9 +471,8 @@
         <!-- Modal para habilitar/editar módulos -->
         <ModalBase :visible="showModulosModal" :mode="modalMode === 'habilitar' ? 'create' : 'edit'"
             :entityName="modalMode === 'habilitar' ? 'acceso' : 'módulos'"
-            :confirm-text="isProcessingModulos ? 'Procesando...' : (modalMode === 'habilitar' ? 'Habilitar' : 'Actualizar')"
-            :loading="isProcessingModulos" @close="closeModulosModal" @confirm="confirmarAccionModulos"
-            :width="'600px'">
+            :confirm-text="modalMode === 'habilitar' ? 'Habilitar' : 'Actualizar'" :loading="false"
+            @close="closeModulosModal" @confirm="confirmarAccionModulos" :width="'600px'">
 
             <template #content>
                 <div class="modulos-selection">
@@ -491,7 +490,7 @@
                         <div v-else>
                             <div v-for="modulo in personalStore.modulos" :key="modulo.id" class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" :id="'modulo-' + modulo.id"
-                                    :value="modulo.id" v-model="selectedModulos" :disabled="isProcessingModulos">
+                                    :value="modulo.id" v-model="selectedModulos">
                                 <label class="form-check-label" :for="'modulo-' + modulo.id">
                                     <strong>{{ modulo.name || modulo.codename }}</strong> - {{ modulo.description }}
                                 </label>
