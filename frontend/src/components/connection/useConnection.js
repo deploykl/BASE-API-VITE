@@ -188,7 +188,7 @@ const response = await fetch(`${API_BASE_URL}user/health-check/`, {
           if (state.isApiConnected.value !== isApiHealthy) {
             showNotification(
               isApiHealthy
-                ? "Conexión con el servidor Django restablecida"
+                ? "Conexión con el servidor restablecida"
                 : "Problemas de conexión con el servidor",
               isApiHealthy ? "success" : "error"
             );

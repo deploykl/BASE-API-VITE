@@ -34,11 +34,14 @@
 
           <div class="d-flex">
             <button v-if="isAuthenticated" @click="goToDashboard" class="btn btn-outline-primary btn-sm me-2">
+              <i class="pi pi-cog me-1"></i> <!-- icono engranaje -->
               Admin
             </button>
-            <router-link v-else to="/login" class="btn btn-primary btn-sm">
-              Iniciar Sesión
+
+            <router-link v-else to="/login">
+              <Button label="Acceso Admin" icon="pi pi-sign-in" iconPos="left" severity="info" variant="outlined"  size="small"/>
             </router-link>
+
           </div>
         </div>
       </div>
@@ -50,19 +53,20 @@
     <!-- Contenido principal -->
     <div class="main-content">
       <!-- Header con logo y título -->
-      <header class="header-section text-center">
-        <h1 class="display-5 fw-bold text-primary">HERRAMIENTAS DE GESTIÓN ADMINISTRATIVA - DGOS</h1>
-        <p class="text-muted mb-4">DGOS - DIMON - DIEM</p>
+      <header class="header-title text-center">
+        <h1 class="display-5 fw-bold text-primary">SISTEMA INTEGRADO DE GESTIÓN - DGOS</h1>
+        <small class="text-muted">DGOS - DIMON - DIEM</small>
       </header>
+      <Divider />
 
       <!-- Alert de novedad -->
-      <div class="alert-modern d-flex align-items-center mb-5" role="alert">
+      <div class="alert-modern d-flex justify-content-center align-items-center mb-5 mx-auto" role="alert">
         <div class="alert-icon-container me-3">
-          <i class="bi bi-megaphone-fill"></i>
+          <i class="pi pi-megaphone"></i>
         </div>
-        <small>
-          <strong>Novedad:</strong> Lanzamiento de la Versión (v2.0) nuevos modulos : (Personal, Tableros)
-        </small>
+        <Badge class="text-center" severity="info">
+          Novedad: Lanzamiento de la Versión (v2.0) nuevos módulos: (Personal, Tableros)
+        </Badge>
       </div>
 
       <!-- Módulos principales -->
@@ -75,7 +79,7 @@
 
         <!-- Breadcrumb para navegación entre grupos -->
         <div class="module-breadcrumb mb-4" v-if="currentGroup !== 'main'">
-          <button class="btn btn-outline-primary btn-sm me-2" @click="goBackToMain">
+          <button class="btn btn-back-elegant" @click="goBackToMain">
             <i class="pi pi-arrow-left me-1"></i> Volver
           </button>
           <span class="text-muted">Grupo actual: {{ getGroupName(currentGroup) }}</span>
@@ -85,17 +89,18 @@
         <div v-if="currentGroup === 'main'" class="row justify-content-center g-4">
           <div v-for="group in moduleGroups" :key="group.id" class="col-10 col-sm-6 col-md-4 col-lg-3">
             <div class="elegant-group-card p-4 rounded-4 text-center h-100 position-relative"
-                 @click="selectGroup(group.id)">
+              @click="selectGroup(group.id)">
               <div class="elegant-icon-container mb-3 mx-auto" :style="{ '--icon-color': group.color }">
                 <i :class="group.icon" class="elegant-icon"></i>
               </div>
               <h5 class="fw-bold mb-2 elegant-title">{{ group.name }}</h5>
               <p class="small text-muted mb-3">{{ group.description }}</p>
               <div class="elegant-module-count">
-                <span class="badge bg-primary">{{ group.modules.length }} módulos</span>
+                <Badge severity="info">{{ group.modules.length }} módulos</Badge>
               </div>
               <div class="elegant-hover-indicator">
-                <i class="pi pi-arrow-right"></i>
+                <Button icon="pi pi-arrow-right" iconPos="right" severity="info"
+                  class="p-button-sm p-button-outlined p-button-rounded" />
               </div>
             </div>
           </div>
@@ -104,9 +109,9 @@
         <!-- Vista de módulos específicos de un grupo -->
         <div v-else class="row justify-content-center g-4">
           <div v-for="module in getCurrentGroupModules()" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3">
-            <div class="elegant-module-card p-4 rounded-4 h-100 position-relative"
-                 :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
-                 @click="module.enabled ? redirectToModule(module.path) : null">
+            <div class="elegant-module-card p-4 rounded-4 h-100 position-relative d-flex flex-column"
+              :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
+              @click="module.enabled ? redirectToModule(module.path) : null">
 
               <!-- Badge para módulos deshabilitados -->
               <div v-if="!module.enabled" class="position-absolute top-0 end-0 m-2">
@@ -118,19 +123,19 @@
               <div class="elegant-icon-container mb-3 mx-auto" :style="{ '--icon-color': module.color }">
                 <i :class="module.icon" class="elegant-icon"></i>
               </div>
-              
-              <h5 class="fw-bold mb-2 elegant-title">{{ module.title }}</h5>
-              <p class="small text-muted mb-3">{{ module.description }}</p>
-              
-              <div class="elegant-action-btn">
-                <button v-if="module.enabled" class="btn btn-primary btn-sm">
+
+              <h5 class="fw-bold mb-2 elegant-title text-center">{{ module.title }}</h5>
+              <p class="small text-muted mb-3 text-center">{{ module.description }}</p>
+
+              <div class="elegant-action-btn mt-auto text-center">
+                <Button v-if="module.enabled" class="btn btn-primary btn-sm" size="small" severity="info">
                   Acceder <i class="pi pi-arrow-right ms-1"></i>
-                </button>
+                </Button>
                 <button v-else class="btn btn-outline-secondary btn-sm" disabled>
                   No disponible
                 </button>
               </div>
-              
+
               <div class="elegant-card-decoration"></div>
             </div>
           </div>
@@ -295,7 +300,8 @@
             </div>
 
             <div class="col-lg-7 text-center text-lg-end">
-              <div class="d-inline-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-2">
+              <div
+                class="d-inline-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-2">
                 <small class="text-muted">Tecnologías:</small>
                 <span v-for="(tech, index) in technologies" :key="index"
                   class="tech-badge-modern d-flex align-items-center">
@@ -375,7 +381,7 @@ const moduleGroups = ref([
   {
     id: 'dimon',
     name: 'DIMON',
-    description: 'Dirección de Monitoreo',
+    description: 'Herramientas de Monitoreo',
     icon: 'pi pi-chart-line',
     color: '#007bff',
     modules: [
@@ -402,8 +408,8 @@ const moduleGroups = ref([
   {
     id: 'diem',
     name: 'DIEM',
-    description: 'Dirección de Ejecución',
-    icon: 'pi pi-cog',
+    description: 'Herramientas de mantenimiento ',
+    icon: 'bi bi-buildings',
     color: '#fd7e14',
     modules: [
       {
@@ -490,6 +496,7 @@ onMounted(() => {
     card.style.animationDelay = `${index * 0.1}s`;
   });
 });
+
 </script>
 
 <style scoped>
@@ -504,6 +511,73 @@ onMounted(() => {
 
 .navbar-spacer {
   height: 76px;
+}
+
+/* Efecto mejorado - Expandir desde el centro */
+.header-title {
+  position: relative;
+  padding-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-title h1 {
+  background: linear-gradient(90deg, #53beef 2%, #0a58ca);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      #53beef 30%,
+      #0a58ca 70%,
+      transparent 100%);
+  transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.header-title:hover::after {
+  width: 100%;
+}
+
+.header-title:hover {
+  transform: translateY(-2px);
+  text-shadow: 0 2px 12px rgba(13, 110, 253, 0.15);
+}
+
+.header-subtitle {
+  display: inline-block;
+  padding-bottom: 0.3rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.header-subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      #6c757d 30%,
+      #495057 70%,
+      transparent 100%);
+  transition: all 0.4s ease;
+  transform: translateX(-50%);
+}
+
+.header-subtitle:hover::after {
+  width: 50%;
 }
 
 .main-content {
@@ -555,10 +629,6 @@ onMounted(() => {
   width: 80%;
 }
 
-/* Header section */
-.header-section h1 {
-  font-size: 2.5rem;
-}
 
 /* Alert moderno */
 .alert-modern {
@@ -604,12 +674,7 @@ onMounted(() => {
   margin-bottom: 2rem;
 }
 
-.title-decoration {
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(to right, transparent, var(--bs-primary), transparent);
-  margin: 0 15px;
-}
+
 
 /* Estilos para tarjetas de grupos */
 .elegant-group-card {
@@ -744,6 +809,35 @@ onMounted(() => {
   font-size: 0.7rem;
   font-weight: 600;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  /* Añadir esta línea */
+  position: relative;
+  /* Añadir esta línea si no está ya */
+}
+
+.coming-soon-badge {
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  position: relative;
+}
+
+/* Animación para el icono de reloj */
+.coming-soon-badge i {
+  animation: spin-clockwise 2s infinite linear;
+  display: inline-block;
+}
+
+@keyframes spin-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .elegant-action-btn {
@@ -891,6 +985,7 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -940,5 +1035,56 @@ onMounted(() => {
   height: 32px;
   width: auto;
   object-fit: contain;
+}
+
+.btn-back-elegant {
+  background: linear-gradient(135deg, #6f42c1 0%, #8c68cd 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-right: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-back-elegant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s ease;
+}
+
+.btn-back-elegant:hover::before {
+  left: 100%;
+}
+
+.btn-back-elegant:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(111, 66, 193, 0.4);
+  background: linear-gradient(135deg, #8c68cd 0%, #6f42c1 100%);
+  color: white;
+
+}
+
+.btn-back-elegant:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+}
+
+.btn-back-elegant i {
+  transition: transform 0.3s ease;
+}
+
+.btn-back-elegant:hover i {
+  transform: translateX(-3px);
 }
 </style>
