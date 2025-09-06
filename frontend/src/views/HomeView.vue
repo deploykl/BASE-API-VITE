@@ -75,24 +75,27 @@
 
         <!-- Breadcrumb para navegación entre grupos -->
         <div class="module-breadcrumb mb-4" v-if="currentGroup !== 'main'">
-          <button class="btn btn-sm btn-outline-secondary me-2" @click="goBackToMain">
-            <i class="bi bi-arrow-left"></i> Volver
+          <button class="btn btn-outline-primary btn-sm me-2" @click="goBackToMain">
+            <i class="pi pi-arrow-left me-1"></i> Volver
           </button>
           <span class="text-muted">Grupo actual: {{ getGroupName(currentGroup) }}</span>
         </div>
 
         <!-- Vista de módulos principales -->
         <div v-if="currentGroup === 'main'" class="row justify-content-center g-4">
-          <div v-for="group in moduleGroups" :key="group.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
-            <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
+          <div v-for="group in moduleGroups" :key="group.id" class="col-10 col-sm-6 col-md-4 col-lg-3">
+            <div class="elegant-group-card p-4 rounded-4 text-center h-100 position-relative"
                  @click="selectGroup(group.id)">
-              <div class="module-icon-container-modern mb-3" :style="{ '--icon-color': group.color }">
-                <i :class="group.icon" class="module-icon-modern"></i>
+              <div class="elegant-icon-container mb-3 mx-auto" :style="{ '--icon-color': group.color }">
+                <i :class="group.icon" class="elegant-icon"></i>
               </div>
-              <h6 class="fw-bold mb-2">{{ group.name }}</h6>
-              <p class="small text-muted mb-0">{{ group.description }}</p>
-              <div class="mt-2">
-                <small class="text-primary">{{ group.modules.length }} módulos disponibles</small>
+              <h5 class="fw-bold mb-2 elegant-title">{{ group.name }}</h5>
+              <p class="small text-muted mb-3">{{ group.description }}</p>
+              <div class="elegant-module-count">
+                <span class="badge bg-primary">{{ group.modules.length }} módulos</span>
+              </div>
+              <div class="elegant-hover-indicator">
+                <i class="pi pi-arrow-right"></i>
               </div>
             </div>
           </div>
@@ -100,26 +103,40 @@
 
         <!-- Vista de módulos específicos de un grupo -->
         <div v-else class="row justify-content-center g-4">
-          <div v-for="module in getCurrentGroupModules()" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3 mod-perso">
-            <div class="module-card-modern p-4 rounded-4 text-center h-100 position-relative"
+          <div v-for="module in getCurrentGroupModules()" :key="module.id" class="col-10 col-sm-6 col-md-4 col-lg-3">
+            <div class="elegant-module-card p-4 rounded-4 h-100 position-relative"
                  :class="{ 'module-enabled': module.enabled, 'module-disabled': !module.enabled }"
                  @click="module.enabled ? redirectToModule(module.path) : null">
 
               <!-- Badge para módulos deshabilitados -->
-              <div v-if="!module.enabled"
-                   class="position-absolute top-0 start-50 translate-middle px-3 py-1 badge bg-warning coming-soon-badge">
-                Próximamente
+              <div v-if="!module.enabled" class="position-absolute top-0 end-0 m-2">
+                <span class="badge bg-warning text-dark px-2 py-1 coming-soon-badge">
+                  <i class="pi pi-clock me-1"></i> Próximamente
+                </span>
               </div>
 
-              <div class="module-icon-container-modern mb-3" :style="{ '--icon-color': module.color }">
-                <i :class="module.icon" class="module-icon-modern"></i>
+              <div class="elegant-icon-container mb-3 mx-auto" :style="{ '--icon-color': module.color }">
+                <i :class="module.icon" class="elegant-icon"></i>
               </div>
-              <h6 class="fw-bold mb-2">{{ module.title }}</h6>
-              <p class="small text-muted mb-0">{{ module.description }}</p>
+              
+              <h5 class="fw-bold mb-2 elegant-title">{{ module.title }}</h5>
+              <p class="small text-muted mb-3">{{ module.description }}</p>
+              
+              <div class="elegant-action-btn">
+                <button v-if="module.enabled" class="btn btn-primary btn-sm">
+                  Acceder <i class="pi pi-arrow-right ms-1"></i>
+                </button>
+                <button v-else class="btn btn-outline-secondary btn-sm" disabled>
+                  No disponible
+                </button>
+              </div>
+              
+              <div class="elegant-card-decoration"></div>
             </div>
           </div>
         </div>
       </section>
+
       <!-- Sección de beneficios -->
       <section id="benefits" class="benefits-section mb-5">
         <h2 class="section-title text-center mb-4">
@@ -135,7 +152,7 @@
                 <i class="bi bi-graph-up-arrow"></i>
               </div>
               <h5>Eficiencia Mejorada</h5>
-              <p class="text-muted">Automatiza procesos administrativos y reduce tiempos de ejecución.</p>
+              <p class="text-muted">Automatiza procesos administrativos y reduces tiempos de ejecución.</p>
             </div>
           </div>
 
@@ -170,6 +187,7 @@
           </div>
         </div>
       </section>
+
       <!-- Sección de características -->
       <section id="features" class="features-section mb-5">
         <h2 class="section-title text-center mb-4">
@@ -250,7 +268,7 @@
           <span class="title-decoration"></span>
         </h2>
 
-        <div class="row justify-content-center mod-perso">
+        <div class="row justify-content-center">
           <div class="col-lg-6">
             <div class="contact-card p-4 rounded-4 text-center">
               <i class="bi bi-headset contact-icon mb-3"></i>
@@ -266,11 +284,9 @@
       </section>
 
       <!-- Footer -->
-      <footer class="footer-modern py-4 bg-light mod-perso">
+      <footer class="footer-modern py-4 bg-light">
         <div class="container">
           <div class="row align-items-center">
-
-            <!-- Texto centrado en móviles, alineado a la izquierda en pantallas grandes -->
             <div class="col-lg-5 text-center text-lg-start mb-lg-0">
               <p class="mb-0">
                 <span class="text-muted">&copy; {{ currentYear }} - Desarrollado por</span>
@@ -278,10 +294,8 @@
               </p>
             </div>
 
-            <!-- Tecnologías: centrado en móviles, alineado a la derecha en pantallas grandes -->
             <div class="col-lg-7 text-center text-lg-end">
-              <div
-                class="d-inline-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-2">
+              <div class="d-inline-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-2">
                 <small class="text-muted">Tecnologías:</small>
                 <span v-for="(tech, index) in technologies" :key="index"
                   class="tech-badge-modern d-flex align-items-center">
@@ -290,11 +304,9 @@
                 </span>
               </div>
             </div>
-
           </div>
         </div>
       </footer>
-
     </div>
   </div>
 </template>
@@ -310,9 +322,9 @@ const isAuthenticated = computed(() => {
 });
 
 const currentYear = ref(new Date().getFullYear());
-const currentGroup = ref('main'); // 'main' para el grupo principal, o el ID del grupo seleccionado
+const currentGroup = ref('main');
 
-// Array de tecnologías para el footer (sin imports para evitar errores)
+// Array de tecnologías para el footer
 const technologies = ref([
   { name: 'Python', icon: '/src/assets/svg/python.svg' },
   { name: 'Vuejs3', icon: '/src/assets/svg/vuejs.svg' },
@@ -323,11 +335,10 @@ const technologies = ref([
 ]);
 
 // Array de módulos para renderizar dinámicamente
-// Definición de grupos de módulos
 const moduleGroups = ref([
   {
     id: 'hga',
-    name: 'HGA',
+    name: 'HGA - DGOS',
     description: 'Herramientas de Gestión Administrativa',
     icon: 'pi pi-building',
     color: '#6f42c1',
@@ -335,7 +346,7 @@ const moduleGroups = ref([
       {
         id: 1,
         title: 'Personal',
-        description: 'Gestión de usuarios',
+        description: 'Gestión de usuarios y permisos del sistema',
         icon: 'pi pi-users',
         color: '#6f42c1',
         path: '/dgos/personal',
@@ -344,8 +355,8 @@ const moduleGroups = ref([
       {
         id: 2,
         title: 'POI',
-        description: 'Planeamiento Operativo',
-        icon: 'pi pi-lock',
+        description: 'Planeamiento Operativo Institucional',
+        icon: 'pi pi-calendar',
         color: '#ffc107',
         path: '/dashboard',
         enabled: false
@@ -353,7 +364,7 @@ const moduleGroups = ref([
       {
         id: 3,
         title: 'Informática',
-        description: 'Control de equipos',
+        description: 'Control de equipos y recursos tecnológicos',
         icon: 'pi pi-desktop',
         color: '#28a745',
         path: '/dashboard',
@@ -371,7 +382,7 @@ const moduleGroups = ref([
       {
         id: 4,
         title: 'Tableros',
-        description: 'Gestión de Dashboards',
+        description: 'Dashboards e indicadores de gestión',
         icon: 'pi pi-chart-line',
         color: '#007bff',
         path: '/dimon/tablero',
@@ -380,7 +391,7 @@ const moduleGroups = ref([
       {
         id: 5,
         title: 'Pool vehicular',
-        description: 'Control de salida',
+        description: 'Control de vehículos y asignaciones',
         icon: 'pi pi-car',
         color: '#0B5ED7',
         path: '/dashboard',
@@ -398,7 +409,7 @@ const moduleGroups = ref([
       {
         id: 6,
         title: 'Patrimonio',
-        description: 'Control de bienes',
+        description: 'Control de bienes y activos fijos',
         icon: 'pi pi-box',
         color: '#fd7e14',
         path: '/dashboard',
@@ -407,8 +418,8 @@ const moduleGroups = ref([
       {
         id: 7,
         title: 'Gasto',
-        description: 'Control de equipos',
-        icon: 'pi pi-chart-line',
+        description: 'Seguimiento de presupuesto y gastos',
+        icon: 'pi pi-money-bill',
         color: '#ffb300',
         path: '/dashboard',
         enabled: false
@@ -416,8 +427,8 @@ const moduleGroups = ref([
       {
         id: 8,
         title: 'Reuniones',
-        description: 'Control de reuniones',
-        icon: 'pi pi-desktop',
+        description: 'Agenda y actas de reuniones',
+        icon: 'pi pi-clock',
         color: '#28a745',
         path: '/dashboard',
         enabled: false
@@ -441,7 +452,6 @@ const getCurrentGroupModules = () => {
 // Función para seleccionar un grupo
 const selectGroup = (groupId) => {
   currentGroup.value = groupId;
-  // Desplazar hacia la sección de módulos
   setTimeout(() => {
     scrollToSection('modules');
   }, 100);
@@ -452,7 +462,7 @@ const goBackToMain = () => {
   currentGroup.value = 'main';
 };
 
-// Resto de funciones (scrollToSection, redirectToModule, etc.)
+// Resto de funciones
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {
@@ -475,7 +485,7 @@ const goToDashboard = () => {
 
 // Efecto de aparición progresiva para las tarjetas
 onMounted(() => {
-  const cards = document.querySelectorAll('.module-card-modern');
+  const cards = document.querySelectorAll('.elegant-group-card, .elegant-module-card');
   cards.forEach((card, index) => {
     card.style.animationDelay = `${index * 0.1}s`;
   });
@@ -483,6 +493,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Estilos generales */
 .modern-container {
   min-height: 100vh;
   position: relative;
@@ -491,34 +502,19 @@ onMounted(() => {
   backdrop-filter: blur(1px);
 }
 
-/* Espaciador para navbar fijo */
 .navbar-spacer {
   height: 76px;
-  /* Ajusta según la altura de tu navbar */
-}
-/* Breadcrumb para navegación entre grupos */
-.module-breadcrumb {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Ajustes para el espaciado del breadcrumb */
-.modules-section {
+.main-content {
   position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-/* Asegurar que las animaciones funcionen correctamente */
-.module-card-modern {
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
-}
-/* Navbar styles corregidos */
+/* Navbar styles */
 .navbar-modern {
   background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(10px);
@@ -530,10 +526,6 @@ onMounted(() => {
   font-weight: 700;
   color: var(--bs-primary) !important;
   font-size: 1.5rem;
-}
-
-.navbar-brand-modern i {
-  color: var(--bs-primary);
 }
 
 .navbar-modern .nav-link {
@@ -563,28 +555,9 @@ onMounted(() => {
   width: 80%;
 }
 
-.main-content {
-  position: relative;
-  z-index: 1;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.logo-container {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--bs-primary) 0%, #0d6efd 100%);
-  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
-}
-
-.logo-icon {
+/* Header section */
+.header-section h1 {
   font-size: 2.5rem;
-  color: white;
 }
 
 /* Alert moderno */
@@ -599,9 +572,7 @@ onMounted(() => {
   align-items: center;
   display: flex;
   margin: 0 auto 30px auto;
-  /* Centrado horizontal con margen automático */
   width: 60%;
-  /* Ancho definido para que el margen automático funcione */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   opacity: 0.7;
   text-align: center;
@@ -610,16 +581,6 @@ onMounted(() => {
 .alert-modern:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 36px rgba(31, 38, 135, 0.15);
-}
-
-.mod-perso {
-  transition: transform 0.3s ease,
-    box-shadow 0.3s ease;
-
-}
-
-.mod-perso:hover {
-  transform: translateY(-5px);
 }
 
 .alert-icon-container {
@@ -648,6 +609,170 @@ onMounted(() => {
   height: 3px;
   background: linear-gradient(to right, transparent, var(--bs-primary), transparent);
   margin: 0 15px;
+}
+
+/* Estilos para tarjetas de grupos */
+.elegant-group-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.elegant-group-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--icon-color), transparent);
+  opacity: 0.7;
+}
+
+.elegant-group-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 36px rgba(31, 38, 135, 0.2);
+}
+
+.elegant-group-card:hover .elegant-icon-container {
+  transform: scale(1.1) translateY(-5px);
+}
+
+.elegant-group-card:hover .elegant-hover-indicator {
+  opacity: 1;
+  transform: translateX(5px);
+}
+
+.elegant-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--icon-color) 0%, var(--icon-color) 100%);
+  color: white;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.elegant-icon {
+  font-size: 1.8rem;
+}
+
+.elegant-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.elegant-module-count {
+  margin-top: auto;
+}
+
+.elegant-hover-indicator {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+  color: var(--bs-primary);
+}
+
+/* Estilos para tarjetas de módulos individuales */
+.elegant-module-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.elegant-module-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--icon-color), transparent);
+  opacity: 0.7;
+}
+
+.elegant-module-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 36px rgba(31, 38, 135, 0.2);
+}
+
+.elegant-module-card:hover .elegant-icon-container {
+  transform: scale(1.1);
+}
+
+.elegant-module-card:hover .elegant-card-decoration {
+  opacity: 1;
+}
+
+.module-enabled {
+  cursor: pointer;
+}
+
+.module-disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.module-disabled:hover {
+  transform: none !important;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1) !important;
+}
+
+.coming-soon-badge {
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.elegant-action-btn {
+  margin-top: auto;
+}
+
+.elegant-card-decoration {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--icon-color) 0%, transparent 70%);
+  opacity: 0.1;
+  transition: opacity 0.3s ease;
+}
+
+/* Breadcrumb para navegación entre grupos */
+.module-breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 /* Benefit cards */
@@ -725,77 +850,6 @@ onMounted(() => {
   color: var(--bs-primary);
 }
 
-/* Tarjetas de módulos modernas */
-.module-card-modern {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-}
-
-.module-card-modern:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 36px rgba(31, 38, 135, 0.2);
-}
-
-.module-enabled:hover .module-icon-container-modern {
-  transform: scale(1.1);
-}
-
-.module-disabled {
-  opacity: 0.6 !important;
-  cursor: not-allowed;
-}
-
-.module-disabled:hover {
-  transform: none !important;
-}
-
-.coming-soon-badge {
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.module-icon-container-modern {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 70px;
-  height: 70px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--icon-color) 0%, var(--icon-color) 100%);
-  color: white;
-  margin-bottom: 1.5rem;
-  transition: transform 0.3s ease;
-}
-
-.module-icon-modern {
-  font-size: 2rem;
-}
-
-/* Botón moderno */
-.btn-modern {
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--bs-primary) 0%, #0a58ca 100%);
-  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-modern:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(13, 110, 253, 0.4);
-}
-
 /* Footer moderno */
 .footer-modern {
   background: rgba(255, 255, 255, 0.7);
@@ -803,10 +857,7 @@ onMounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 20px;
   box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
 }
-
 
 .tech-badge-modern {
   padding: 0.4rem 0.8rem;
@@ -840,7 +891,6 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -870,16 +920,24 @@ onMounted(() => {
     width: 80px;
   }
 
-  .tech-badge-modern {
-    margin-bottom: 0.5rem;
+  .alert-modern {
+    width: 90%;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .elegant-group-card,
+  .elegant-module-card {
+    margin-bottom: 1.5rem;
   }
 
   .navbar-brand-modern {
     font-size: 1.2rem;
   }
 }
+
 .navbar-logo {
-  height: 32px; /* Ajusta según el tamaño de tu logo */
+  height: 32px;
   width: auto;
   object-fit: contain;
 }

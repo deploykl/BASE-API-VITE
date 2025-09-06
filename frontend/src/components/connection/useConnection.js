@@ -189,7 +189,7 @@ const response = await fetch(`${API_BASE_URL}user/health-check/`, {
             showNotification(
               isApiHealthy
                 ? "Conexión con el servidor Django restablecida"
-                : "Problemas de conexión con el servidor Django",
+                : "Problemas de conexión con el servidor",
               isApiHealthy ? "success" : "error"
             );
           }
@@ -201,7 +201,7 @@ const response = await fetch(`${API_BASE_URL}user/health-check/`, {
           state.isApiConnected.value = responseOk;
           if (state.isApiConnected.value !== responseOk) {
             showNotification(
-              "Conexión con el servidor Django restablecida",
+              "Conexión con el servidor restablecida",
               "success"
             );
           }
@@ -209,7 +209,7 @@ const response = await fetch(`${API_BASE_URL}user/health-check/`, {
       } else {
         state.isApiConnected.value = false;
         if (state.isApiConnected.value !== false) {
-          showNotification("Problemas de conexión con el servidor Django", "error");
+          showNotification("Problemas de conexión con el servidor ", "error");
         }
       }
 
@@ -220,7 +220,7 @@ const response = await fetch(`${API_BASE_URL}user/health-check/`, {
       state.isApiConnected.value = false;
 
       if (error.name !== "AbortError" && state.lastApiCheck.value) {
-        showNotification("Error al conectar con el servidor Django", "error");
+        showNotification("Error al conectar con el servidor", "error");
       }
 
       scheduleRetry();
