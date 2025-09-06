@@ -1,4 +1,30 @@
 <template>
+  <!-- Botón flotante de música (solo visible cuando el panel está oculto) -->
+  <div class="music-floating-btn" v-if="!showMusicPanel" @click="toggleMusicPanel">
+    <i :class="isPlaying ? 'pi pi-pause' : 'pi pi-volume-up'"></i>
+  </div>
+
+  <!-- Panel de controles de música (visible cuando está activo o reproduciendo) -->
+  <div class="music-player-panel" v-if="showMusicPanel || isPlaying">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-sm btn-outline-primary rounded-circle me-2" @click="togglePlayback">
+        <i :class="isPlaying ? 'pi pi-pause' : 'pi pi-play'"></i>
+      </button>
+      <small class="text-muted status-indicator">
+        {{ isPlaying ? 'Reproduciendo' : 'Pausado' }}
+      </small>
+      <button class="btn btn-sm btn-outline-secondary rounded-circle ms-2" @click="hideMusicPanel">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="volume-controls mt-2">
+      <i class="pi pi-volume-down text-primary"></i>
+      <input type="range" class="form-range volume-slider" min="0" max="1" step="0.1" :value="volume"
+        @input="adjustVolume($event.target.value)">
+      <i class="pi pi-volume-up text-primary"></i>
+    </div>
+  </div>
   <div class="modern-container">
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-modern fixed-top">
@@ -39,13 +65,16 @@
             </button>
 
             <router-link v-else to="/login">
-              <Button label="Acceso Admin" icon="pi pi-sign-in" iconPos="left" severity="info" variant="outlined"  size="small"/>
+              <Button label="Acceso Admin" icon="pi pi-sign-in" iconPos="left" severity="info" variant="outlined"
+                size="small" />
             </router-link>
 
           </div>
         </div>
       </div>
     </nav>
+
+
 
     <!-- Espacio para el navbar fijo -->
     <div class="navbar-spacer"></div>
@@ -318,7 +347,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -496,7 +525,135 @@ onMounted(() => {
     card.style.animationDelay = `${index * 0.1}s`;
   });
 });
+// Variables para el reproductor
+const audioPlayer = ref(null);
+const isPlaying = ref(false);
+const currentTrack = ref('');
+const trackHistory = ref([]);
+const showMusicPanel = ref(false); // Controla la visibilidad del panel
+const volume = ref(0.2); // Volumen por defecto
 
+// Lista de pistas
+const tracks = ref([
+  new URL('/src/assets/playlist/song1.ogg', import.meta.url).href,
+  new URL('/src/assets/playlist/song2.ogg', import.meta.url).href,
+  new URL('/src/assets/playlist/song3.ogg', import.meta.url).href,
+  new URL('/src/assets/playlist/song4.ogg', import.meta.url).href,
+  new URL('/src/assets/playlist/song5.ogg', import.meta.url).href,
+]);
+
+// Función para mostrar/ocultar el panel de música
+const toggleMusicPanel = () => {
+  showMusicPanel.value = !showMusicPanel.value;
+};
+
+// Función para verificar si una URL de audio es válida
+const checkAudioSource = async (url) => {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    console.error(`Error verificando ${url}:`, error);
+    return false;
+  }
+};
+
+// Obtener pista aleatoria
+const getRandomTrack = () => {
+  if (tracks.value.length === 0) return null;
+  if (trackHistory.value.length >= tracks.value.length) trackHistory.value = [];
+
+  const availableTracks = tracks.value.filter(track => !trackHistory.value.includes(track));
+  if (availableTracks.length === 0) return null;
+
+  const randomIndex = Math.floor(Math.random() * availableTracks.length);
+  return availableTracks[randomIndex];
+};
+
+// Reproducir siguiente pista
+const playNextTrack = async () => {
+  const track = getRandomTrack();
+  if (!track) return;
+
+  const isValidSource = await checkAudioSource(track);
+  if (!isValidSource) {
+    console.error(`La fuente de audio no existe: ${track}`);
+    setTimeout(playNextTrack, 1000);
+    return;
+  }
+
+  trackHistory.value.push(track);
+
+  if (audioPlayer.value) {
+    currentTrack.value = track;
+    audioPlayer.value.src = track;
+    try {
+      await audioPlayer.value.play();
+      isPlaying.value = true;
+    } catch (error) {
+      console.error("Error al reproducir audio:", error);
+      isPlaying.value = false;
+      setTimeout(playNextTrack, 1000);
+    }
+  }
+};
+
+// Toggle reproducción manual
+const togglePlayback = () => {
+  if (!audioPlayer.value) return;
+
+  if (isPlaying.value) {
+    audioPlayer.value.pause();
+    isPlaying.value = false;
+  } else {
+    audioPlayer.value.play()
+      .then(() => { isPlaying.value = true; })
+      .catch(error => { console.error("Error al reanudar audio:", error); });
+  }
+};
+
+// Ajustar volumen
+const adjustVolume = (newVolume) => {
+  volume.value = parseFloat(newVolume);
+  if (audioPlayer.value) audioPlayer.value.volume = volume.value;
+};
+
+// Inicializar reproductor
+onMounted(() => {
+  audioPlayer.value = new Audio();
+  audioPlayer.value.volume = volume.value;
+  audioPlayer.value.muted = true; // autoplay permitido
+  audioPlayer.value.addEventListener('ended', playNextTrack);
+
+  // Iniciar reproducción automática (silenciosa)
+  playNextTrack();
+
+  // Activar música en la primera interacción
+  const enableAudio = () => {
+    if (audioPlayer.value && audioPlayer.value.muted) {
+      audioPlayer.value.muted = false;
+    }
+    // remover listeners después de la primera interacción
+    document.removeEventListener('click', enableAudio);
+    document.removeEventListener('scroll', enableAudio);
+    document.removeEventListener('touchstart', enableAudio);
+    document.removeEventListener('wheel', enableAudio);
+  };
+
+  // Agregar listeners
+  document.addEventListener('click', enableAudio);
+  document.addEventListener('scroll', enableAudio);
+  document.addEventListener('touchstart', enableAudio);
+  document.addEventListener('wheel', enableAudio);
+});
+
+// Limpiar al desmontar
+onUnmounted(() => {
+  if (audioPlayer.value) {
+    audioPlayer.value.pause();
+    audioPlayer.value.removeEventListener('ended', playNextTrack);
+  }
+});
 </script>
 
 <style scoped>
@@ -1086,5 +1243,72 @@ onMounted(() => {
 
 .btn-back-elegant:hover i {
   transform: translateX(-3px);
+}
+
+/* Estilos para el panel de música flotante */
+.music-floating-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 40px;
+  height: 40px;
+  background: #54bef0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.music-floating-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+}
+
+.music-floating-btn i {
+  color: white;
+  font-size: 1.1rem;
+}
+
+.music-player-panel {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 300px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: 1px solid #eaeaea;
+}
+
+.volume-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume-slider {
+  flex: 1;
+}
+
+.status-indicator {
+  font-size: 0.85rem;
+  flex-grow: 1;
+  margin: 0 10px;
+}
+
+.btn-outline-primary {
+  border-width: 2px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -19,7 +19,9 @@ from django.conf import settings
 from datetime import datetime, timedelta  # Modifica esta línea
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.conf import settings
 User = get_user_model()
 
 class LoginView(APIView):
@@ -286,6 +288,40 @@ class UserViewSet(viewsets.ModelViewSet):
         user.save()
         return Response({'status': 'user removed from staff'})
     
+    # En tu UserViewSet
+    @action(detail=True, methods=['post'])
+    def reset_password(self, request, pk=None):
+        user = self.get_object()
+        
+        # Generar nueva contraseña
+        new_password = get_random_string(12)
+        user.set_password(new_password)
+        user.save()
+        
+        # Enviar email con la nueva contraseña
+        try:
+            send_mail(
+                'Nueva contraseña - Sistema VEXA',
+                f'Hola {user.first_name} {user.last_name},\n\n'
+                f'Tu contraseña ha sido reseteada.\n\n'
+                f'Tu nueva contraseña es: {new_password}\n\n'
+                f'URL del sistema: {settings.FRONTEND_URL}\n\n'
+                'Por seguridad, cambia tu contraseña después del acceso.\n\n'
+                'Saludos,\nEquipo de Sistemas',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+            return Response({
+                'success': True, 
+                'message': 'Contraseña reseteada y enviada por correo electrónico'
+            })
+        except Exception as e:
+            return Response({
+                'success': False, 
+                'message': f'Contraseña reseteada pero error al enviar email: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class ModuloViewSet(viewsets.ModelViewSet):
     serializer_class = ModuloSerializer
     permission_classes = [IsAuthenticated]

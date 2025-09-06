@@ -172,7 +172,30 @@ const createUser = async (userData) => {
     } finally {
     }
   };
+const resetPassword = async (userId) => {
+  if (!confirm(`¿Resetear contraseña del usuario?`)) {
+    return { success: false, message: "Operación cancelada" };
+  }
 
+  loading.value = true;
+  try {
+    const response = await api.post(`user/users/${userId}/reset_password/`);
+    
+    if (response.data.success) {
+      toast.showSuccess(response.data.message);
+      return { success: true, message: response.data.message };
+    } else {
+      toast.showError(response.data.message);
+      return { success: false, message: response.data.message };
+    }
+  } catch (err) {
+    const message = err.response?.data?.message || "Error al resetear contraseña";
+    toast.showError(message);
+    return { success: false, message };
+  } finally {
+    loading.value = false;
+  }
+};
   return {
     // Estado
     loading,
@@ -186,5 +209,6 @@ const createUser = async (userData) => {
     deleteUser,
     toggleUserStatus,
     toggleStaffStatus,
+    resetPassword,
   };
 });

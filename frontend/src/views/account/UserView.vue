@@ -168,6 +168,10 @@
           <Button icon="pi pi-pencil" class="p-button-sm p-button-outlined p-button-rounded p-button-warning"
             v-tooltip.top="'Editar'" @click="openEditModal(data)" />
 
+          <!-- Botón Resetear Contraseña -->
+          <Button icon="pi pi-key" class="p-button-sm p-button-outlined p-button-rounded p-button-help"
+            v-tooltip.top="'Resetear contraseña'" @click="resetUserPassword(data)" />
+
           <Button icon="pi pi-trash" class="p-button-sm p-button-outlined p-button-rounded p-button-danger"
             v-tooltip.top="'Eliminar'" @click="confirmDelete(data)" />
         </div>
@@ -357,6 +361,24 @@ const proceedDelete = async () => {
     isDeleting.value = false;
   }
 };
+
+const resetUserPassword = async (user) => {
+  if (!confirm(`¿Resetear contraseña de ${user.first_name} ${user.last_name}?`)) {
+    return;
+  }
+  
+  try {
+    const result = await userStore.resetPassword(user.id);
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+    }
+  } catch (error) {
+    toast.error('Error al resetear contraseña');
+  }
+};
+
 const validateForm = () => {
   errors.value = {};
   let isValid = true;
@@ -378,6 +400,7 @@ const validateForm = () => {
 
   return isValid;
 };
+
 const handleSubmit = async () => {
   // Validar formulario
   if (!validateForm()) {
@@ -430,4 +453,9 @@ onMounted(async () => {
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.custom-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+</style>
